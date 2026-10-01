@@ -1,4 +1,5 @@
 import type { OperadorDeRegra, QueueRule } from './rule-queue';
+import type { AutoCloseConfig } from './queue-auto-close';
 
 /**
  * Leitura das três telas de cadastro: filas, motivos de pausa e horários.
@@ -43,6 +44,10 @@ export interface QueueRegistered {
   isDefault?: boolean;
   scheduleId: string | null;
   horarioNome: string | null;
+  /** Tags da fila. */
+  tags: string[];
+  /** Encerramento automático; nulo = nunca configurado. */
+  autoClose: AutoCloseConfig | null;
   agents: QueueAgent[];
 }
 

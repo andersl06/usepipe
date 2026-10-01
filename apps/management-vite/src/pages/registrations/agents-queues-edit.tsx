@@ -6,6 +6,7 @@ import { useRead } from '../../lib/query';
 import { withFlow } from '../../lib/flow-scope';
 import type { QueueRegistered, QueueRegisteredRule } from '../../lib/registrations';
 import { AddAttendantsModal, RuleAttendanceForm, RulePriorityForm } from './queue-edit-forms';
+import { SectionAutoClose, SectionTags } from './queue-edit-cards';
 import {
   queueUnlinkAgent,
   editQueue,
@@ -24,7 +25,7 @@ import { ConfirmModal } from '@pipe/ui/modal';
  *
  * Served at the SAME path as the list (`queue-management`), like the Blip, which keeps the URL while editing; the queue id travels in `?fila=`, so reload and deep links still work. The anatomy follows the live Blip capture: five stacked cards (Atendentes, Regras de Atendimento, Regras de Priorização, Tags, Encerramento automático).
  *
- * **Tags and automatic closing are shown disabled.** The Blip has them per queue, but in Pipe `etiqueta` is per TENANT, with no link to a queue (§e.7 of the ficha), and the `fila` table has no column for either: they wait for a migration, so the cards keep the Blip layout but stay off.
+ * **Tags and automatic closing** are stored on the queue itself (`fila.etiquetas`, `fila.encerramento_automatico`) and live in `queue-edit-cards.tsx`.
  *
  * **Everything else happens in this page.** "Adicionar atendentes" opens a modal (assigns existing tenant users by e-mail through `POST .../filas/:id/atendentes`; it never creates accounts) and "Criar regra" opens an inline form that replaces the list inside the card, as in the Blip.
  */
@@ -64,8 +65,8 @@ export function QueuePageEdit() {
       <SectionAgents queue={queue} />
       <SectionRulesAttendance queue={queue} todasAsRegras={readRulesAttendance.data.regras} />
       <PrioritySectionRules queue={queue} regras={readRules.data} />
-      <SectionTags />
-      <SectionAutoClose />
+      <SectionTags queue={queue} />
+      <SectionAutoClose key={queue.id} queue={queue} />
     </>
   );
 }
@@ -420,56 +421,6 @@ function SectionRulesAttendance({
         onConfirmar={() => void excluir()}
         onCancelar={() => setParaExcluir(null)}
       />
-    </Card>
-  );
-}
-
-/* ------------------------------------------- recursos ainda sem regra */
-
-const EM_BREVE = 'Este recurso será liberado em breve para este fluxo.';
-
-/** Cartão de tags no layout da Blip (campo de chips + Salvar alterações), desligado até haver onde gravar as tags por fila. */
-function SectionTags() {
-  return (
-    <Card className="fila-cartao" titulo="Tags da fila">
-      <p className="sub">Adicione ou edite as tags disponíveis para os atendentes desta fila.</p>
-      <Campo
-        placeholder="Insira as tags separando por vírgulas"
-        aria-label="Tags da fila"
-        disabled
-      />
-      <div className="cl-actions">
-        <Botao type="button" variante="primario" disabled>
-          Salvar alterações
-        </Botao>
-      </div>
-      <p className="note">{EM_BREVE}</p>
-    </Card>
-  );
-}
-
-/** Cartão de encerramento automático: o interruptor fica desligado e desabilitado até existir configuração por fila e o processo que encerra os tickets. */
-function SectionAutoClose() {
-  const titulo = 'Encerramento automático de tickets';
-  return (
-    <Card
-      className="fila-cartao"
-      titulo={titulo}
-      actions={
-        <button
-          type="button"
-          className="interruptor interruptor-alto"
-          role="switch"
-          aria-checked={false}
-          aria-label={titulo}
-          disabled
-        >
-          <span className="interruptor-bolinha" />
-        </button>
-      }
-    >
-      <p className="sub">Encerre automaticamente os tickets por inatividade</p>
-      <p className="note">{EM_BREVE}</p>
     </Card>
   );
 }

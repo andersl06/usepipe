@@ -5151,6 +5151,44 @@ tr.grupo th {
   align-items: center;
 }
 
+/* Encerramento automático: tempo + unidade lado a lado e sub-cartões com interruptor. */
+.fila-encerramento-tempo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-e-3);
+}
+
+.fila-encerramento-unidade {
+  flex: 0 0 174px;
+}
+
+.fila-subcartao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  padding: var(--p-e-4);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-atend-fila-cartao-raio);
+}
+
+.fila-subcartao-cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-e-3);
+}
+
+.fila-subcartao-cab h4,
+.fila-form h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--g-peso-negrito);
+}
+
+.campo-erro {
+  color: var(--p-error-content);
+}
+
 .fila-modal-atribuir {
   position: relative;
   display: flex;

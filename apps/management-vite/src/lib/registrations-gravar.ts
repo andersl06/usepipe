@@ -3,6 +3,7 @@ import { atualizarLeituras, saveRuleQueue, toggleRuleQueue } from './actions';
 import { withFlow } from './flow-scope';
 import { motivoDe, type Resultado } from './rest';
 import type { OperadorDeRegra } from './rule-queue';
+import type { AutoCloseConfig } from './queue-auto-close';
 
 /**
  * Write real queue/pause `PATCH` and `DELETE` at `/v1/gestao/atendentes/{filas,pausas}/:id`, unlike `acoes.ts` which only exposes creators `salvarFila` and `salvarMotivoPausa`; match `paginas/fluxo/configuracoes/basicas/gravar.ts`. Keep this separate from pure `cadastros.ts`, so a future `tests/cadastros.test.ts` can run outside Vite as `tests/comunicacao.test.ts` does. Importing `./api` from the pure module would read `import.meta.env` and break there, as happened with `comunicacao.ts` before its writes moved.
@@ -95,6 +96,28 @@ export async function editQueue(
     return { ok: true, value: undefined };
   } catch (error) {
     return falhaComCampo(error, 'Não foi possível renomear a fila.');
+  }
+}
+
+/** Grava a lista completa de tags da fila. */
+export async function saveQueueTags(flowId: string, id: string, tags: readonly string[]): Promise<Resultado<void>> {
+  try {
+    await api.put(withFlow(`/v1/management/agents/queues/${id}/tags`, flowId), { tags });
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar as tags.') };
+  }
+}
+
+/** Grava a configuração de encerramento automático (inclui o interruptor). */
+export async function saveAutoClose(flowId: string, id: string, config: AutoCloseConfig): Promise<Resultado<void>> {
+  try {
+    await api.put(withFlow(`/v1/management/agents/queues/${id}/auto-close`, flowId), config);
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Ocorreu um erro ao alterar os dados.') };
   }
 }
 
