@@ -18,7 +18,7 @@ import { attendanceBase } from '../operation/shell';
  *
  * Literal form: title "Permissões", the `permissionsDescription` copy in its three variants, the "Permissões disponíveis" section with the two-column table — "Tipo de permissão" / "Status" — and "Salvar alterações".
  *
- * **The row content is ours.** The source lists ten Blip Desk capabilities; here it's Pipe's permission catalog (`apps/api/src/dominio/gestao/permissoes-do-atendente.ts`), which is what the actual routes check. `usuario_permissao` (migration 0046) is the per-person exception over the role — see that file's comment for the full account.
+ * **The ten rows are the source's Desk capabilities**, in its order and with its labels (`DESK_PERMISSIONS` in `apps/api/src/domain/management/permissions-of-agent.ts`). Only rows whose permission code the routes enforce have a working switch; the others are disabled with the reason, never a switch that does nothing. `usuario_permissao` (migration 0046) is the per-person exception over the role — see that file's comment for the full account.
  */
 export function AgentPagePermissions() {
   const [params] = useSearchParams();
@@ -76,13 +76,6 @@ export function AgentPagePermissions() {
     }
   }
 
-  const grupos: { grupo: string; linhas: typeof permissions }[] = [];
-  for (const p of permissions) {
-    const g = grupos.find((x) => x.grupo === p.group);
-    if (g) g.linhas.push(p);
-    else grupos.push({ grupo: p.group, linhas: [p] });
-  }
-
   return (
     <>
       <CabecalhoAtendente titulo="Permissões" aoVoltar={() => navegar(`${base}/team`)} />
@@ -91,35 +84,45 @@ export function AgentPagePermissions() {
       </SubtituloAtendente>
 
       <div className="atend-cartao atend-cartao-permissoes">
-        {grupos.map((g) => (
-          <section key={g.grupo}>
-            <div className="atend-perm-cab">
-              <span>{g.grupo}</span>
-              <span>Status</span>
-            </div>
-            {g.linhas.map((p) => {
-              const ligada = valueCurrent(p.code, p.ligada);
-              const parcial = !(p.code in editado) && p.parcial;
-              return (
-                <div key={p.code} className="atend-perm-linha">
-                  <span>{p.description}</span>
-                  <button
-                    type="button"
-                    className="interruptor interruptor-curto"
-                    role="switch"
-                    aria-checked={ligada}
-                    data-parcial={parcial ? 'true' : undefined}
-                    aria-label={p.description}
-                    title={parcial ? 'Uns têm, outros não' : undefined}
-                    onClick={() => alternar(p.code, ligada)}
-                  >
-                    <span className="interruptor-bolinha" />
-                  </button>
-                </div>
-              );
-            })}
-          </section>
-        ))}
+        <section>
+          <div className="atend-perm-cab">
+            <span>Gerais</span>
+            <span>Status</span>
+          </div>
+          {permissions.map((p) => {
+            const code = p.code;
+            const ativa = p.estado === 'ativa' && code !== null;
+            const ligada = ativa ? valueCurrent(code, p.ligada) : false;
+            const parcial = ativa && !(code in editado) && p.parcial;
+            return (
+              <div key={p.key} className="atend-perm-linha">
+                <span>
+                  {p.description}
+                  {ativa ? null : (
+                    <small className="atend-perm-aviso" role="status">
+                      {p.estado === 'em_breve'
+                        ? 'Este recurso será liberado em breve para este fluxo.'
+                        : 'O controle de acesso desta função ainda não está ativo.'}
+                    </small>
+                  )}
+                </span>
+                <button
+                  type="button"
+                  className="interruptor interruptor-curto"
+                  role="switch"
+                  aria-checked={ligada}
+                  data-parcial={parcial ? 'true' : undefined}
+                  aria-label={p.description}
+                  title={parcial ? 'Uns têm, outros não' : undefined}
+                  disabled={!ativa}
+                  onClick={() => ativa && alternar(code, ligada)}
+                >
+                  <span className="interruptor-bolinha" />
+                </button>
+              </div>
+            );
+          })}
+        </section>
       </div>
 
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}

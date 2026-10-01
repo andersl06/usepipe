@@ -37,10 +37,9 @@ let segundoId: string;
  * The catalog (`permissao`) is a GLOBAL table, and in production it is populated by `packages/db/src/semente.ts`, which the test does not run — only a few migrations seed loose codes. The codes this file uses are inserted here, the same way `pessoaCom` already did with its own.
  */
 const DO_CATALOGO = [
-  'conversa.ver',
-  'conversa.responder',
-  'conversa.encerrar',
-  'conversa.nota_interna',
+  'contato.editar',
+  'conversa.transferir',
+  'resposta_pronta.gerenciar',
   'relatorio.ver',
   'regra.gerenciar',
   'usuario.gerenciar',
@@ -104,7 +103,8 @@ function comCookie(token: string): Record<string, string> {
 }
 
 type Linha = {
-  code: string;
+  code: string | null;
+  estado: string;
   group: string;
   description: string;
   dosPapeis: boolean;
@@ -153,8 +153,8 @@ beforeAll(async () => {
   await seedCatalog(a);
 
   gestorId = await pessoaCom(a, ['usuario.gerenciar']);
-  agentId = await pessoaCom(a, ['conversa.ver', 'conversa.responder']);
-  segundoId = await pessoaCom(a, ['conversa.ver']);
+  agentId = await pessoaCom(a, ['contato.editar', 'conversa.transferir']);
+  segundoId = await pessoaCom(a, ['contato.editar']);
   const gestorDoB = await pessoaCom(b, ['usuario.gerenciar']);
 
   api = await upApi(0);
@@ -176,13 +176,13 @@ describe('GET /v1/management/agents/permissions', () => {
     expect(corpo.agents).toHaveLength(1);
     expect(corpo.agents?.[0]?.id).toBe(agentId);
 
-    expect(permission(corpo, 'conversa.responder')).toMatchObject({
+    expect(permission(corpo, 'conversa.transferir')).toMatchObject({
       dosPapeis: true,
       override: null,
       ligada: true,
       parcial: false,
     });
-    expect(permission(corpo, 'conversa.encerrar')).toMatchObject({
+    expect(permission(corpo, 'resposta_pronta.gerenciar')).toMatchObject({
       dosPapeis: false,
       override: null,
       ligada: false,
@@ -190,10 +190,29 @@ describe('GET /v1/management/agents/permissions', () => {
     /*
      * The table is the AGENT's full catalog, not just what the person already has: a disabled row must still appear so it can be turned on. Anything management-level (report, rule, user) is excluded: it comes from the role.
      */
-    const codigos = corpo.permissions?.map((p) => p.code) ?? [];
-    for (const codigo of DO_CATALOGO) {
-      if (/^(conversa|contato)./.test(codigo)) expect(codigos).toContain(codigo);
-      else expect(codigos).not.toContain(codigo);
+    /* The screen shows exactly the ten Desk capabilities, in this order; only the enforced ones carry a code. */
+    expect(corpo.permissions?.map((p) => p.description)).toEqual([
+      'Editar dados do contato',
+      'Enviar mensagem ativa',
+      'Criar links de pagamento',
+      'Criar pastas e etapas do Kanban para organizar os tickets',
+      'Transferir tickets',
+      'Transferir múltiplos tickets ao mesmo tempo',
+      'Receber ligações de voz',
+      'Realizar ligações de voz',
+      'Acesso ao Histórico dos contatos no Blip Desk',
+      'Criar respostas prontas',
+    ]);
+    expect(corpo.permissions?.filter((p) => p.estado === 'ativa').map((p) => p.code)).toEqual([
+      'contato.editar',
+      'conversa.transferir',
+      'resposta_pronta.gerenciar',
+    ]);
+  });
+
+  it('Reject overrides for rows without enforcement', async () => {
+    for (const codigo of ['conversa.ver', 'contato.ver', 'conversa.encerrar']) {
+      expect((await salvar(sessionManager, [agentId], { [codigo]: true })).status).toBe(400);
     }
   });
 
@@ -207,8 +226,8 @@ describe('GET /v1/management/agents/permissions', () => {
     const { corpo } = await ler(sessionManager, [agentId, segundoId]);
     expect(corpo.agents).toHaveLength(2);
     /* Both have `conversa.ver`; only the first has `conversa.responder`. */
-    expect(permission(corpo, 'conversa.ver')).toMatchObject({ ligada: true, parcial: false });
-    expect(permission(corpo, 'conversa.responder')).toMatchObject({ ligada: false, parcial: true });
+    expect(permission(corpo, 'contato.editar')).toMatchObject({ ligada: true, parcial: false });
+    expect(permission(corpo, 'conversa.transferir')).toMatchObject({ ligada: false, parcial: true });
   });
 
   it('Return 404 for another tenant\'s agent or malformed IDs', async () => {
@@ -226,12 +245,12 @@ describe('GET /v1/management/agents/permissions', () => {
 
 describe('PATCH /v1/management/agents/permissions', () => {
   it('Grant an agent permission absent from the role and store the override', async () => {
-    const { status } = await salvar(sessionManager, [agentId], { 'conversa.encerrar': true });
+    const { status } = await salvar(sessionManager, [agentId], { 'resposta_pronta.gerenciar': true });
     expect(status).toBe(200);
-    expect(await linhaDe(agentId, 'conversa.encerrar')).toMatchObject({ concedida: true });
+    expect(await linhaDe(agentId, 'resposta_pronta.gerenciar')).toMatchObject({ concedida: true });
 
     const { corpo } = await ler(sessionManager, [agentId]);
-    expect(permission(corpo, 'conversa.encerrar')).toMatchObject({
+    expect(permission(corpo, 'resposta_pronta.gerenciar')).toMatchObject({
       dosPapeis: false,
       override: true,
       ligada: true,
@@ -239,11 +258,11 @@ describe('PATCH /v1/management/agents/permissions', () => {
   });
 
   it('Deny an agent permission granted by the role and store the override', async () => {
-    await salvar(sessionManager, [agentId], { 'conversa.responder': false });
-    expect(await linhaDe(agentId, 'conversa.responder')).toMatchObject({ concedida: false });
+    await salvar(sessionManager, [agentId], { 'conversa.transferir': false });
+    expect(await linhaDe(agentId, 'conversa.transferir')).toMatchObject({ concedida: false });
 
     const { corpo } = await ler(sessionManager, [agentId]);
-    expect(permission(corpo, 'conversa.responder')).toMatchObject({
+    expect(permission(corpo, 'conversa.transferir')).toMatchObject({
       dosPapeis: true,
       override: false,
       ligada: false,
@@ -251,11 +270,11 @@ describe('PATCH /v1/management/agents/permissions', () => {
   });
 
   it('Delete an override when it matches the role again', async () => {
-    await salvar(sessionManager, [agentId], { 'conversa.responder': true });
-    expect(await linhaDe(agentId, 'conversa.responder')).toBeUndefined();
+    await salvar(sessionManager, [agentId], { 'conversa.transferir': true });
+    expect(await linhaDe(agentId, 'conversa.transferir')).toBeUndefined();
 
-    await salvar(sessionManager, [agentId], { 'conversa.encerrar': false });
-    expect(await linhaDe(agentId, 'conversa.encerrar')).toBeUndefined();
+    await salvar(sessionManager, [agentId], { 'resposta_pronta.gerenciar': false });
+    expect(await linhaDe(agentId, 'resposta_pronta.gerenciar')).toBeUndefined();
   });
 
   it('Apply agent permission overrides to routes immediately', async () => {
@@ -287,12 +306,12 @@ describe('PATCH /v1/management/agents/permissions', () => {
   });
 
   it('Save permission overrides for several agents at once', async () => {
-    await salvar(sessionManager, [agentId, segundoId], { 'conversa.nota_interna': true });
-    expect(await linhaDe(agentId, 'conversa.nota_interna')).toMatchObject({ concedida: true });
-    expect(await linhaDe(segundoId, 'conversa.nota_interna')).toMatchObject({ concedida: true });
+    await salvar(sessionManager, [agentId, segundoId], { 'resposta_pronta.gerenciar': true });
+    expect(await linhaDe(agentId, 'resposta_pronta.gerenciar')).toMatchObject({ concedida: true });
+    expect(await linhaDe(segundoId, 'resposta_pronta.gerenciar')).toMatchObject({ concedida: true });
 
     const { corpo } = await ler(sessionManager, [agentId, segundoId]);
-    expect(permission(corpo, 'conversa.nota_interna')).toMatchObject({ ligada: true, parcial: false });
+    expect(permission(corpo, 'resposta_pronta.gerenciar')).toMatchObject({ ligada: true, parcial: false });
   });
 
   it('Prevent users without `usuario.gerenciar` from editing any agent\'s permissions', async () => {
@@ -307,18 +326,18 @@ describe('PATCH /v1/management/agents/permissions', () => {
   });
 
   it('Prevent another tenant\'s manager from editing this agent', async () => {
-    const { status } = await salvar(sessionOfOtherTenant, [agentId], { 'conversa.ver': false });
+    const { status } = await salvar(sessionOfOtherTenant, [agentId], { 'contato.editar': false });
     expect(status).toBe(404);
   });
 
   it('a mudança entra no log de auditoria, com o autor e o que mudou', async () => {
-    await salvar(sessionManager, [segundoId], { 'conversa.encerrar': true });
+    await salvar(sessionManager, [segundoId], { 'conversa.transferir': true });
     const { rows } = await a.dono.execute<{ acao: string; depois: Record<string, unknown> | null }>(sql`
       select acao, depois from log_auditoria
        where objeto_tipo = 'usuario_permissao' and objeto_id = ${segundoId}::uuid
        order by em desc, id desc limit 1
     `);
-    expect(rows[0]).toMatchObject({ acao: 'alterou', depois: { 'conversa.encerrar': true } });
+    expect(rows[0]).toMatchObject({ acao: 'alterou', depois: { 'conversa.transferir': true } });
   });
 
   it('salvar sem mexer em nada não gera log', async () => {

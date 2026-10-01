@@ -10,7 +10,12 @@ import { queueUnlinkAgent, linkAgentInQueue } from './registrations-gravar';
 
 /** One row of the reference Permission type by Status table. */
 export interface PermissionRow {
-  code: string;
+  /** Row identity; equals `code` when there is one. */
+  key: string;
+  /** Enforced code; `null` when no route checks this capability. */
+  code: string | null;
+  /** `ativa`: toggling grants or denies the function; `sem_controle`: the function exists without a permission check; `em_breve`: Pipe has no such function. */
+  estado: 'ativa' | 'sem_controle' | 'em_breve';
   group: string;
   description: string;
   dosPapeis: boolean;

@@ -5105,6 +5105,12 @@ tr.grupo th {
 }
 
 .atend-perm-cab,
+.atend-perm-aviso {
+  display: block;
+  font-size: var(--g-t-celula);
+  color: var(--p-conteudo-fantasma);
+}
+
 .atend-perm-linha {
   display: flex;
   align-items: center;

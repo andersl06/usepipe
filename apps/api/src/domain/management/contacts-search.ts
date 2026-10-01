@@ -4,12 +4,12 @@ import type { TransactionPipe } from '@pipe/db';
 export const MIN_CONTACT_SEARCH = 2;
 export const MAX_CONTACT_SEARCH = 20;
 
-export interface ContactOfSearch {
+export type ContactOfSearch = {
   id: string;
   name: string | null;
   phone: string | null;
   email: string | null;
-}
+};
 
 /** Escapa com `!` (e `escape '!'` na consulta): a barra invertida não chega intacta ao Postgres por este driver. */
 const likeLiteral = (t: string) => t.replace(/[!%_]/g, (c) => `!${c}`);
