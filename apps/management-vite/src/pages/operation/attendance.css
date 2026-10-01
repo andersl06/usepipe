@@ -1234,11 +1234,11 @@
 
   overflow-x: auto;
 
-  border: 1px solid var(--p-linha);
+  border: 1px solid var(--p-atend-tabela-borda);
 
   border-radius: var(--p-r-md);
 
-  background: transparent;
+  background: var(--p-superficie-0);
 
 }
 
@@ -1270,7 +1270,7 @@
 
   height: 49px;
 
-  padding: 0 8px;
+  padding: 0 8px 0 16px;
 
   overflow: hidden;
 
@@ -1306,7 +1306,7 @@
 
 
 
-.mon-detalhado .mon-tabela th:nth-child(-n + 4),
+.mon-detalhado .mon-tabela th.ctr,
 
 .mon-detalhado .mon-tabela td.num,
 
@@ -1336,51 +1336,7 @@
 
 
 
-.mon-detalhado .mon-tabela-atribuidas th:nth-child(1) { width: 11%; }
-
-.mon-detalhado .mon-tabela-atribuidas th:nth-child(2) { width: 14%; }
-
-.mon-detalhado .mon-tabela-atribuidas th:nth-child(3) { width: 14%; }
-
-.mon-detalhado .mon-tabela-atribuidas th:nth-child(4) { width: 9%; }
-
-.mon-detalhado .mon-tabela-atribuidas th:nth-child(5) { width: 17%; }
-
-.mon-detalhado .mon-tabela-atribuidas th:nth-child(6) { width: 14%; }
-
-.mon-detalhado .mon-tabela-atribuidas th:nth-child(7) { width: 14%; }
-
-.mon-detalhado .mon-tabela-atribuidas th:nth-child(8) { width: 7%; }
-
-.mon-detalhado .mon-tabela-aguardando th:nth-child(1) { width: 16%; }
-
-.mon-detalhado .mon-tabela-aguardando th:nth-child(2) { width: 15%; }
-
-.mon-detalhado .mon-tabela-aguardando th:nth-child(3) { width: 9%; }
-
-.mon-detalhado .mon-tabela-aguardando th:nth-child(4) { width: 30%; }
-
-.mon-detalhado .mon-tabela-aguardando th:nth-child(5) { width: 15%; }
-
-.mon-detalhado .mon-tabela-aguardando th:nth-child(6) { width: 10%; }
-
-.mon-detalhado .mon-tabela-aguardando th:nth-child(7) { width: 5%; }
-
-.mon-detalhado .mon-table-agents th:nth-child(1) { width: 40%; }
-
-.mon-detalhado .mon-table-agents th:nth-child(2) { width: 17%; }
-
-.mon-detalhado .mon-table-agents th:nth-child(3),
-
-.mon-detalhado .mon-table-agents th:nth-child(4) { width: 21.5%; }
-
-.mon-detalhado .mon-table-agents th:nth-child(5) { width: 7%; }
-
-.mon-detalhado .mon-table-queues th:first-child { width: 25%; }
-
-.mon-detalhado .mon-tabela-tags th:first-child { width: 50%; }
-
-
+/* Colunas de largura igual, como na Blip: sem larguras por coluna. */
 
 .mon-detalhado .mon-ticket {
 
@@ -1394,7 +1350,8 @@
 
 }
 
-.mon-detalhado .mon-ticket:hover { text-decoration: underline; text-underline-offset: 3px; }
+.mon-detalhado .mon-contato { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.mon-detalhado .mon-contato svg { flex: none; }
 
 .mon-detalhado .who { overflow: hidden; text-overflow: ellipsis; }
 

@@ -270,6 +270,7 @@
    *      (`ref/verificacao/monitoring.md`).
    */
   --p-atend-acao-icone: 20px;
+  --p-atend-tabela-borda: rgba(0, 0, 0, 0.06);
   --p-atend-acao-alvo: 24px;
   --p-atend-acao-gap: 4px;
   --p-atend-menu-largura: 240px;

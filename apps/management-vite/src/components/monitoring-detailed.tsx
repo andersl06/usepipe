@@ -135,12 +135,6 @@ function classeDaLinha(linha: ConversationOpenRow): string | undefined {
 /**
  * Priority starts neutral like other category labels. Color only the top two levels that change a supervisor's immediate action; coloring all five would weaken red elsewhere. Maximum uses error color and High alert color, while the three lower levels, including absence, stay neutral. Get labels from `ROTULOS_PRIORIDADE`, the single source also defining queue order.
  */
-function PillPriority({ nivel }: { nivel: string }) {
-  const rotulo = LABELS_PRIORITY[nivel as LevelPriority] ?? nivel;
-  const tinta = nivel === 'maxima' ? ' error' : nivel === 'alta' ? ' alerta' : '';
-  return <span className={`etiqueta${tinta}`}>{rotulo}</span>;
-}
-
 /**
  * Reference empty state is literally one centered line, `Dados insuficientes` (`FICHA-monitoring.md` §6, `desk-grid-tabled-paginated-empty-*`), without our former explanation or button.
  */
@@ -469,14 +463,14 @@ function TabelaAtribuidas({
         <table className="mon-tabela mon-tabela-atribuidas">
         <thead>
           <tr>
-            <th>Tempo na fila</th>
-            <th>Tempo de 1ª resposta</th>
-            <th>Tempo de atendimento</th>
-            <th>Ticket</th>
+            <th className="ctr">Tempo na fila</th>
+            <th className="ctr">Tempo de 1ª resposta</th>
+            <th className="ctr">Tempo de atendimento</th>
+            <th className="ctr">Ticket</th>
             <th>Contato</th>
             <th>Fila</th>
             <th>Atendente</th>
-            <th>Ações</th>
+            <th className="ctr">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -490,18 +484,12 @@ function TabelaAtribuidas({
                 {durationMonitoring(l.firstResponseSeg)}
                 {l.firstResponseRunning ? ' ⟳' : ''}
               </td>
-              <td className="time-sla">
-                {/*
- * Before the first response, attendance time cannot be measured. Show reference `Aguardando...`, not a dash: a dash means not applicable, while waiting means the timer has not begun.
- */}
-                {l.attendanceSeg === null ? (
-                  <span className="g-empty-wait">Aguardando...</span>
-                ) : (
-                  <span className="num">{durationMonitoring(l.attendanceSeg)}</span>
-                )}
+              <td className="num">
+                {/* Sem primeira resposta o tempo de atendimento ainda não existe: traço, como as demais células sem valor. */}
+                {l.attendanceSeg === null ? '—' : durationMonitoring(l.attendanceSeg)}
               </td>
               <td className="num"><button type="button" className="mon-ticket" onClick={() => aoAbrir(l.id)}>{l.ticket}</button></td>
-              <td className="who">{l.contactName}</td>
+              <td className="who"><span className="mon-contato"><Icone nome="pessoa" tamanho={16} />{l.contactName}</span></td>
               <td>{l.queueName ?? '—'}</td>
               <td>{l.agentName ?? '—'}</td>
               <TicketActions linha={l} aguardando={false} aoAbrir={aoAbrir} aoAcionar={aoAcionar} />
@@ -540,13 +528,13 @@ function TabelaAguardando({
         <table className="mon-tabela mon-tabela-aguardando">
         <thead>
           <tr>
-            <th>Tempo na fila</th>
-            <th>Prioridade</th>
-            <th>Ticket</th>
+            <th className="ctr">Tempo na fila</th>
+            <th className="ctr">Prioridade</th>
+            <th className="ctr">Ticket</th>
             <th>Contato</th>
             <th>Fila</th>
             <th>Atendente</th>
-            <th>Ações</th>
+            <th className="ctr">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -556,11 +544,9 @@ function TabelaAguardando({
                 {durationMonitoring(l.inQueueSeg)}
                 {l.queueRunning ? ' ⟳' : ''}
               </td>
-              <td>
-                <PillPriority nivel={l.priority} />
-              </td>
+              <td className="num">{LABELS_PRIORITY[l.priority as LevelPriority] ?? l.priority}</td>
               <td className="num"><button type="button" className="mon-ticket" onClick={() => aoAbrir(l.id)}>{l.ticket}</button></td>
-              <td className="who">{l.contactName}</td>
+              <td className="who"><span className="mon-contato"><Icone nome="pessoa" tamanho={16} />{l.contactName}</span></td>
               <td>{l.queueName ?? '—'}</td>
               <td>{l.agentName ?? '—'}</td>
               <TicketActions linha={l} aguardando={true} aoAbrir={aoAbrir} aoAcionar={aoAcionar} />
@@ -592,10 +578,10 @@ function TableAgents({
         <thead>
           <tr>
             <th>Atendente</th>
-            <th>Tickets em atendimento</th>
-            <th>Tempo médio de resposta</th>
-            <th>Tempo médio de atendimento</th>
-            <th>Ações</th>
+            <th className="ctr">Tickets em atendimento</th>
+            <th className="ctr">Tempo médio de resposta</th>
+            <th className="ctr">Tempo médio de atendimento</th>
+            <th className="ctr">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -628,11 +614,11 @@ function TableQueues({ queues }: { queues: Monitoring['queues'] }) {
         <thead>
           <tr>
             <th>Fila</th>
-            <th>Tickets aguardando</th>
-            <th>Tickets em atendimento</th>
-            <th>Tempo médio de espera</th>
-            <th>Tempo médio de resposta</th>
-            <th>Tempo médio de atendimento</th>
+            <th className="ctr">Tickets aguardando</th>
+            <th className="ctr">Tickets em atendimento</th>
+            <th className="ctr">Tempo médio de espera</th>
+            <th className="ctr">Tempo médio de resposta</th>
+            <th className="ctr">Tempo médio de atendimento</th>
           </tr>
         </thead>
         <tbody>
@@ -669,8 +655,8 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoring['labels'] }) {
         <thead>
           <tr>
             <th>Tag</th>
-            <th>Tickets finalizados</th>
-            <th>Tempo médio de atendimento</th>
+            <th className="ctr">Tickets finalizados</th>
+            <th className="ctr">Tempo médio de atendimento</th>
           </tr>
         </thead>
         <tbody>
