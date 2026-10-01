@@ -240,6 +240,11 @@
 
 .mon-page .panel-side { font-family: 'Nunito Sans', var(--p-fonte); background: var(--p-superficie-1); }
 
+/* Filter bar and panel fields are transparent, like the field boxes on the Equipe screen (`.cf-team-search`); only the contact suggestion list keeps a surface. */
+.mon-page .at-filter-trigger:not(.active),
+.mon-page .panel-field input,
+.mon-page .panel-field .selection-control { background: transparent; }
+
 .mon-page .panel-support { margin: 12px 0; padding-left: 8px; }
 
 
