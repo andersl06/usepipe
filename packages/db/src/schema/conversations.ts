@@ -24,7 +24,7 @@ import {
   listaCheck,
   moment,
 } from './comum.js';
-import { flow } from './automation.js';
+import { executionFlow, flow } from './automation.js';
 import { refTenant, user } from './identity.js';
 
 /** Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TYPES_CHANNEL` now also includes Instagram and Messenger. */
@@ -326,9 +326,10 @@ export const message = pgTable(
       .notNull()
       .default(sql`gen_random_uuid()`),
     tenantId: refTenant(),
-    conversationId: uuid('conversa_id')
-      .notNull()
-      .references(() => conversation.id, { onDelete: 'cascade' }),
+    /** Null while the message belongs only to a bot execution (no ticket yet). */
+    conversationId: uuid('conversa_id').references(() => conversation.id, { onDelete: 'cascade' }),
+    /** Bot execution the message belongs to when it has no conversation; kept after the handoff adopts it. */
+    executionId: uuid('execucao_id').references(() => executionFlow.id, { onDelete: 'set null' }),
     direction: text('direcao').notNull(),
     autorTipo: text('autor_tipo').notNull(),
     autorId: uuid('autor_id'),
@@ -368,7 +369,9 @@ export const message = pgTable(
     listaCheck('mensagem_tipo_ck', t.tipo, TYPES_MESSAGE),
     listaCheck('mensagem_estado_entrega_ck', t.stateDelivery, STATES_DELIVERY),
     listaCheck('mensagem_categoria_cobranca_ck', t.categoriaCobranca, CATEGORIAS_COBRANCA),
+    check('mensagem_conversa_ou_execucao_ck', sql`${t.conversationId} is not null or ${t.executionId} is not null`),
     index('mensagem_conversa_idx').on(t.tenantId, t.conversationId, t.criadaEm),
+    index('mensagem_execucao_idx').on(t.tenantId, t.executionId, t.criadaEm),
     index('mensagem_falhou_idx')
       .on(t.stateDelivery)
       .where(sql`estado_entrega = 'falhou'`),

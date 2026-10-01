@@ -60,7 +60,7 @@ export async function loadEffort(
     // without attachment duration, the effort model cannot measure listening or speaking.
     const linhas = await tx
       .select({
-        conversaId: message.conversationId,
+        conversaId: conversation.id,
         em: message.criadaEm,
         autor: message.autorTipo,
         direcao: message.direction,

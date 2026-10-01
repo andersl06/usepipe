@@ -13,7 +13,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { atualizadoEm, carimbos, excluidoEm, id, listaCheck, moment } from './comum.js';
 import { refTenant, user } from './identity.js';
-import { channel, contact, conversation, queue } from './conversations.js';
+import { channel, contact, conversation, inbox, queue } from './conversations.js';
 
 /**
  * Module 6 covers automation and extraction as three distinct parts: conversation flow builder, system workflow engine, and query language backed by the data dictionary.
@@ -319,6 +319,8 @@ export const executionFlow = pgTable(
       .references(() => flowVersion.id, { onDelete: 'restrict' }),
     conversationId: uuid('conversa_id').references(() => conversation.id, { onDelete: 'cascade' }),
     contatoId: uuid('contato_id').references(() => contact.id, { onDelete: 'set null' }),
+    /** Where the contact talks to the bot, so delivery and reports do not depend on a conversation. */
+    inboxId: uuid('inbox_id').references(() => inbox.id, { onDelete: 'cascade' }),
     estado: text('estado').notNull().default('executando'),
     /**
      * Variable map crosses the flow and survives handoff to a human agent, who receives what the bot already collected.
@@ -342,6 +344,7 @@ export const executionFlow = pgTable(
       .on(t.inputExpiresAt)
       .where(sql`${t.inputExpiresAt} is not null`),
     index('execucao_fluxo_conversa_idx').on(t.tenantId, t.conversationId),
+    index('execucao_fluxo_contato_inbox_idx').on(t.tenantId, t.contatoId, t.inboxId),
     index('execucao_fluxo_estado_idx').on(t.tenantId, t.estado, t.iniciadaEm),
     /**
      * Migration 0040: Dashboard, Overview, Journey, and message Log filter through `fluxo_versao.fluxo_id`, joining via `fluxo_versao_id`. Without this index, that join scans all of `execucao_fluxo`.

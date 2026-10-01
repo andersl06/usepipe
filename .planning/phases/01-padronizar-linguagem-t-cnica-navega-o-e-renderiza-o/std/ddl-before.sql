@@ -232,7 +232,7 @@
 	"conversa_id" uuid NOT NULL,
 	"conversa_id" uuid NOT NULL,
 	"conversa_id" uuid NOT NULL,
-	"conversa_id" uuid NOT NULL,
+	"conversa_id" uuid,
 	"conversa_id" uuid,
 	"conversa_id" uuid,
 	"conversas_abandonadas" integer DEFAULT 0 NOT NULL,
@@ -472,6 +472,7 @@
 	"exclusiva_por_fila" boolean DEFAULT false NOT NULL,
 	"execucao_id" uuid NOT NULL,
 	"execucao_id" uuid NOT NULL,
+	"execucao_id" uuid,
 	"execucao_workflow_id" uuid NOT NULL,
 	"executado_em" timestamp with time zone,
 	"exemplos" uuid[] DEFAULT '{}'::uuid[] NOT NULL,
@@ -642,6 +643,7 @@
 	"implantacao" text DEFAULT 'compartilhada' NOT NULL,
 	"importacao_id" uuid PRIMARY KEY NOT NULL,
 	"inbox_id" uuid NOT NULL,
+	"inbox_id" uuid,
 	"indice" integer NOT NULL,
 	"iniciada_em" timestamp with time zone DEFAULT now() NOT NULL,
 	"iniciada_em" timestamp with time zone DEFAULT now() NOT NULL,
@@ -1140,7 +1142,8 @@
 	CONSTRAINT "membro_equipe_equipe_id_usuario_id_pk" PRIMARY KEY("equipe_id","usuario_id"),
 	CONSTRAINT "membro_equipe_funcao_ck" CHECK ("funcao" in ('membro', 'lider'))
 	CONSTRAINT "mensagem_autor_tipo_ck" CHECK ("autor_tipo" in ('contato', 'atendente', 'bot', 'sistema')),
-	CONSTRAINT "mensagem_categoria_cobranca_ck" CHECK ("categoria_cobranca" in ('livre', 'utilidade', 'marketing', 'autenticacao'))
+	CONSTRAINT "mensagem_categoria_cobranca_ck" CHECK ("categoria_cobranca" in ('livre', 'utilidade', 'marketing', 'autenticacao')),
+	CONSTRAINT "mensagem_conversa_ou_execucao_ck" CHECK ("mensagem"."conversa_id" is not null or "mensagem"."execucao_id" is not null)
 	CONSTRAINT "mensagem_direcao_ck" CHECK ("direcao" in ('entrada', 'saida', 'interna')),
 	CONSTRAINT "mensagem_estado_entrega_ck" CHECK ("estado_entrega" in ('pendente', 'enviando', 'enviada', 'entregue', 'lida', 'falhou')),
 	CONSTRAINT "mensagem_id_criada_em_pk" PRIMARY KEY("id","criada_em"),
@@ -1394,6 +1397,7 @@ ALTER TABLE "execucao_fluxo" ADD CONSTRAINT "execucao_fluxo_bloco_atual_id_bloco
 ALTER TABLE "execucao_fluxo" ADD CONSTRAINT "execucao_fluxo_contato_id_contato_id_fk" FOREIGN KEY ("contato_id") REFERENCES "public"."contato"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "execucao_fluxo" ADD CONSTRAINT "execucao_fluxo_conversa_id_conversa_id_fk" FOREIGN KEY ("conversa_id") REFERENCES "public"."conversa"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "execucao_fluxo" ADD CONSTRAINT "execucao_fluxo_fluxo_versao_id_fluxo_versao_id_fk" FOREIGN KEY ("fluxo_versao_id") REFERENCES "public"."fluxo_versao"("id") ON DELETE restrict ON UPDATE no action;
+ALTER TABLE "execucao_fluxo" ADD CONSTRAINT "execucao_fluxo_inbox_id_inbox_id_fk" FOREIGN KEY ("inbox_id") REFERENCES "public"."inbox"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "execucao_fluxo" ADD CONSTRAINT "execucao_fluxo_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "execucao_passo" ADD CONSTRAINT "execucao_passo_bloco_id_bloco_id_fk" FOREIGN KEY ("bloco_id") REFERENCES "public"."bloco"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "execucao_passo" ADD CONSTRAINT "execucao_passo_execucao_id_execucao_fluxo_id_fk" FOREIGN KEY ("execucao_id") REFERENCES "public"."execucao_fluxo"("id") ON DELETE cascade ON UPDATE no action;
@@ -1466,6 +1470,7 @@ ALTER TABLE "membro_equipe" ADD CONSTRAINT "membro_equipe_tenant_id_tenant_id_fk
 ALTER TABLE "membro_equipe" ADD CONSTRAINT "membro_equipe_usuario_id_usuario_id_fk" FOREIGN KEY ("usuario_id") REFERENCES "public"."usuario"("id") ON DELETE cascade ON UPDATE no action;
 ALTER TABLE "mensagem" ADD CONSTRAINT "mensagem_anexo_id_anexo_id_fk" FOREIGN KEY ("anexo_id") REFERENCES "public"."anexo"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "mensagem" ADD CONSTRAINT "mensagem_conversa_id_conversa_id_fk" FOREIGN KEY ("conversa_id") REFERENCES "public"."conversa"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "mensagem" ADD CONSTRAINT "mensagem_execucao_id_execucao_fluxo_id_fk" FOREIGN KEY ("execucao_id") REFERENCES "public"."execucao_fluxo"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "mensagem" ADD CONSTRAINT "mensagem_resposta_pronta_id_resposta_pronta_id_fk" FOREIGN KEY ("resposta_pronta_id") REFERENCES "public"."resposta_pronta"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "mensagem" ADD CONSTRAINT "mensagem_template_id_template_mensagem_id_fk" FOREIGN KEY ("template_id") REFERENCES "public"."template_mensagem"("id") ON DELETE set null ON UPDATE no action;
 ALTER TABLE "mensagem" ADD CONSTRAINT "mensagem_tenant_id_tenant_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenant"("id") ON DELETE cascade ON UPDATE no action;
@@ -1593,6 +1598,7 @@ CREATE INDEX "evento_atendimento_conversa_idx" ON "evento_atendimento" USING btr
 CREATE INDEX "evento_atendimento_tipo_idx" ON "evento_atendimento" USING btree ("tenant_id","tipo","em");
 CREATE INDEX "evento_rastreado_categoria_idx" ON "evento_rastreado" USING btree ("tenant_id","categoria","em");
 CREATE INDEX "execucao_acao_execucao_idx" ON "execucao_acao" USING btree ("tenant_id","execucao_workflow_id","em");
+CREATE INDEX "execucao_fluxo_contato_inbox_idx" ON "execucao_fluxo" USING btree ("tenant_id","contato_id","inbox_id");
 CREATE INDEX "execucao_fluxo_conversa_idx" ON "execucao_fluxo" USING btree ("tenant_id","conversa_id");
 CREATE INDEX "execucao_fluxo_entrada_expira_idx" ON "execucao_fluxo" USING btree ("entrada_expira_em") WHERE "execucao_fluxo"."entrada_expira_em" is not null;
 CREATE INDEX "execucao_fluxo_estado_idx" ON "execucao_fluxo" USING btree ("tenant_id","estado","iniciada_em");
@@ -1618,6 +1624,7 @@ CREATE INDEX "log_auditoria_objeto_idx" ON "log_auditoria" USING btree ("tenant_
 CREATE INDEX "marcacao_conversa_usuario_idx" ON "marcacao_conversa" USING btree ("tenant_id","usuario_id");
 CREATE INDEX "mensagem_conversa_idx" ON "mensagem" USING btree ("tenant_id","conversa_id","criada_em");
 CREATE INDEX "mensagem_disparo_idx" ON "mensagem" USING btree ("tenant_id","disparo_id");
+CREATE INDEX "mensagem_execucao_idx" ON "mensagem" USING btree ("tenant_id","execucao_id","criada_em");
 CREATE INDEX "mensagem_falhou_idx" ON "mensagem" USING btree ("estado_entrega") WHERE estado_entrega = 'falhou';
 CREATE INDEX "nota_interna_conversa_idx" ON "nota_interna" USING btree ("tenant_id","conversa_id","em");
 CREATE INDEX "oportunidade_tenant_fase_idx" ON "oportunidade" USING btree ("tenant_id","fase");
