@@ -1,11 +1,11 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { NIVEIS_ATRIBUIVEIS } from '@pipe/core/conversation';
-import { rulePriority, queue } from '@pipe/db/schema';
+import { rulePriority } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { requirePermission } from '../../session.js';
-import { RULE_MANAGE } from './registrations.js';
+import { RULE_MANAGE, requireFlowOfTenant, requireQueueOfFlow } from './registrations.js';
 
 /**
  * CRUD básico de `regra_prioridade` — item 4 da tarefa de cadastros do
@@ -107,6 +107,7 @@ function conditionChecked(bruto: unknown): Record<string, unknown> {
 async function scopeChecked(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   scopeType: string,
   scopeId: unknown,
 ): Promise<{ scopeType: ScopePriority; scopeId: string | null }> {
@@ -117,18 +118,22 @@ async function scopeChecked(
 
   const id = String(scopeId ?? '').trim();
   if (!id) throw PipeError.request('scope_id_required', 'Escolha a fila deste escopo.');
-  const [alvo] = await tx.select({ id: queue.id }).from(queue).where(and(eq(queue.tenantId, tid), eq(queue.id, id))).limit(1);
-  if (!alvo) throw PipeError.request('queue_not_found', 'Fila não encontrada.');
+  try {
+    await requireQueueOfFlow(tx, tid, flowId, id);
+  } catch {
+    throw PipeError.request('queue_not_found', 'Fila não encontrada.');
+  }
   return { scopeType, scopeId: id };
 }
 
-async function nomeEmUso(tx: TransactionPipe, tid: string, nome: string, excetoId?: string): Promise<boolean> {
+async function nomeEmUso(tx: TransactionPipe, tid: string, flowId: string, nome: string, excetoId?: string): Promise<boolean> {
   const [conflito] = await tx
     .select({ id: rulePriority.id })
     .from(rulePriority)
     .where(
       and(
         eq(rulePriority.tenantId, tid),
+        eq(rulePriority.flowId, flowId),
         eq(rulePriority.nome, nome),
         excetoId ? ne(rulePriority.id, excetoId) : undefined,
       ),
@@ -149,7 +154,8 @@ function linha(r: {
   return { ...r, condition: (r.condition ?? {}) as Record<string, unknown> };
 }
 
-export async function loadRulesOfPriority(tx: TransactionPipe): Promise<RulePriorityWritten[]> {
+export async function loadRulesOfPriority(tx: TransactionPipe, tid: string, flowId: string): Promise<RulePriorityWritten[]> {
+  await requireFlowOfTenant(tx, tid, flowId);
   const regras = await tx
     .select({
       id: rulePriority.id,
@@ -161,11 +167,12 @@ export async function loadRulesOfPriority(tx: TransactionPipe): Promise<RulePrio
       ativa: rulePriority.ativa,
     })
     .from(rulePriority)
+    .where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.flowId, flowId)))
     .orderBy(asc(rulePriority.nome));
   return regras.map(linha);
 }
 
-async function rulePriorityLive(tx: TransactionPipe, tid: string, id: string): Promise<RulePriorityWritten> {
+async function rulePriorityLive(tx: TransactionPipe, tid: string, flowId: string, id: string): Promise<RulePriorityWritten> {
   const [atual] = await tx
     .select({
       id: rulePriority.id,
@@ -177,7 +184,7 @@ async function rulePriorityLive(tx: TransactionPipe, tid: string, id: string): P
       ativa: rulePriority.ativa,
     })
     .from(rulePriority)
-    .where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.id, id)))
+    .where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.flowId, flowId), eq(rulePriority.id, id)))
     .limit(1);
   if (!atual) throw PipeError.naoEncontrado('regra de prioridade');
   return linha(atual);
@@ -186,22 +193,24 @@ async function rulePriorityLive(tx: TransactionPipe, tid: string, id: string): P
 export async function createRulePriority(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   userId: string,
   pedido: RequestOfRulePriority,
 ): Promise<{ id: string }> {
   await requirePermission(tx, userId, RULE_MANAGE);
+  await requireFlowOfTenant(tx, tid, flowId);
 
   const nome = nomeConferido(pedido.name);
   const nivel = nivelConferido(pedido.level);
   const condition = conditionChecked(pedido.condition);
-  const { scopeType, scopeId } = await scopeChecked(tx, tid, pedido.scopeType ?? 'tenant', pedido.scopeId);
+  const { scopeType, scopeId } = await scopeChecked(tx, tid, flowId, pedido.scopeType ?? 'tenant', pedido.scopeId);
   const active = pedido.ativa ?? true;
 
-  if (await nomeEmUso(tx, tid, nome)) throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${nome}".`);
+  if (await nomeEmUso(tx, tid, flowId, nome)) throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${nome}".`);
 
   const [criada] = await tx
     .insert(rulePriority)
-    .values({ tenantId: tid, nome, nivel, scopeType, scopeId, condition, ativa: active })
+    .values({ tenantId: tid, flowId, nome, nivel, scopeType, scopeId, condition, ativa: active })
     .returning({ id: rulePriority.id });
   if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de prioridade.');
 
@@ -218,11 +227,12 @@ export async function createRulePriority(
 export async function editRulePriority(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   usuarioId: string,
   id: string,
   pedido: RequestOfEditOfRulePriority,
 ): Promise<RulePriorityWritten> {
-  const atual = await rulePriorityLive(tx, tid, id);
+  const atual = await rulePriorityLive(tx, tid, flowId, id);
   await requirePermission(tx, usuarioId, RULE_MANAGE);
 
   const antes = { ...atual };
@@ -236,6 +246,7 @@ export async function editRulePriority(
     const resolvido = await scopeChecked(
       tx,
       tid,
+      flowId,
       pedido.scopeType ?? depois.scopeType,
       pedido.scopeId !== undefined ? pedido.scopeId : depois.scopeId,
     );
@@ -243,7 +254,7 @@ export async function editRulePriority(
     depois.scopeId = resolvido.scopeId;
   }
 
-  if (depois.name !== antes.name && (await nomeEmUso(tx, tid, depois.name, id))) {
+  if (depois.name !== antes.name && (await nomeEmUso(tx, tid, flowId, depois.name, id))) {
     throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${depois.name}".`);
   }
 
@@ -261,7 +272,7 @@ export async function editRulePriority(
       ativa: depois.ativa,
       atualizadoEm: new Date(),
     })
-    .where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.id, id)))
+    .where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.flowId, flowId), eq(rulePriority.id, id)))
     .returning({
       id: rulePriority.id,
       name: rulePriority.nome,
@@ -284,11 +295,17 @@ export async function editRulePriority(
   return linha(gravada);
 }
 
-export async function deleteRulePriority(tx: TransactionPipe, tid: string, usuarioId: string, id: string): Promise<void> {
-  const atual = await rulePriorityLive(tx, tid, id);
+export async function deleteRulePriority(
+  tx: TransactionPipe,
+  tid: string,
+  flowId: string,
+  usuarioId: string,
+  id: string,
+): Promise<void> {
+  const atual = await rulePriorityLive(tx, tid, flowId, id);
   await requirePermission(tx, usuarioId, RULE_MANAGE);
 
-  await tx.delete(rulePriority).where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.id, id)));
+  await tx.delete(rulePriority).where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.flowId, flowId), eq(rulePriority.id, id)));
 
   await registrarAuditoria(tx, tid, {
     ator: { type: 'usuario', id: usuarioId },

@@ -241,13 +241,10 @@ export async function conectarInstagramManual(pedido: {
           returning id
         `);
         id = rows[0]!.id;
-        // Run serially, never with `Promise.all`; see `../whatsapp/criacao-de-canal.ts`.
-        const { rows: queues } = await tx.execute<{ id: string }>(
-          sql`select id from fila where ativa order by ordem, criado_em limit 1`,
-        );
+        // The default queue belongs to the flow (`fluxo.fila_padrao_id`), so the inbox starts without one.
         await tx.execute(sql`
           insert into inbox (tenant_id, canal_id, nome, fila_padrao_id)
-          values (${pedido.tenantId}::uuid, ${id}::uuid, ${nome}, ${queues[0]?.id ?? null})
+          values (${pedido.tenantId}::uuid, ${id}::uuid, ${nome}, null)
         `);
       }
       await registrarAuditoria(tx, pedido.tenantId, {

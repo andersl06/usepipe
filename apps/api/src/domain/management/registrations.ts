@@ -12,6 +12,7 @@ import {
 } from '@pipe/core';
 import {
   conversation,
+  flow,
   queue,
   queueAgent,
   scheduleAttendance,
@@ -46,6 +47,43 @@ export const SCHEDULE_MANAGE = 'horario.gerenciar';
 export const PAUSE_MANAGE = 'pausa.gerenciar';
 
 const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
+
+const UUID_FLOW = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The flow of the screen must be a live flow of this tenant; anything else is a 404 before any read or write. */
+export async function requireFlowOfTenant(tx: TransactionPipe, tid: string, flowId: string): Promise<void> {
+  if (!UUID_FLOW.test(flowId)) throw PipeError.request('flow_required', 'Informe o fluxo.');
+  const [achado] = await tx
+    .select({ id: flow.id })
+    .from(flow)
+    .where(and(eq(flow.tenantId, tid), eq(flow.id, flowId), ne(flow.estado, 'arquivado')))
+    .limit(1);
+  if (!achado) throw PipeError.naoEncontrado('Fluxo');
+}
+
+/** The queue must belong to the given flow of this tenant, or it does not exist for the caller (404). */
+export async function requireQueueOfFlow(
+  tx: TransactionPipe,
+  tid: string,
+  flowId: string,
+  queueId: string,
+): Promise<QueueWritten> {
+  const [atual] = await tx
+    .select({
+      id: queue.id,
+      name: queue.nome,
+      color: queue.cor,
+      scheduleId: queue.horarioId,
+      capacityDefault: queue.capacityDefault,
+      order: queue.order,
+      ativa: queue.ativa,
+    })
+    .from(queue)
+    .where(and(eq(queue.tenantId, tid), eq(queue.flowId, flowId), eq(queue.id, queueId)))
+    .limit(1);
+  if (!atual) throw PipeError.naoEncontrado('Fila');
+  return atual;
+}
 
 /**
  * Leitura das três telas de cadastro: filas, motivos de pausa e horários.
@@ -89,6 +127,8 @@ export interface QueueRegistered {
   scheduleId: string | null;
   horarioNome: string | null;
   agents: AgentOfQueue[];
+  /** Is the default queue of the flow (`fluxo.fila_padrao_id`). */
+  isDefault: boolean;
 }
 
 export interface HorarioParaEscolher {
@@ -96,11 +136,18 @@ export interface HorarioParaEscolher {
   name: string;
 }
 
-export async function loadQueues(tx: TransactionPipe): Promise<{
+/** Queues of ONE flow, with the agents linked to each. */
+export async function loadQueues(tx: TransactionPipe, tid: string, flowId: string): Promise<{
   queues: QueueRegistered[];
   horarios: HorarioParaEscolher[];
 }> {
+  await requireFlowOfTenant(tx, tid, flowId);
   return consultar(tx, async (tx) => {
+    const [fluxo] = await tx
+      .select({ queueDefaultId: flow.queueDefaultId })
+      .from(flow)
+      .where(and(eq(flow.tenantId, tid), eq(flow.id, flowId)))
+      .limit(1);
     const linhas = await tx
       .select({
         id: queue.id,
@@ -114,6 +161,7 @@ export async function loadQueues(tx: TransactionPipe): Promise<{
       })
       .from(queue)
       .leftJoin(scheduleAttendance, eq(scheduleAttendance.id, queue.horarioId))
+      .where(and(eq(queue.tenantId, tid), eq(queue.flowId, flowId)))
       .orderBy(asc(queue.order), asc(queue.nome));
 
     const membros = await tx
@@ -126,6 +174,7 @@ export async function loadQueues(tx: TransactionPipe): Promise<{
       })
       .from(queueAgent)
       .innerJoin(user, eq(user.id, queueAgent.userId))
+      .innerJoin(queue, and(eq(queue.id, queueAgent.queueId), eq(queue.flowId, flowId)))
       .leftJoin(statusAgent, eq(statusAgent.usuarioId, queueAgent.userId))
       .orderBy(asc(user.nome));
 
@@ -150,7 +199,11 @@ export async function loadQueues(tx: TransactionPipe): Promise<{
     }
 
     return {
-      queues: linhas.map((l) => ({ ...l, agents: byQueue.get(l.id) ?? [] })),
+      queues: linhas.map((l) => ({
+        ...l,
+        agents: byQueue.get(l.id) ?? [],
+        isDefault: l.id === fluxo?.queueDefaultId,
+      })),
       horarios,
     };
   });
@@ -692,12 +745,13 @@ export interface RuleOfQueueRegistered extends QueueRule {
   queueDestinationActive: boolean;
 }
 
-export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
+export async function loadRulesOfQueue(tx: TransactionPipe, tid: string, flowId: string): Promise<{
   regras: RuleOfQueueRegistered[];
   queues: QueueForChoose[];
-  /** Inbox names and their default queue, used when no rule matches. */
+  /** Inbox names whose default queue belongs to this flow, used when no rule matches. */
   defaults: { inbox: string; queue: string | null }[];
 }> {
+  await requireFlowOfTenant(tx, tid, flowId);
   return consultar(tx, async (tx) => {
     const cabecas = await tx
       .select({
@@ -711,7 +765,7 @@ export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
         active: ruleQueue.active,
       })
       .from(ruleQueue)
-      .innerJoin(queue, eq(queue.id, ruleQueue.queueDestinationId))
+      .innerJoin(queue, and(eq(queue.id, ruleQueue.queueDestinationId), eq(queue.flowId, flowId)))
       .orderBy(asc(ruleQueue.order), asc(ruleQueue.id));
 
     const conditions = await tx
@@ -722,17 +776,20 @@ export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
         valor: ruleQueueCondition.value,
       })
       .from(ruleQueueCondition)
+      .innerJoin(ruleQueue, eq(ruleQueue.id, ruleQueueCondition.regraId))
+      .innerJoin(queue, and(eq(queue.id, ruleQueue.queueDestinationId), eq(queue.flowId, flowId)))
       .orderBy(asc(ruleQueueCondition.campo), asc(ruleQueueCondition.id));
 
     const filas = await tx
       .select({ id: queue.id, name: queue.nome, ativa: queue.ativa })
       .from(queue)
+      .where(and(eq(queue.tenantId, tid), eq(queue.flowId, flowId)))
       .orderBy(asc(queue.order), asc(queue.nome));
 
     const caixas = await tx
       .select({ inbox: inbox.nome, queue: queue.nome })
       .from(inbox)
-      .leftJoin(queue, eq(queue.id, inbox.queueDefaultId))
+      .innerJoin(queue, and(eq(queue.id, inbox.queueDefaultId), eq(queue.flowId, flowId)))
       .orderBy(asc(inbox.nome));
 
     return {
@@ -785,16 +842,20 @@ export type Recording = { ok: true } | { ok: false; error: string };
 export async function writeRuleQueue(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   quemGrava: Ator,
   inbound: NewRuleOfQueue,
 ): Promise<Recording> {
   if (quemGrava.type === 'usuario' && quemGrava.id) await requirePermission(tx, quemGrava.id, RULE_MANAGE);
+  await requireFlowOfTenant(tx, tid, flowId);
   return consultar(tx, async (tx) => {
     // `regra_fila` has no unique index on name; uniqueness is enforced by this
-    // screen so duplicate 'Cobrança' rules cannot mislead a manager into editing the wrong one.
+    // screen, within the flow of the destination queue, so duplicate 'Cobrança'
+    // rules cannot mislead a manager into editing the wrong one.
     const [conflito] = await tx
       .select({ id: ruleQueue.id })
       .from(ruleQueue)
+      .innerJoin(queue, and(eq(queue.id, ruleQueue.queueDestinationId), eq(queue.flowId, flowId)))
       .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.nome, inbound.name)))
       .limit(1);
     if (conflito) return { ok: false, error: `Já existe uma regra chamada "${inbound.name}".` };
@@ -802,7 +863,7 @@ export async function writeRuleQueue(
     const [destino] = await tx
       .select({ id: queue.id })
       .from(queue)
-      .where(and(eq(queue.tenantId, tid), eq(queue.id, inbound.queueDestinationId)))
+      .where(and(eq(queue.tenantId, tid), eq(queue.flowId, flowId), eq(queue.id, inbound.queueDestinationId)))
       .limit(1);
     if (!destino) return { ok: false, error: 'Fila de destino não encontrada.' };
 
@@ -845,6 +906,7 @@ export async function writeRuleQueue(
 export async function toggleActiveOfRuleQueue(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   quemAlterna: Ator,
   id: string,
 ): Promise<Recording> {
@@ -853,6 +915,7 @@ export async function toggleActiveOfRuleQueue(
     const [atual] = await tx
       .select({ nome: ruleQueue.nome, ativa: ruleQueue.active })
       .from(ruleQueue)
+      .innerJoin(queue, and(eq(queue.id, ruleQueue.queueDestinationId), eq(queue.flowId, flowId)))
       .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.id, id)))
       .limit(1);
     if (!atual) return { ok: false, error: 'Regra não encontrada.' };
@@ -901,8 +964,8 @@ export interface RuleQueueWritten {
   condicoes: ConditionOfEdit[];
 }
 
-/** Return this tenant's live rule with conditions, or 404. */
-async function ruleQueueLive(tx: TransactionPipe, tid: string, id: string): Promise<RuleQueueWritten> {
+/** Return this flow's rule (one whose destination queue is in the flow) with conditions, or 404. */
+async function ruleQueueLive(tx: TransactionPipe, tid: string, flowId: string, id: string): Promise<RuleQueueWritten> {
   const [atual] = await tx
     .select({
       id: ruleQueue.id,
@@ -913,6 +976,7 @@ async function ruleQueueLive(tx: TransactionPipe, tid: string, id: string): Prom
       ativa: ruleQueue.active,
     })
     .from(ruleQueue)
+    .innerJoin(queue, and(eq(queue.id, ruleQueue.queueDestinationId), eq(queue.flowId, flowId)))
     .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.id, id)))
     .limit(1);
   if (!atual) throw PipeError.naoEncontrado('regra');
@@ -964,11 +1028,12 @@ function conditionsChecked(bruto: readonly ConditionOfEdit[]): ConditionOfEdit[]
 export async function editRuleQueue(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   usuarioId: string,
   id: string,
   pedido: RequestOfEditOfRuleQueue,
 ): Promise<RuleQueueWritten> {
-  const atual = await ruleQueueLive(tx, tid, id);
+  const atual = await ruleQueueLive(tx, tid, flowId, id);
   await requirePermission(tx, usuarioId, RULE_MANAGE);
 
   const antes = { nome: atual.name, ordem: atual.order, combinador: atual.combiner, filaDestinoId: atual.queueDestinationId };
@@ -990,7 +1055,7 @@ export async function editRuleQueue(
     const [destination] = await tx
       .select({ id: queue.id })
       .from(queue)
-      .where(and(eq(queue.tenantId, tid), eq(queue.id, pedido.queueDestinationId)))
+      .where(and(eq(queue.tenantId, tid), eq(queue.flowId, flowId), eq(queue.id, pedido.queueDestinationId)))
       .limit(1);
     if (!destination) throw PipeError.request('queue_not_found', 'Fila de destino não encontrada.');
     depois.filaDestinoId = pedido.queueDestinationId;
@@ -1000,6 +1065,7 @@ export async function editRuleQueue(
     const [conflito] = await tx
       .select({ id: ruleQueue.id })
       .from(ruleQueue)
+      .innerJoin(queue, and(eq(queue.id, ruleQueue.queueDestinationId), eq(queue.flowId, flowId)))
       .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.nome, depois.nome), ne(ruleQueue.id, id)))
       .limit(1);
     if (conflito) throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${depois.nome}".`);
@@ -1044,17 +1110,18 @@ export async function editRuleQueue(
     depois: { ...mudanca.depois, ...(conditionsNews !== undefined ? { condicoes: conditionsNews.length } : {}) },
   });
 
-  return ruleQueueLive(tx, tid, id);
+  return ruleQueueLive(tx, tid, flowId, id);
 }
 
 /** On `destroy`, `regra_fila_condicao.regra_id` has `ON DELETE CASCADE`, so deleting the rule also deletes its conditions. */
 export async function deleteRuleQueue(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   userId: string,
   id: string,
 ): Promise<void> {
-  const atual = await ruleQueueLive(tx, tid, id);
+  const atual = await ruleQueueLive(tx, tid, flowId, id);
   await requirePermission(tx, userId, RULE_MANAGE);
 
   await tx.delete(ruleQueue).where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.id, id)));
@@ -1211,6 +1278,7 @@ async function horarioExiste(tx: TransactionPipe, tid: string, horarioId: string
 async function nameOfQueueInUse(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   nome: string,
   excetoId?: string,
 ): Promise<boolean> {
@@ -1218,7 +1286,12 @@ async function nameOfQueueInUse(
     .select({ id: queue.id })
     .from(queue)
     .where(
-      and(eq(queue.tenantId, tid), eq(queue.nome, nome), excetoId ? ne(queue.id, excetoId) : undefined),
+      and(
+        eq(queue.tenantId, tid),
+        eq(queue.flowId, flowId),
+        eq(queue.nome, nome),
+        excetoId ? ne(queue.id, excetoId) : undefined,
+      ),
     )
     .limit(1);
   return conflito !== undefined;
@@ -1228,32 +1301,15 @@ function conflictOfNameOfQueue(nome: string): PipeError {
   return PipeError.conflito('name_in_use', `Já existe uma fila chamada "${nome}".`);
 }
 
-/** A fila viva do tenant, ou 404 — o `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
-async function queueLive(tx: TransactionPipe, tid: string, id: string): Promise<QueueWritten> {
-  const [atual] = await tx
-    .select({
-      id: queue.id,
-      name: queue.nome,
-      color: queue.cor,
-      scheduleId: queue.horarioId,
-      capacityDefault: queue.capacityDefault,
-      order: queue.order,
-      ativa: queue.ativa,
-    })
-    .from(queue)
-    .where(and(eq(queue.tenantId, tid), eq(queue.id, id)))
-    .limit(1);
-  if (!atual) throw PipeError.naoEncontrado('fila');
-  return atual;
-}
-
 export async function createQueue(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   usuarioId: string,
   pedido: RequestOfQueue,
 ): Promise<{ id: string }> {
   await requirePermission(tx, usuarioId, QUEUE_MANAGE);
+  await requireFlowOfTenant(tx, tid, flowId);
 
   const nome = nameOfQueueChecked(pedido.name);
   const cor = colorOfQueueChecked(pedido.color);
@@ -1262,14 +1318,14 @@ export async function createQueue(
   const horarioId = pedido.scheduleId ? String(pedido.scheduleId) : null;
   const active = pedido.active ?? true;
 
-  if (await nameOfQueueInUse(tx, tid, nome)) throw conflictOfNameOfQueue(nome);
+  if (await nameOfQueueInUse(tx, tid, flowId, nome)) throw conflictOfNameOfQueue(nome);
   if (horarioId && !(await horarioExiste(tx, tid, horarioId))) {
     throw PipeError.request('schedule_not_found', 'Horário de atendimento não encontrado.');
   }
 
   const [criada] = await tx
     .insert(queue)
-    .values({ tenantId: tid, nome, cor, horarioId, capacityDefault, order, ativa: active })
+    .values({ tenantId: tid, flowId, nome, cor, horarioId, capacityDefault, order, ativa: active })
     .returning({ id: queue.id });
   if (!criada) throw PipeError.request('queue_not_created', 'Não consegui gravar a fila.');
 
@@ -1278,7 +1334,7 @@ export async function createQueue(
     acao: 'criou',
     objetoTipo: 'fila',
     objetoId: criada.id,
-    depois: { nome, cor, horarioId, capacityDefault, order, active },
+    depois: { nome, flowId, cor, horarioId, capacityDefault, order, active },
   });
   return { id: criada.id };
 }
@@ -1287,11 +1343,12 @@ export async function createQueue(
 export async function editQueue(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   usuarioId: string,
   id: string,
   pedido: RequestOfEditOfQueue,
 ): Promise<QueueWritten> {
-  const atual = await queueLive(tx, tid, id);
+  const atual = await requireQueueOfFlow(tx, tid, flowId, id);
   await requirePermission(tx, usuarioId, QUEUE_MANAGE);
 
   // Leave `antes` and `depois` without explicit type annotations: inferred literals retain
@@ -1318,7 +1375,7 @@ export async function editQueue(
   const mudanca = diferenca(antes, depois);
   if (Object.keys(mudanca.depois).length === 0) return atual;
 
-  if (depois.name !== antes.name && (await nameOfQueueInUse(tx, tid, depois.name, id))) {
+  if (depois.name !== antes.name && (await nameOfQueueInUse(tx, tid, flowId, depois.name, id))) {
     throw conflictOfNameOfQueue(depois.name);
   }
 
@@ -1333,7 +1390,7 @@ export async function editQueue(
       ativa: depois.ativa,
       atualizadoEm: new Date(),
     })
-    .where(and(eq(queue.tenantId, tid), eq(queue.id, id)))
+    .where(and(eq(queue.tenantId, tid), eq(queue.flowId, flowId), eq(queue.id, id)))
     .returning({
       id: queue.id,
       name: queue.nome,
@@ -1362,10 +1419,11 @@ export async function editQueue(
 export async function deleteQueue(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   usuarioId: string,
   id: string,
 ): Promise<void> {
-  const atual = await queueLive(tx, tid, id);
+  const atual = await requireQueueOfFlow(tx, tid, flowId, id);
   await requirePermission(tx, usuarioId, QUEUE_MANAGE);
 
   const [withConversation] = await tx
@@ -1421,12 +1479,13 @@ export async function deleteQueue(
 export async function linkAgentInQueue(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   usuarioId: string,
   queueId: string,
   agentId: string,
   capacityOverride?: number | null,
 ): Promise<void> {
-  await queueLive(tx, tid, queueId);
+  await requireQueueOfFlow(tx, tid, flowId, queueId);
   await requirePermission(tx, usuarioId, QUEUE_MANAGE);
 
   const [pessoa] = await tx
@@ -1463,11 +1522,12 @@ export async function linkAgentInQueue(
 export async function unlinkAgentOfQueue(
   tx: TransactionPipe,
   tid: string,
+  flowId: string,
   usuarioId: string,
   filaId: string,
   atendenteId: string,
 ): Promise<void> {
-  await queueLive(tx, tid, filaId);
+  await requireQueueOfFlow(tx, tid, flowId, filaId);
   await requirePermission(tx, usuarioId, QUEUE_MANAGE);
 
   const apagados = await tx
@@ -1490,6 +1550,44 @@ export async function unlinkAgentOfQueue(
     antes: { atendenteId, vinculo: 'criado' },
     depois: { atendenteId, vinculo: 'removido' },
   });
+}
+
+/**
+ * The default queue of a flow lives in `fluxo.fila_padrao_id` and only accepts a queue of the same flow;
+ * `null` clears it.
+ */
+export async function setDefaultQueueOfFlow(
+  tx: TransactionPipe,
+  tid: string,
+  usuarioId: string,
+  flowId: string,
+  queueId: string | null,
+): Promise<{ queueId: string | null }> {
+  await requirePermission(tx, usuarioId, QUEUE_MANAGE);
+  await requireFlowOfTenant(tx, tid, flowId);
+  if (queueId !== null) await requireQueueOfFlow(tx, tid, flowId, queueId);
+
+  const [antes] = await tx
+    .select({ queueId: flow.queueDefaultId })
+    .from(flow)
+    .where(and(eq(flow.tenantId, tid), eq(flow.id, flowId)))
+    .limit(1);
+  if ((antes?.queueId ?? null) === queueId) return { queueId };
+
+  await tx
+    .update(flow)
+    .set({ queueDefaultId: queueId })
+    .where(and(eq(flow.tenantId, tid), eq(flow.id, flowId)));
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'alterou',
+    objetoTipo: 'fluxo',
+    objetoId: flowId,
+    antes: { filaPadraoId: antes?.queueId ?? null },
+    depois: { filaPadraoId: queueId },
+  });
+  return { queueId };
 }
 
 /*

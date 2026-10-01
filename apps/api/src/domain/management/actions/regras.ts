@@ -236,11 +236,13 @@ export async function saveRuleQueue(
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
+  const flowId = String(dados.get('fluxoId') ?? '').trim();
   const nome = String(dados.get('nome') ?? '').trim();
   const queueDestinationId = String(dados.get('filaDestinoId') ?? '').trim();
   const combinador = String(dados.get('combinador') ?? 'e').trim();
   const orderRaw = String(dados.get('ordem') ?? '').trim();
 
+  if (!flowId) return falha('Informe o fluxo.');
   if (!nome) return falha('Informe o nome da regra.');
   if (!queueDestinationId) return falha('Escolha a fila de destino.');
   if (combinador !== 'e' && combinador !== 'ou') return falha('Combinador inválido.');
@@ -276,7 +278,7 @@ export async function saveRuleQueue(
     return falha('Uma regra sem condição nunca casa. Preencha pelo menos uma.');
   }
 
-  const gravado = await writeRuleQueue(tx, tid, ator, {
+  const gravado = await writeRuleQueue(tx, tid, flowId, ator, {
     name: nome,
     order,
     combiner: combinador,
@@ -297,7 +299,9 @@ export async function toggleRuleQueue(
   dados: Campos,
 ): Promise<Resultado> {
   const id = String(dados.get('id') ?? '').trim();
+  const flowId = String(dados.get('fluxoId') ?? '').trim();
   if (!id) return falha('Regra não informada.');
-  const recording = await toggleActiveOfRuleQueue(tx, tid, ator, id);
+  if (!flowId) return falha('Informe o fluxo.');
+  const recording = await toggleActiveOfRuleQueue(tx, tid, flowId, ator, id);
   return recording.ok ? OK : falha(recording.error);
 }

@@ -35,7 +35,7 @@ export async function saveQueue(
   const capacityRaw = data.get('capacidadePadrao');
   const orderRaw = data.get('ordem');
   return comoResultado(() =>
-    createQueue(tx, tid, ator.id ?? '', {
+    createQueue(tx, tid, String(data.get('fluxoId') ?? '').trim(), ator.id ?? '', {
       name: String(data.get('nome') ?? '').trim(),
       color: data.get('cor'),
       scheduleId: data.get('horarioId'),
