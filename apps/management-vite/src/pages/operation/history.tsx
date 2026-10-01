@@ -14,7 +14,7 @@ import { dataHora, dataOuNada, duration, numero, uuidOuNada } from '../../lib/fo
 import { periodCurrent, periodLabel } from '../../lib/periodos';
 import { EmptyState, Icone } from '@pipe/ui';
 import { ManagementIcon } from '../../components/icones-management';
-import { PanelField, FieldPeriod, PanelFilters } from '../../components/panel-filters';
+import { FieldContact, PanelField, FieldPeriod, PanelFilters } from '../../components/panel-filters';
 import { Select } from '@pipe/ui/select';
 import { Pagination, type PaginationState } from '@pipe/ui/pagination';
 import { montarCsv } from '../../lib/csv-history';
@@ -420,14 +420,8 @@ export function PageHistory() {
           </Select>
         </PanelField>
 
-        <PanelField rotulo="Contato" apoio="Selecione um contato">
-          <input
-            type="text"
-            name="contato"
-            defaultValue={params.contact ?? ''}
-            placeholder="Digite parte do nome do contato"
-            aria-label="Contato"
-          />
+        <PanelField rotulo="Contato" apoio="Busque pelo nome do contato">
+          <FieldContact name="contato" defaultValue={params.contact ?? ''} />
         </PanelField>
       </PanelFilters>
 

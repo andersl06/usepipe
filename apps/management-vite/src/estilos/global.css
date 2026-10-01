@@ -4688,6 +4688,45 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
+.panel-contact {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-contact-options {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 4px);
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 5;
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  box-shadow:
+    0 8px 4px -4px rgba(0, 0, 0, 0.04),
+    0 12px 12px -4px rgba(0, 0, 0, 0.16);
+}
+
+.panel-contact-options > div {
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: var(--g-t-item);
+  line-height: 21px;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+
+.panel-contact-options > div:hover,
+.panel-contact-options > div.active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.panel-contact-options > .panel-contact-empty {
+  cursor: default;
+}
+
 .panel-footer {
   display: flex;
   flex-direction: column;

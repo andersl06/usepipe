@@ -19,6 +19,7 @@ import {
   type Catalogos,
   type LineHistory,
 } from '../domain/management/history.js';
+import { searchContacts, type ContactOfSearch } from '../domain/management/contacts-search.js';
 import { loadAttendance, type ReportAttendance } from '../domain/management/attendance.js';
 import { loadEffort, type ReportEffort } from '../domain/management/effort.js';
 import { loadSatisfaction, type ReportSatisfaction } from '../domain/management/satisfaction.js';
@@ -163,6 +164,22 @@ export class ManagementOperationsController {
         agentIds: uuidsOfFilter(agent),
       });
       return { fuso, janela: window, data };
+    });
+  }
+
+  /** Autocomplete do filtro de Contato (Monitoramento e Histórico). Tenant só da sessão; quem vê o monitoramento ou os relatórios pode buscar. */
+  @Get('contacts/search')
+  @WithSession()
+  async searchContacts(
+    @Req() requisicao: RequestWithSession,
+    @Query('q') q?: string,
+  ): Promise<{ contacts: ContactOfSearch[] }> {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, async (tx) => {
+      await requirePermission(tx, sessao.userId, 'monitoramento.tempo_real.ver').catch(() =>
+        requirePermission(tx, sessao.userId, 'relatorio.ver'),
+      );
+      return { contacts: await searchContacts(tx, typeof q === 'string' ? q : '') };
     });
   }
 

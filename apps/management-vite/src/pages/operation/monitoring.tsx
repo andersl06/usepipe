@@ -7,7 +7,7 @@ import { useRead } from '../../lib/query';
 import { denominador, duration, numero } from '../../lib/format';
 import { ManagementIcon } from '../../components/icones-management';
 import { SListFilter, SOperationFilter } from '../../components/filters-quick';
-import { PanelField, PanelFilters } from '../../components/panel-filters';
+import { FieldContact, PanelField, PanelFilters } from '../../components/panel-filters';
 import { Select } from '@pipe/ui/select';
 import { ChipsInput } from '@pipe/ui/chips-input';
 import { parametersWithFilters, filterIds } from '../../lib/filters-monitoring';
@@ -586,7 +586,7 @@ export function PageMonitoring() {
               />
             </PanelField>
             <PanelField rotulo="Contato" apoio="Busque pelo nome do contato">
-              <input type="search" name="contato" defaultValue={params.contact ?? ''} placeholder="Digite parte do nome, e-mail ou telefone do contato" />
+              <FieldContact name="contato" defaultValue={params.contact ?? ''} />
             </PanelField>
             <PanelField rotulo="Status do atendente" apoio="Selecione um status">
               <Select
