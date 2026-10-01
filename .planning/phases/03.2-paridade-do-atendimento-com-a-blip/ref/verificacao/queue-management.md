@@ -81,7 +81,19 @@ Estrutura da Blip, de cima para baixo [M] (texto do HTML):
 - Clique em "Nova fila": abre o modal de criação; Salvar fecha o modal e a fila entra na lista.
 - Seta voltar da tela da fila: lista de filas.
 - Lixeira do cartão: abre a confirmação de excluir.
-- "Adicionar atendentes": tela Equipe. "Criar regra" e "Editar" de regra de atendimento: página de regras.
+- "Adicionar atendentes": modal na própria página (sem navegar). "Criar regra" e lápis das regras de atendimento e de priorização: formulário inline dentro do cartão (sem navegar). A URL fica `attendance/queue-management?fila=` do começo ao fim.
+
+## Estado: cartões que funcionam na página (correção C2)
+
+Medidas da Blip: `queue-management-cartoes-blip.md` [M]. Nenhuma linha abaixo foi renderizada no navegador (páginas exigem sessão); todas NEEDS VALIDATION.
+
+| Elemento | Blip | Pipe | Status |
+|---|---|---|---|
+| Modal Adicionar atendentes | 790px, raio 8, padding 32, ilustração à esquerda, título, ajuda, interruptor "Inserção em massa", campo de chips, Cancelar/Atribuir (desabilitado sem e-mail) [M] | mesmas peças e textos, tokens `--p-atend-fila-modal-*`, ilustração própria; foco preso, Esc fecha, foco volta ao botão; atribui usuários existentes por e-mail; e-mail sem conta, inválido, desativado ou já na fila é recusado com mensagem por e-mail | NEEDS VALIDATION |
+| Regra de atendimento (formulário inline) | título editável com lápis, Se/Condição/Valor, E/OU, Adicionar condição, remover, Cancelar/Salvar [M] | igual; "Se": Mensagem, Nome Contato, Email Contato, Extras Contato (com chave); conector único para a regra toda (o Pipe grava um combinador por regra) | NEEDS VALIDATION |
+| Regra de priorização (formulário inline) | título editável, Grau de urgência (Baixa/Média/Alta), checkbox de condições, editor de condições [M] | igual; condição gravada como expressão do motor; sem a opção Máxima no select (só aparece ao editar uma regra que já a tem) | NEEDS VALIDATION |
+| Tags da fila | campo de chips + Salvar alterações [M] | layout desabilitado com "Este recurso será liberado em breve para este fluxo." (falta migração) | NEEDS VALIDATION |
+| Encerramento automático | interruptor alto grava na hora; conteúdo com tempo/unidade, 3 checkboxes, alerta, tags, Salvar [M]/[B] | só o cabeçalho com o interruptor desligado e desabilitado + texto padrão (falta migração e o processo que encerra) | NEEDS VALIDATION |
 
 ## Lacunas
 
