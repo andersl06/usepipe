@@ -17,6 +17,8 @@ import {
   scheduleSweepDownloadMedia,
   scheduleSweepMirrorCrm,
   scheduleSweepSla,
+  consumeAutoClose,
+  scheduleAutoClose,
   scheduleSweepProcessHttp,
   consumeRenewalInstagram,
   consumeCheckSla,
@@ -135,6 +137,8 @@ export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promis
   await scheduleSweepDownloadMedia();
   consumeCheckSla();
   await scheduleSweepSla();
+  consumeAutoClose();
+  await scheduleAutoClose();
   consumeRenewalInstagram();
   await scheduleRenewalInstagram();
   registerScheduledMessages();

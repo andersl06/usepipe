@@ -26,6 +26,7 @@ import { executarProcessHttp, recoverStuckProcessHttp } from './domain/flow.js';
 import { renovarTokensInstagram } from './domain/instagram/renewal.js';
 import { contactsWithoutMirror, syncContact } from './domain/mirror-crm.js';
 import { downloadMediaOfAttachment, midiasPendentes } from './domain/media.js';
+import { runAutoClose } from './domain/management/auto-close.js';
 import { checkSlaOfConversation, conversationsForCheckSla } from './domain/management/sla-motor.js';
 import { QUEUE_IMPORT, processImport } from '@pipe/workers';
 import type { JobImport } from '@pipe/workers';
@@ -372,6 +373,54 @@ export async function scheduleSweepSla(): Promise<void> {
     'sweep-sla',
     { every: Number(process.env['PIPE_SLA_VARREDURA_MS'] ?? 60_000) },
     { name: 'varredura', data: {} as JobSla },
+  );
+}
+
+const QUEUE_AUTO_CLOSE = 'pipe-encerramento-automatico';
+let queueAutoClose: Queue | null = null;
+let consumerAutoClose: Worker | null = null;
+let relogioAutoClose: ReturnType<typeof setInterval> | null = null;
+
+/** Interruptor geral do encerramento automático: desligado a menos que `PIPE_ENCERRAMENTO_AUTOMATICO=1`. */
+export function autoCloseEnabled(): boolean {
+  return process.env['PIPE_ENCERRAMENTO_AUTOMATICO'] === '1';
+}
+
+const autoCloseIntervalMs = (): number => Number(process.env['PIPE_ENCERRAMENTO_AUTOMATICO_MS'] ?? 60_000);
+
+/** Consome o tick de encerramento por inatividade (`domain/management/auto-close.ts`); só com o interruptor geral ligado. */
+export function consumeAutoClose(): void {
+  if (!autoCloseEnabled() || modo() === 'memoria' || consumerAutoClose) return;
+  consumerAutoClose = new Worker(QUEUE_AUTO_CLOSE, async () => (await runAutoClose()).closed, {
+    connection: redis(),
+    // Um tick por vez: o lote já é limitado e a trava por conversa impede encerrar duas vezes.
+    concurrency: 1,
+  });
+}
+
+/** Agenda o tick (BullMQ, ou temporizador em processo no modo memória). Sem o interruptor geral, não agenda nada. */
+export async function scheduleAutoClose(): Promise<void> {
+  if (!autoCloseEnabled()) return;
+  if (modo() === 'memoria') {
+    if (relogioAutoClose) return;
+    let rodando = false;
+    relogioAutoClose = setInterval(() => {
+      if (rodando) return;
+      rodando = true;
+      void runAutoClose()
+        .catch((erro: unknown) => console.error(`[encerramento-automatico] tick falhou: ${(erro as Error).message}`))
+        .finally(() => {
+          rodando = false;
+        });
+    }, autoCloseIntervalMs());
+    relogioAutoClose.unref();
+    return;
+  }
+  queueAutoClose ??= new Queue(QUEUE_AUTO_CLOSE, { connection: redis() });
+  await queueAutoClose.upsertJobScheduler(
+    'sweep-encerramento-automatico',
+    { every: autoCloseIntervalMs() },
+    { name: 'varredura', data: {} },
   );
 }
 
