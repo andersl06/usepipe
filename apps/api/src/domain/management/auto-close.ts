@@ -2,6 +2,8 @@ import { sql } from 'drizzle-orm';
 import { databaseOwner, noTenant } from '../../database.js';
 import { closeInTransaction } from '../conversation.js';
 import type { LineConversation } from '../conversation.js';
+import { sendMessage } from '../envio.js';
+import { alertConversation, conversationsForAlert } from './auto-close-alerta.js';
 import { drenarEmSegundoPlano } from '../../webhooks-saida.js';
 import { evento, publicar } from '../../realtime.js';
 import { autoCloseChecked, toMinutes } from './queue-auto-close.js';
@@ -10,7 +12,7 @@ import type { AutoCloseConfig } from './queue-auto-close.js';
 /**
  * Encerramento automático por inatividade. A varredura descobre candidatas entre os tenants com o banco dono (como `conversationsForCheckSla`) e cada encerramento roda sozinho, numa transação do tenant, pela mesma função de domínio que os atendentes usam (`closeInTransaction`).
  *
- * A inatividade conta a partir da última mensagem da conversa (`ultima_mensagem_em`, de qualquer autor): mensagem do atendente também reinicia a contagem, como na Blip, e como o cliente fala por último ou antes da resposta, a última mensagem do cliente nunca é mais recente que ela.
+ * A inatividade conta a partir da última mensagem da conversa (`ultima_mensagem_em`, de qualquer autor): mensagem do atendente também reinicia a contagem, como na Blip, e como o cliente fala por último ou antes da resposta, a última mensagem do cliente nunca é mais recente que ela. O alerta de inatividade é uma mensagem automática que não toca em `ultima_mensagem_*` (ver `auto-close-alerta.ts`), então nunca reinicia a contagem. O worker roda sempre e só age em filas com `encerramento_automatico.ativo = true`.
  */
 
 export const AUTO_CLOSE_REASON = 'encerramento_automatico';
@@ -72,9 +74,14 @@ export async function conversationsForAutoClose(
 export interface AutoCloseEffects {
   /** Depois do commit: webhooks de saída e tempo real. */
   afterCommit: (tenantId: string, conversationId: string) => Promise<void>;
+  /** Envia o alerta de inatividade como mensagem automática do sistema, pelo outbox de mensagens. */
+  sendAlert: (tenantId: string, conversationId: string, texto: string) => Promise<void>;
 }
 
 export const realEffects: AutoCloseEffects = {
+  sendAlert: async (tenantId, conversationId, texto) => {
+    await sendMessage({ tenantId, conversationId, texto, automatica: 'alerta_inatividade' });
+  },
   afterCommit: async (tenantId, conversationId) => {
     drenarEmSegundoPlano(tenantId);
     await publicar(tenantId, evento('conversation', conversationId));
@@ -167,9 +174,10 @@ export async function runAutoClose(
   efeitos: AutoCloseEffects = realEffects,
   limite = AUTO_CLOSE_BATCH,
   tenants?: readonly string[],
-): Promise<{ candidates: number; closed: number }> {
+): Promise<{ candidates: number; closed: number; alerted: number }> {
   const candidatas = await conversationsForAutoClose(agora, limite, tenants);
   let closed = 0;
+  let alerted = 0;
   for (const candidata of candidatas) {
     try {
       if (await autoCloseConversation(candidata, agora, efeitos)) closed += 1;
@@ -177,5 +185,13 @@ export async function runAutoClose(
       console.error(`[encerramento-automatico] falhou ${candidata.conversationId}: ${(erro as Error).message}`);
     }
   }
-  return { candidates: candidatas.length, closed };
+  // Depois de encerrar: o que acabou de vencer não recebe alerta tardio.
+  for (const candidata of await conversationsForAlert(agora, limite, tenants)) {
+    try {
+      if (await alertConversation(candidata, agora, efeitos.sendAlert)) alerted += 1;
+    } catch (erro) {
+      console.error(`[encerramento-automatico] alerta falhou ${candidata.conversationId}: ${(erro as Error).message}`);
+    }
+  }
+  return { candidates: candidatas.length, closed, alerted };
 }

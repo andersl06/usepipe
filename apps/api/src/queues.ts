@@ -381,16 +381,12 @@ let queueAutoClose: Queue | null = null;
 let consumerAutoClose: Worker | null = null;
 let relogioAutoClose: ReturnType<typeof setInterval> | null = null;
 
-/** Interruptor geral do encerramento automático: desligado a menos que `PIPE_ENCERRAMENTO_AUTOMATICO=1`. */
-export function autoCloseEnabled(): boolean {
-  return process.env['PIPE_ENCERRAMENTO_AUTOMATICO'] === '1';
-}
-
+/** Intervalo do tick em ms; ajuste opcional (padrão 60 s). */
 const autoCloseIntervalMs = (): number => Number(process.env['PIPE_ENCERRAMENTO_AUTOMATICO_MS'] ?? 60_000);
 
-/** Consome o tick de encerramento por inatividade (`domain/management/auto-close.ts`); só com o interruptor geral ligado. */
+/** Consome o tick de encerramento por inatividade (`domain/management/auto-close.ts`); o worker age só em filas com o encerramento ativo. */
 export function consumeAutoClose(): void {
-  if (!autoCloseEnabled() || modo() === 'memoria' || consumerAutoClose) return;
+  if (modo() === 'memoria' || consumerAutoClose) return;
   consumerAutoClose = new Worker(QUEUE_AUTO_CLOSE, async () => (await runAutoClose()).closed, {
     connection: redis(),
     // Um tick por vez: o lote já é limitado e a trava por conversa impede encerrar duas vezes.
@@ -398,9 +394,8 @@ export function consumeAutoClose(): void {
   });
 }
 
-/** Agenda o tick (BullMQ, ou temporizador em processo no modo memória). Sem o interruptor geral, não agenda nada. */
+/** Agenda o tick (BullMQ, ou temporizador em processo no modo memória). */
 export async function scheduleAutoClose(): Promise<void> {
-  if (!autoCloseEnabled()) return;
   if (modo() === 'memoria') {
     if (relogioAutoClose) return;
     let rodando = false;

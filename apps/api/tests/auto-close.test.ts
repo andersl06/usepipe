@@ -23,7 +23,11 @@ const MIN = 60_000;
 const T0 = new Date();
 const depois = (min: number) => new Date(T0.getTime() + min * MIN);
 
-const efeitos = { chamadas: [] as string[], afterCommit: async (_t: string, id: string) => void efeitos.chamadas.push(id) };
+const efeitos = {
+  chamadas: [] as string[],
+  afterCommit: async (_t: string, id: string) => void efeitos.chamadas.push(id),
+  sendAlert: async () => undefined,
+};
 
 beforeAll(async () => {
   a = await montarCenario(`ec-${randomUUID().slice(0, 8)}`);

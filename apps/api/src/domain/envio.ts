@@ -16,7 +16,8 @@ import { enqueueDelivery } from '../queues.js';
  * API sends do not start as `enviada`, unlike the old Desk path. A message starts `pendente` with an `outbox_mensagem` row; a worker delivers it and state advances only after Meta confirms, as anticipated in `apps/desk/src/app/acoes.ts`. Evaluate the 24-hour window rule from `@pipe/core` BEFORE writing; outside the window, reject free text with an actionable reason rather than a later Meta error.
  */
 
-export type TipoEnvio = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'localizacao' | 'template';
+export type TipoEnvio =
+  'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'localizacao' | 'template';
 
 export interface PedidoDeEnvio {
   tenantId: string;
@@ -40,6 +41,10 @@ export interface PedidoDeEnvio {
    * Require the conversation to be assigned to `atendenteId` for a PERSON in a browser: agents reply only to their own work. Disable this requirement for an integration, which has no owner and sends as the system. Keep the rule here, not in the controller, so every path through `enviarMensagem` obeys it; relying on the screen previously allowed messages without an outbox.
    */
   exigirAtribuicao?: boolean;
+  /**
+   * Message the system sends by itself (inactivity alert). It is stored with `dados.automatica` and leaves the conversation untouched: it does not move `ultima_mensagem_*`, the state or the timeline, so it never restarts the inactivity count nor counts as agent activity.
+   */
+  automatica?: 'alerta_inatividade';
 }
 
 export interface MessageQueued {
@@ -181,7 +186,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
       insert into mensagem (
         tenant_id, conversa_id, direcao, autor_tipo, autor_id, tipo, conteudo,
         anexo_id, template_id, resposta_pronta_id, estado_entrega, criada_em,
-        dentro_da_janela, categoria_cobranca
+        dentro_da_janela, categoria_cobranca, dados
       ) values (
         ${pedido.tenantId}, ${conversation.id}, 'saida',
         ${pedido.agentId ? 'atendente' : 'sistema'}, ${pedido.agentId ?? null},
@@ -192,7 +197,8 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
           conteudo: template ? 'template' : 'texto_livre',
           withinWindow: evaluation.withinWindow,
           categoriaTemplate: template?.category ?? null,
-        })}
+        })},
+        ${pedido.automatica ? JSON.stringify({ automatica: pedido.automatica }) : null}::jsonb
       )
       returning id
     `);
@@ -204,49 +210,49 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
       values (${pedido.tenantId}, ${messageId}, 'pendente')
     `);
 
-    // Replying moves a conversation from `atribuida` or `em_espera`, the two transitions
-    // the state machine allows into `em_atendimento`.
-    const stateNew =
-      conversation.state === 'atribuida' || conversation.state === 'em_espera'
-        ? 'em_atendimento'
-        : conversation.state;
-    // A REPLY presupposes a question. Count `primeira_resposta` only after the client
-    // has spoken in this conversation (`ultima_mensagem_em` set). For an active-message
-    // conversation we started first; counting that send as a first reply
-    // primeira resposta cravaria um TMR de zero segundo — enfeitando justamente a
-    // would manufacture a zero-second TMR, contrary to the metrics spec.
-    const clienteJaFalou = comoData(conversation.lastMessageAt) !== null;
-    const firstResponse =
-      comoData(conversation.firstResponseAt) === null && !!pedido.agentId && clienteJaFalou;
+    if (!pedido.automatica) {
+      // Replying moves a conversation from `atribuida` or `em_espera`, the two transitions
+      // the state machine allows into `em_atendimento`.
+      const stateNew =
+        conversation.state === 'atribuida' || conversation.state === 'em_espera'
+          ? 'em_atendimento'
+          : conversation.state;
+      // A REPLY presupposes a question. Count `primeira_resposta` only after the client
+      // has spoken in this conversation (`ultima_mensagem_em` set). For an active-message
+      // conversation we started first; counting that send as a first reply
+      // primeira resposta cravaria um TMR de zero segundo — enfeitando justamente a
+      // would manufacture a zero-second TMR, contrary to the metrics spec.
+      const clienteJaFalou = comoData(conversation.lastMessageAt) !== null;
+      const firstResponse =
+        comoData(conversation.firstResponseAt) === null && !!pedido.agentId && clienteJaFalou;
 
-    await tx.execute(sql`
+      await tx.execute(sql`
       update conversa
          set estado = ${stateNew}, em_espera_desde = null,
              ultima_mensagem_em = ${agora}, ultima_mensagem_de = 'atendente',
-             primeira_resposta_em = coalesce(primeira_resposta_em, ${
-               firstResponse ? agora : null
-             }),
+             primeira_resposta_em = coalesce(primeira_resposta_em, ${firstResponse ? agora : null}),
              atualizado_em = now()
        where id = ${conversation.id}
     `);
 
-    await registrarEvento(tx, {
-      tenantId: pedido.tenantId,
-      conversationId: conversation.id,
-      type: 'mensagem_saida',
-      at: agora,
-      userId: pedido.agentId ?? null,
-      queueId: conversation.queueId,
-    });
-    if (firstResponse) {
       await registrarEvento(tx, {
         tenantId: pedido.tenantId,
         conversationId: conversation.id,
-        type: 'primeira_resposta',
+        type: 'mensagem_saida',
         at: agora,
         userId: pedido.agentId ?? null,
         queueId: conversation.queueId,
       });
+      if (firstResponse) {
+        await registrarEvento(tx, {
+          tenantId: pedido.tenantId,
+          conversationId: conversation.id,
+          type: 'primeira_resposta',
+          at: agora,
+          userId: pedido.agentId ?? null,
+          queueId: conversation.queueId,
+        });
+      }
     }
 
     await emitir(tx, pedido.tenantId, 'mensagem.criada', {
@@ -302,7 +308,9 @@ type LineAttachment = { id: string; mime: string; bytes: string; nome_original: 
 /**
  * Send several attachments as ONE operation but ONE message per file, serially. This follows the source LIME protocol: each `application/vnd.lime.media-link+json` carries ONE `uri` (`referencias-blip/pesquisa/blip-api-schemas.md`, "media-link"); the Desk `ModalType.SEND_MULT_FILE` builds `mediaLinkDocuments`, capped at `MAX_ATTACHMENT_COUNT = 10` (`blip-desk-regras-tecnicas.md` §3.3). Thus `mensagem.anexo_id` remains singular. Validate the WHOLE batch before sending the first: every attachment must exist in the tenant, have an accepted type and size, and total no more than 10. The source loop aborts on one oversized file (§3.3 step 6); sending half would leave the client and agent uncertain. Send each through `enviarMensagem` in series, retaining the same 24-hour window, outbox, and event rules. If the first is rejected, none are sent.
  */
-export async function sendAttachments(pedido: RequestOfBatchOfAttachments): Promise<MessageQueued[]> {
+export async function sendAttachments(
+  pedido: RequestOfBatchOfAttachments,
+): Promise<MessageQueued[]> {
   const ids = pedido.attachmentIds.filter((id, i, lista) => lista.indexOf(id) === i);
   if (ids.length === 0) {
     throw PipeError.request('content_empty', 'Anexe ao menos um arquivo.');
