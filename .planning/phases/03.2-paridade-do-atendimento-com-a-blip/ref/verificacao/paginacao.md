@@ -81,3 +81,30 @@ A Blip tem **uma aparência só** para grade e lista dentro do Atendimento:
 3. O `bds-pagination` do Portal ("Itens por página:", página atual em seletor, botões desabilitados a 50%) é outra família e não aparece nas telas do Atendimento.
 
 Evidência a favor da opção (a) de Q3: colapsar `grade` e `lista` numa skin única do Atendimento, com a margem de cima como único parâmetro, e manter `portal` à parte. A medida do lado Pipe da `grade` ainda depende de render com dados (ticket no Monitoramento ou membro na Equipe).
+
+## Depois da correção (03.2-07)
+
+Base: 96d53e3cd8d091b09a4290e5f15bbe7589eeef47
+Decisões aplicadas: Q1 (tolerância 1px), Q3 (colapsar `grade` e `lista`; `portal` fica à parte), Q5 (IBM Plex Sans).
+
+**Como foi medido.** O app em dev exige API local, login e dados (a `grade` já não renderizava com o tenant de teste). Foi usada uma página de teste descartável, fora do repositório, com o `tokens.css` e o `global.css` reais e a mesma marcação do `Pagination`, aberta em Chrome headless 1440x900. Vale como medida de CSS. Estado de dados real (5 grades, Equipe, Regras, Pausas) segue `NEEDS VALIDATION` em tela viva.
+
+**O que mudou.** Uma skin só (`layout="grade"`; `lista` removida junto com `.footer-pagination`/`.rp-*`). Parâmetros: `afastado` (margem de cima 20px, listas), `ocultarVazio={false}` (Regras mostra o rodapé vazio), `ocultarTamanho` (Pausas). Sobrescrita `.mon-detalhado .pg*` de `attendance.css` removida: divergia da Blip (botões 32px, gap 4px, rótulo a 16px). Tokens `--p-atend-paginacao-*` em `MARCA.md`.
+
+| Consumidor | Blip | Pipe | Diferença | Status |
+|---|---|---|---|---|
+| monitoring-detailed (5 grades): margem de cima | 10px [M] | 10px | 0 | VISUALLY VERIFIED (CSS em página de teste) |
+| monitoring-detailed: rodapé / rótulo | 40px [A] / 14px, 400, `mr4` 20px [M] | 40px / 14px, 400, gap 20px | 0 | VISUALLY VERIFIED (CSS) |
+| monitoring-detailed: seletor | 74x40 [M] | 74x40 | 0 | VISUALLY VERIFIED (CSS) |
+| monitoring-detailed: contador / navegação | contador `mr4` 20px até a navegação, grupo à direita [M] | contador a 20px da navegação, grupo `margin-left: auto` | 0 | VISUALLY VERIFIED (CSS) |
+| monitoring-detailed: botões / ícone / gap | 40x40 / 24x24 / 8px [M] | 40x40 / 24x24 / 8px | 0 | VISUALLY VERIFIED (CSS) |
+| monitoring-detailed: página atual | 14px, margem 8px dos dois lados [M] | 16px de largura, margem 8px, verde de marca `rgb(74,93,35)`, peso 600 | cor/peso: marca (D-11) | VISUALLY VERIFIED (CSS) |
+| lista-regras (Regras, Filas, Gestão de atendentes) | `mt4` 20px, mesmo rodapé [M] | `afastado`: margem 20px, mesmas medidas da grade | 0 | VISUALLY VERIFIED (CSS); tela viva NEEDS VALIDATION |
+| team (`pages/flow/team/tela.tsx`) | `mt3` 10px [M] | `layout="grade"`, margem 10px | 0 | VISUALLY VERIFIED (CSS); tela viva NEEDS VALIDATION |
+| portal (`pages/portal.tsx`) | `bds-pagination`, outra família | `layout="portal"` não alterado | não alterar (fora do escopo) | sem mudança |
+| personalizedbreaks (`ocultarTamanho`) | sem seletor [M] | sem rótulo/seletor, margem 20px, contador e setas à direita | 0 | VISUALLY VERIFIED (CSS) |
+| Botão desabilitado | não existe na Blip [M] | `opacity: 0.5`, igual ao desabilitado do `bds-pagination` | estado extra mantido (primeira/última) | decisão do plano |
+
+Foco: `outline` 2px `--p-foco` nos botões. Opção selecionada do seletor: verde de marca, já pelo `Select` compartilhado (`.selection-list button.selecionada`). Aria dos botões e `aria-live="polite"` do contador mantidos.
+
+Consumidores com mudança fora do rodapé? regressão? não. Mudança visível: `monitoring-detailed` perde a miniaturização (botões 32px viram 40px, gap 4px vira 8px), por pedido da medida da Blip; `lista-regras` perde o contador centralizado e a navegação a 50% da largura. A rota de `Pagination` na Equipe e no Portal não mudou além disso.

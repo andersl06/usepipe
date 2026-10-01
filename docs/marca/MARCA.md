@@ -93,7 +93,7 @@ Mesmo rodapé "Resultados por página" em grades e listas; só a margem de cima 
 | `--p-atend-paginacao-margem-grade` | `10px` | Margem acima do rodapé nas grades (`mt3`) | `paginacao.md` §grade |
 | `--p-atend-paginacao-margem-lista` | `20px` | Margem acima do rodapé nas listas (`mt4`) | `paginacao.md` §lista |
 | `--p-atend-paginacao-seletor` | `74px` | Largura do seletor de tamanho (`ResultsSelect`) | `paginacao.md` |
-| `--p-atend-paginacao-botao` | `40px` | Lado dos botões de navegação (`bds-button-icon` short) | `paginacao.md` |
+| `--p-atend-paginacao-botao` | `40px` | Lado dos botões de navegação (botão de ícone curto) | `paginacao.md` |
 | `--p-atend-paginacao-icone` | `24px` | Lado do ícone dos botões | `paginacao.md` |
 
 ## Tipografia

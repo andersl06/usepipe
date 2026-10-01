@@ -4765,7 +4765,7 @@ tr.grupo th {
 }
 
 /*
- * The current page number, between "anterior" and "próxima" (`bds-grid margin="x-1"` with `bds-typo fs-14`), in brand green.
+ * The current page number, between "anterior" and "próxima" (8px margin on each side, 14px text), in brand green.
  */
 .pg-atual {
   min-width: 16px;
