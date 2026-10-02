@@ -2732,19 +2732,19 @@ tr.grupo th {
 
 /*
  * ============================ the channels grid (/preferencias/canais)
- *    `FICHA-channels.md` §2: `bds-grid direction="row"` with four `bds-paper` at 242×292 (measured from the capture's boot-log). Each card: icon on top, title 16/700, subtitle 14/400 and the button at the foot, flush right.
+ *    `ref/verificacao/channels-blip.md`: four cards at 343×270 measured live on 2026-10-01. Each card: icon on top, title 16/700, subtitle 14/400 and the button at the foot, flush right.
  */
 .channels-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 242px);
-  gap: var(--g-card-gap);
+  grid-template-columns: repeat(auto-fill, var(--p-atend-canal-cartao-largura));
+  gap: var(--p-atend-canal-cartao-espaco);
 }
 
 .channel-card {
   display: flex;
   flex-direction: column;
   gap: var(--p-e-2);
-  min-height: 292px;
+  min-height: var(--p-atend-canal-cartao-altura);
   padding: var(--g-card-pad);
   border-radius: var(--g-r-card);
   background: var(--g-card-background);

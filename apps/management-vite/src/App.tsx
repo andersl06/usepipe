@@ -63,9 +63,7 @@ import { QueuePageEdit } from './pages/registrations/agents-queues-edit';
 import { PageBreaks } from './pages/registrations/agents-breaks';
 import { PageTemplates } from './pages/registrations/communication-templates';
 import { PageCannedResponses } from './pages/registrations/communication-respostas';
-import { PageRules } from './pages/registrations/settings-rules';
 import { SlaPageRules } from './pages/registrations/regras-sla';
-import { PageData } from './pages/registrations/settings-data';
 import { PageSettingsGeneral } from './pages/registrations/settings-general';
 import { PageChannels } from './pages/registrations/channels';
 import { ShellChannelWhatsapp } from './pages/flow/channels/whatsapp/shell';
@@ -147,11 +145,11 @@ const contactRoutes = (
       <Route path="rules" element={<AttendancePageRules />} />
       <Route path="sla-policy" element={<SlaPageRules />} />
       <Route path="attendance-hours" element={<PageHours />} />
-      {/* `preferences/general` -> `general-settings` (03.2 D-04, R-01); o endereço antigo redireciona. `preferences/data` e `preferences/rules` ficam como estão até a tela definir as abas. */}
+      {/* `preferences/general` -> `general-settings` (03.2 D-04, R-01); o endereço antigo redireciona. `preferences/data` (etiquetas com uso) virou o cartão Gerenciar tags da própria tela e `preferences/rules` (SLA e filas, só leitura) já existe, editável, em `sla-policy` e `queue-management`: os endereços antigos redirecionam. */}
       <Route path="general-settings" element={<PageSettingsGeneral />} />
       <Route path="preferences/general" element={<Navigate to="../general-settings" replace />} />
-      <Route path="preferences/data" element={<PageData />} />
-      <Route path="preferences/rules" element={<PageRules />} />
+      <Route path="preferences/data" element={<Navigate to="../general-settings" replace />} />
+      <Route path="preferences/rules" element={<Navigate to="../sla-policy" replace />} />
       <Route path="channels" element={<PageChannels />} />
     </Route>
 

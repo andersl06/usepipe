@@ -145,7 +145,7 @@ export async function saveCatalogLabels(
   ator: Ator,
   data: Campos,
 ): Promise<Resultado> {
-  const nomes = data.getAll('tag').map((v) => String(v));
+  const nomes = data.getAll('tag').flatMap((v) => String(v).split(','));
   try {
     const gravado = await writeCatalogLabels(tx, tid, ator, nomes);
     if (!gravado.ok) return falha(gravado.error);

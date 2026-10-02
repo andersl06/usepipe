@@ -116,6 +116,8 @@ Mesmo rodapé "Resultados por página" em grades e listas; só a margem de cima 
 | `--p-atend-fila-cartao-padding` | `40px` | Padding dos cartões da edição de fila | `queue-management-editar-blip.md` ([M]) |
 | `--p-atend-fila-cartao-margem` | `20px` | Espaço entre os cartões empilhados | `queue-management-editar-blip.md` ([M]) |
 | `--p-atend-fila-cartao-sombra` | `0 2px 8px -2px rgba(0,0,0,.16)` | Sombra do cartão (o fundo `#f6f6f6` da Blip não foi adotado: o Pipe mantém a superfície branca do cartão) | `queue-management-editar-blip.md` ([M]) |
+| `--p-atend-canal-cartao-largura` / `-altura` | `343px` / `270px` | Cartão de canal de atendimento (Blip: 343,4 x 270) | `channels-blip.md` ([M]) |
+| `--p-atend-canal-cartao-espaco` | `16px` | Espaço entre os cartões de canal (passo de 359px) | `channels-blip.md` ([M]) |
 | `--p-atend-fila-busca-borda` | `1px` | Borda do campo de busca da fila (a Blip mede 0,889px por DPR 1,125) | `queue-management-editar-blip.md` ([M]) |
 | `--p-atend-fila-modal-largura` | `790px` | Largura do modal Adicionar atendentes | `queue-management-cartoes-blip.md` ([M]) |
 | `--p-atend-fila-modal-raio` | `8px` | Raio do modal Adicionar atendentes | `queue-management-cartoes-blip.md` ([M]) |

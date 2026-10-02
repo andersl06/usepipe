@@ -31,7 +31,8 @@ export function CardConfig({
   explanation: ReactNode;
   acao: (anterior: CardResult, data: FormData) => Promise<CardResult>;
   interruptor?: SectionSwitch;
-  children: ReactNode;
+  /** A função recebe `marcarAlterado`, para campos que não borbulham `onChange` (o `Select` do produto, os chips). */
+  children: ReactNode | ((marcarAlterado: () => void) => ReactNode);
   /** Text to the left of Save states in one line what this card controls. */
   rodape?: ReactNode;
 }) {
@@ -84,7 +85,9 @@ export function CardConfig({
         ) : null}
       </header>
 
-      <div className="card-config-body">{children}</div>
+      <div className="card-config-body">
+        {typeof children === 'function' ? children(() => setSujo(true)) : children}
+      </div>
 
       {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 

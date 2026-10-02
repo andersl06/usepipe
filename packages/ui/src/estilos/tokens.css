@@ -312,6 +312,10 @@
   --p-atend-fila-modal-padding: 32px;
   --p-atend-fila-interruptor-alto-largura: 56px;
   --p-atend-fila-interruptor-alto-altura: 32px;
+  /* Canais de atendimento: quatro cartões 343,4 x 270, passo de 359 (`ref/verificacao/channels-blip.md`). */
+  --p-atend-canal-cartao-largura: 343px;
+  --p-atend-canal-cartao-altura: 270px;
+  --p-atend-canal-cartao-espaco: 16px;
 }
 
 /*

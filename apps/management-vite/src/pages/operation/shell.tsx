@@ -67,7 +67,6 @@ const GROUPS: readonly GrupoLateral[] = [
     filhos: [
       { rotulo: 'Configurações gerais', rota: 'general-settings' },
       { rotulo: 'Canais de atendimento', rota: 'channels' },
-      { rotulo: 'Dados', rota: 'preferences/data' },
     ],
   },
 ];

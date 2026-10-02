@@ -1,9 +1,11 @@
 import { ManagementIcon } from '../../components/icones-management';
 import { IconePortal } from '@pipe/ui/icones-portal';
-import { Icone } from '@pipe/ui';
+import { Botao, Icone } from '@pipe/ui';
+
+const AVISO_EM_BREVE = 'Este recurso será liberado em breve para este fluxo.';
 
 /**
- * Attendance channels — the source's `attendance/desk/channels` (`referencias-blip/fichas/FICHA-channels.md`, photo `07` in `referencias-blip/canais/`): a title with no subtitle or button, and a fixed GRID of 4 cards (`bds-paper`, 242×292), each with an icon, 16/700 title, 14/400 subtitle, and a button at the bottom — "Conectado" (tertiary, with the `checkball`) or "Conectar" (primary, with the arrow).
+ * Attendance channels — the source's `attendance/desk/channels` (`referencias-blip/fichas/FICHA-channels.md`, photo `07` in `referencias-blip/canais/`): a title with no subtitle or button, and a fixed GRID of 4 cards (343×270, measured live in `ref/verificacao/channels-blip.md`), each with an icon, 16/700 title, 14/400 subtitle, and a button at the bottom — "Conectado" (tertiary, with the `checkball`) or "Conectar" (primary, with the arrow).
  *
  * This is the Desk's list of ATTENDANCE INTEGRATIONS (who receives the tickets), not conversation-channel configuration: WhatsApp, Instagram, and Messenger are connected and configured INSIDE THE BOT, at `/{tipo}/{id}/canais/*` (`FICHA-conectar-canal-no-bot.md` §4.1). What used to live here — the cards for connecting WhatsApp/Instagram/Messenger, "Detalhes", and "Desconectar" — moved there; only what belongs to this screen stayed.
  *
@@ -45,20 +47,21 @@ export function PageChannels() {
             <p>{c.subtitulo}</p>
             <div className="channel-action">
               {c.conectado ? (
-                <span className="btn fantasma">
+                <Botao className="fantasma" disabled aria-label="Pipe Desk conectado">
                   Conectado
                   <ManagementIcon nome="circuloOk" tamanho={20} />
-                </span>
+                </Botao>
               ) : (
-                <span className="btn primario" aria-disabled="true" title="Integração ainda não disponível no Pipe">
+                <Botao variante="primario" disabled title={AVISO_EM_BREVE}>
                   Conectar
                   <IconePortal nome="direita" tamanho={16} />
-                </span>
+                </Botao>
               )}
             </div>
           </section>
         ))}
       </div>
+      <p className="note">{AVISO_EM_BREVE}</p>
     </>
   );
 }
