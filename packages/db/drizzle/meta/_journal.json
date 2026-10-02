@@ -442,6 +442,13 @@
       "when": 1790260000000,
       "tag": "0090_tenant_configuracao_atendimento",
       "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "7",
+      "when": 1790270000000,
+      "tag": "0091_status_blip_e_ids_do_ticket",
+      "breakpoints": true
     }
   ]
 }

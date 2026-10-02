@@ -1,6 +1,8 @@
 import { LEVELS_PRIORITY } from '@pipe/core/conversation';
 import { sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
+  bigint,
   boolean,
   check,
   index,
@@ -282,9 +284,17 @@ export const conversation = pgTable(
     filaId: uuid('fila_id').references(() => queue.id, { onDelete: 'set null' }),
     agentId: uuid('atendente_id').references(() => user.id, { onDelete: 'set null' }),
     /*
-     * The ticket is born at the handoff (or on a channel without a flow), so it starts `na_fila`.
+     * The ticket is born at the handoff (or on a channel without a flow), so it starts `Waiting`.
      */
-    state: text('estado').notNull().default('na_fila'),
+    state: text('estado').notNull().default('Waiting'),
+    /**
+     * Número do ticket por tenant. Nulo no TypeScript porque o gatilho `conversa_numero_sequencial_trg` o preenche no INSERT; NOT NULL no banco.
+     */
+    sequentialNumber: bigint('numero_sequencial', { mode: 'number' }),
+    /** Ticket de origem quando este nasce de outro (transferência). */
+    parentId: uuid('conversa_pai_id').references((): AnyPgColumn => conversation.id, {
+      onDelete: 'set null',
+    }),
     /*
      * Created without a priority. A prioritization rule or human sets it; the old `media` default ordered the queue using a value nobody selected. See `NIVEIS_PRIORIDADE`.
      */
@@ -312,6 +322,8 @@ export const conversation = pgTable(
   },
   (t) => [
     listaCheck('conversa_estado_ck', t.state, STATES_CONVERSATION),
+    check('conversa_standby_ck', sql`${t.emEsperaDesde} is null or ${t.state} = 'Open'`),
+    uniqueIndex('conversa_tenant_numero_uk').on(t.tenantId, t.sequentialNumber),
     listaCheck('conversa_prioridade_ck', t.priority, LEVELS_PRIORITY),
     listaCheck('conversa_ultima_mensagem_de_ck', t.lastMessageOf, AUTHORS_LAST_MESSAGE),
     index('conversa_estado_fila_idx').on(t.tenantId, t.state, t.filaId),
@@ -382,6 +394,13 @@ export const message = pgTable(
      * Channel- or type-specific data that has no dedicated column. Positional template values must survive sending: if they existed only in the queue job, a lost job would also lose retry and audit capability. For Instagram, store conversation origin: direct message, story reply and reference, mention, or comment promoted to a private conversation with its publication link.
      */
     data: jsonb('dados'),
+    /**
+     * Carimbo do bloco do fluxo que gerou a mensagem do bot (régua: `stateTrack` da Blip). Sem FK: a tabela é particionada e o bloco some ao republicar; o nome sobrevive.
+     */
+    blockCurrentId: uuid('bloco_atual_id'),
+    blockCurrentName: text('bloco_atual_nome'),
+    blockPreviousId: uuid('bloco_anterior_id'),
+    blockPreviousName: text('bloco_anterior_nome'),
   },
   (t) => [
     primaryKey({ columns: [t.id, t.criadaEm] }),
@@ -466,7 +485,7 @@ export const pausa = pgTable(
   (t) => [index('pausa_usuario_idx').on(t.tenantId, t.usuarioId, t.iniciadaEm)],
 );
 
-export const STATES_AGENT = ['online', 'pausa', 'invisivel', 'offline'] as const;
+export const STATES_AGENT = ['Online', 'Pause', 'Invisible', 'Offline'] as const;
 
 export const statusAgent = pgTable(
   'status_atendente',
@@ -475,7 +494,7 @@ export const statusAgent = pgTable(
       .primaryKey()
       .references(() => user.id, { onDelete: 'cascade' }),
     tenantId: refTenant(),
-    estado: text('estado').notNull().default('offline'),
+    estado: text('estado').notNull().default('Offline'),
     desde: moment('desde').notNull().defaultNow(),
     conectadoEm: moment('conectado_em'),
   },

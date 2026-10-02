@@ -32,12 +32,15 @@ export function listaCheck(nome: string, column: AnyPgColumn, values: readonly s
 }
 
 export const TYPES_CHANNEL = ['whatsapp_cloud', 'instagram', 'messenger', 'email', 'widget'] as const;
+/** Status do ticket com a grafia da Blip; "em espera" é `Open` com `em_espera_desde` preenchido. */
 export const STATES_CONVERSATION = [
-  'na_fila',
-  'atribuida',
-  'em_atendimento',
-  'em_espera',
-  'encerrada',
+  'Waiting',
+  'Assigned',
+  'Open',
+  'ClosedAttendant',
+  'ClosedClient',
+  'ClosedClientInactivity',
+  'Transferred',
 ] as const;
 export const STATES_DELIVERY = [
   'pendente',
