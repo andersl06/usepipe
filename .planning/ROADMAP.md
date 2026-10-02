@@ -428,7 +428,7 @@ Plans:
   4. O dono aprova a comparação visual
 
 **UI hint**: yes
-**Plans:** 16/25 plans executed
+**Plans:** 20/25 plans executed
 
 Plans:
 
@@ -448,11 +448,11 @@ Plans:
 - [x] 03.2-14-PLAN.md — Filas: lista e gestão da fila ao clicar
 - [x] 03.2-15-PLAN.md — Atendentes: lista, gestão ao clicar, permissões
 - [x] 03.2-16-PLAN.md — portão da Onda 1
-- [ ] 03.2-17-PLAN.md — Regras e SLA
-- [ ] 03.2-18-PLAN.md — Horários e Pausas personalizadas
+- [x] 03.2-17-PLAN.md — Regras e SLA
+- [x] 03.2-18-PLAN.md — Horários e Pausas personalizadas
 - [ ] 03.2-19-PLAN.md — portão da Onda 2
-- [ ] 03.2-20-PLAN.md — Respostas e Templates de mensagem
-- [ ] 03.2-21-PLAN.md — Canais e Configurações gerais
+- [x] 03.2-20-PLAN.md — Respostas e Templates de mensagem
+- [x] 03.2-21-PLAN.md — Canais e Configurações gerais
 - [ ] 03.2-22-PLAN.md — portão da Onda 3
 - [ ] 03.2-23-PLAN.md — Relatórios, Esforço, Pesquisa + cartão único
 - [ ] 03.2-24-PLAN.md — dashboards de ligações e vendas
