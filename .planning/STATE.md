@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 03.2 UI-SPEC approved
-last_updated: "2026-10-02T03:08:32.523Z"
-last_activity: 2026-09-30 -- Phase 03.1 execution started
+last_updated: "2026-10-02T11:08:11.134Z"
+last_activity: 2026-10-02 -- Phase 03.1.1 execution started
 progress:
-  total_phases: 11
+  total_phases: 12
   completed_phases: 2
-  total_plans: 169
-  completed_plans: 138
-  percent: 18
+  total_plans: 181
+  completed_plans: 142
+  percent: 17
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-24)
 
 **Core value:** Atendimento multi-canal (WhatsApp/Instagram/Messenger) confiável e auditável, com CRM espelhado automaticamente e sem fricção para o atendente.
-**Current focus:** Phase 03.1 — corrigir-bugs-do-invent-rio-blip-pipe
+**Current focus:** Phase 03.1.1 — alinhar-estados-e-ids-ao-modelo-da-blip
 
 ## Current Position
 
-Phase: 03.1 (corrigir-bugs-do-invent-rio-blip-pipe) — EXECUTING
-Plan: 20 of 20
-Status: Executing Phase 03.1
-Last activity: 2026-09-30 -- Phase 03.1 execution started
+Phase: 03.1.1 (alinhar-estados-e-ids-ao-modelo-da-blip) — EXECUTING
+Plan: 2 of 12
+Status: Executing Phase 03.1.1
+Last activity: 2026-10-02 -- Phase 03.1.1 execution started
 
 Progress: [████████░░] 80%
 
@@ -68,6 +68,7 @@ Progress: [████████░░] 80%
 - Phase 01.1 inserted after Phase 1: Subdomínio por tenant no padrão Blip (<tenant>.usepipe.ai/application, <tenant>.desk.usepipe.ai); pedido do dono durante o portão 1 da Phase 1
 - Phase 03.1 inserted after Phase 3: Corrigir bugs do inventário Blip×Pipe (URGENT)
 - Phase 03.2 inserted after Phase 3: Paridade do Atendimento com a Blip (URGENT)
+- Phase 03.1.1 inserted after Phase 03.1: Alinhar estados e ids ao modelo da Blip (status Waiting/Open/Assigned/Closed*/Transferred, standby como flag, carimbo de bloco por mensagem, numero sequencial, lacunas da verificacao 03.1) (URGENT)
 
 ### Decisions
 
@@ -125,6 +126,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-10-02T03:08:28.376Z
+Last session: 2026-10-02T11:08:11.084Z
 Stopped at: Phase 03.2 UI-SPEC approved
 Resume file: .planning/phases/03.2-paridade-do-atendimento-com-a-blip/03.2-UI-SPEC.md

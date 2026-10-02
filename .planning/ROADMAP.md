@@ -449,7 +449,7 @@ Plans:
   4. O dono aprova a comparação visual
 
 **UI hint**: yes
-**Plans:** 20/25 plans executed
+**Plans:** 22/25 plans executed
 
 Plans:
 
@@ -475,8 +475,8 @@ Plans:
 - [x] 03.2-20-PLAN.md — Respostas e Templates de mensagem
 - [x] 03.2-21-PLAN.md — Canais e Configurações gerais
 - [ ] 03.2-22-PLAN.md — portão da Onda 3
-- [ ] 03.2-23-PLAN.md — Relatórios, Esforço, Pesquisa + cartão único
-- [ ] 03.2-24-PLAN.md — dashboards de ligações e vendas
+- [x] 03.2-23-PLAN.md — Relatórios, Esforço, Pesquisa + cartão único
+- [x] 03.2-24-PLAN.md — dashboards de ligações e vendas
 - [ ] 03.2-25-PLAN.md — GATE-FINAL e OWNER APPROVED
 
 ### Phase 4: Resolver o CRM e consolidar o repositório
