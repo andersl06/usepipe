@@ -291,6 +291,10 @@
   --p-atend-equipe-linha-permissao: 56px;
   --p-atend-equipe-interruptor-largura: 32px;
   --p-atend-equipe-interruptor-altura: 21px;
+  /* Respostas prontas: cartões de categoria e de resposta (ref/verificacao/replies-blip.md [M]). */
+  --p-atend-resposta-cartao-padding: 20px;
+  --p-atend-resposta-cartao-altura: 86px;
+  --p-atend-resposta-cartao-passo: 10px;
 
   /*
    * ================================== Attendance: queue edit page
@@ -535,4 +539,8 @@
   --p-atend-equipe-linha-permissao: 56px;
   --p-atend-equipe-interruptor-largura: 32px;
   --p-atend-equipe-interruptor-altura: 21px;
+  /* Respostas prontas: cartões de categoria e de resposta (ref/verificacao/replies-blip.md [M]). */
+  --p-atend-resposta-cartao-padding: 20px;
+  --p-atend-resposta-cartao-altura: 86px;
+  --p-atend-resposta-cartao-passo: 10px;
 }

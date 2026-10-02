@@ -26,3 +26,54 @@ export async function excluirRespostaPronta(id: string): Promise<Resultado<void>
     return { ok: false, error: motivoDe(error, 'Não foi possível excluir a resposta.') };
   }
 }
+
+const RESPOSTAS = '/v1/management/communication/responses-ready';
+const CATEGORIAS = '/v1/management/communication/response-categories';
+
+export async function criarRespostaPronta(corpo: {
+  shortcut: string;
+  title: string;
+  body: string;
+  category: string | null;
+}): Promise<Resultado<{ id: string }>> {
+  try {
+    const criada = await api.post<{ id: string }>(RESPOSTAS, corpo);
+    atualizarLeituras();
+    return { ok: true, value: criada };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar a resposta.') };
+  }
+}
+
+export async function editarRespostaPronta(
+  id: string,
+  corpo: { shortcut?: string; title?: string; body?: string; ativa?: boolean },
+): Promise<Resultado<void>> {
+  try {
+    await api.patch(`${RESPOSTAS}/${id}`, corpo);
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar a resposta.') };
+  }
+}
+
+export async function renomearCategoriaDeRespostas(name: string, newName: string): Promise<Resultado<void>> {
+  try {
+    await api.patch(CATEGORIAS, { name, newName });
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível renomear a categoria.') };
+  }
+}
+
+export async function excluirCategoriaDeRespostas(name: string): Promise<Resultado<void>> {
+  try {
+    await api.delete(`${CATEGORIAS}?name=${encodeURIComponent(name)}`);
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível excluir a categoria.') };
+  }
+}

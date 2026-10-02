@@ -1,98 +1,151 @@
-import { useState } from 'react';
-import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
-import { useRead } from '../../lib/query';
-import type { RespostaProntaListada } from '../../lib/communication';
-import { alternarRespostaPronta, excluirRespostaPronta } from '../../lib/communication-gravar';
-import { ListaRegras, type RulesSection } from '../../components/lista-regras';
-import { FormularioRespostaPronta } from './communication-respostas-formulario';
+import { useRef, useState } from 'react';
+import { Botao, BotaoDeIcone, Campo, Carregando, Etiqueta } from '@pipe/ui';
 import { Modal, ConfirmModal } from '@pipe/ui/modal';
+import { Pagination, usePage } from '@pipe/ui/pagination';
+import { Toasts } from '@pipe/ui/toast';
+import { dismissToast, pushToast, type Toast, type ToastInput } from '@pipe/ui/toast-queue';
+import { useRead } from '../../lib/query';
+import {
+  agruparPorCategoria,
+  motivoDoNomeDeCategoria,
+  LIMITES_RESPOSTA,
+  type RespostaProntaListada,
+} from '../../lib/communication';
+import {
+  excluirCategoriaDeRespostas,
+  excluirRespostaPronta,
+  renomearCategoriaDeRespostas,
+} from '../../lib/communication-gravar';
+import { AVISO_EM_BREVE, CartaoResposta } from './communication-respostas-formulario';
 
-/** The switch and the "Excluir" on the row card — `PATCH`/`DELETE` on `.../respostas-prontas/:id`. */
-function ResponseActions({
-  resposta,
-  onErrorToggle,
-  onExcluir,
-}: {
-  resposta: RespostaProntaListada;
-  onErrorToggle: (error: string) => void;
-  onExcluir: () => void;
-}) {
-  const alternar = async () => {
-    const r = await alternarRespostaPronta(resposta.id, resposta.ativa);
-    if (!r.ok) onErrorToggle(r.error);
-  };
-  return (
-    <>
-      <button
-        type="button"
-        className="interruptor"
-        role="switch"
-        aria-checked={resposta.ativa}
-        aria-label={
-          resposta.ativa ? `Desativar a resposta ${resposta.title}` : `Ativar a resposta ${resposta.title}`
-        }
-        title={resposta.ativa ? 'Desativar esta resposta' : 'Ativar esta resposta'}
-        onClick={() => void alternar()}
-      >
-        <span className="interruptor-bolinha" />
-      </button>
-      <BotaoDeIcone nome="x" rotulo={`Excluir a resposta ${resposta.title}`} onClick={onExcluir} />
-    </>
-  );
-}
+/** Os 14 tipos do menu da Blip, na ordem dela; só o texto grava hoje (a tabela guarda atalho, título e texto). */
+const TIPOS_DE_RESPOSTA = [
+  'Texto', 'Quick reply', 'Menu', 'Carrossel', 'Imagem', 'Figurinha', 'Áudio',
+  'Vídeo', 'Documento', 'Pedir localização', 'Enviar localização', 'Web link',
+  'Solicitar ligação', 'Conteúdo dinâmico',
+] as const;
+
+type Alvo = { nome: string | null };
 
 /**
- * Canned replies — the company's ones. Personal ones are created and organized by the attendant alone in Desk (§5 of `docs/specs/2026-09-05-desk-requisitos.md`), so they don't appear on this management screen. `FICHA-replies.md` was captured with an empty list — the material only confirms the header with "Criar categoria" on the right (§2.1) and the empty-state text (§6); there's no column or row with real data to copy. A structural mismatch the ficha doesn't resolve: Blip organizes replies into CATEGORIES (you create the category first, the reply lives inside it); our registration is a flat list, with no category — changing that is new-data design (table/API), beyond what this screen alone decides. That's why the header button here reads "Nova resposta pronta" (what the screen actually does) instead of "Criar categoria". Reuses `ListaRegras`, the same search-enabled list card from the Rules screen — the card already handles search, grouping and empty state without rewriting any of that here.
+ * Respostas prontas. A lista mostra CATEGORIAS (cartões, paginação); abrir uma categoria mostra as
+ * respostas dela na mesma URL, e cada resposta grava na hora, como na Blip. Não há tabela de
+ * categorias: uma categoria existe enquanto tiver resposta; uma nova, ainda vazia, só vive nesta tela
+ * até receber a primeira resposta.
  */
 export function PageCannedResponses() {
-  const [modalAberto, setModalAberto] = useState(false);
-  const [respostaParaExcluir, setRespostaParaExcluir] = useState<RespostaProntaListada | null>(null);
-  const [excluindo, setExcluindo] = useState(false);
-  const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
-  const [errorToggle, setErrorToggle] = useState<string | null>(null);
   const read = useRead<RespostaProntaListada[]>('/v1/management/communication/responses-ready');
-  if (!read.data) return null;
-  const respostas = read.data;
+  const [aberta, setAberta] = useState<Alvo | null>(null);
+  const [rascunhos, setRascunhos] = useState<string[]>([]);
+  const [modalCriar, setModalCriar] = useState(false);
+  const [nomeNovo, setNomeNovo] = useState('');
+  const [categoriaParaExcluir, setCategoriaParaExcluir] = useState<Alvo | null>(null);
+  const [respostaParaExcluir, setRespostaParaExcluir] = useState<RespostaProntaListada | null>(null);
+  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const toast = (input: ToastInput) => setToasts((prev) => pushToast(prev, input, Date.now()));
 
-  async function excluir() {
-    if (!respostaParaExcluir) return;
-    setExcluindo(true);
-    setErrorDeletion(null);
-    const resultado = await excluirRespostaPronta(respostaParaExcluir.id);
-    setExcluindo(false);
-    if (resultado.ok) setRespostaParaExcluir(null);
-    else setErrorDeletion(resultado.error);
+  const respostas = read.data ?? [];
+  const reais = agruparPorCategoria(respostas);
+  const categorias = [
+    ...reais,
+    ...rascunhos.filter((r) => !reais.some((c) => c.nome === r)).map((nome) => ({ nome, respostas: [] })),
+  ];
+  const pagina = usePage(categorias, 5);
+
+  if (read.isError) return <Etiqueta tom="erro">Não foi possível carregar as respostas prontas.</Etiqueta>;
+  if (!read.data) return <Carregando />;
+
+  const nomes = categorias.map((c) => c.nome);
+  const motivoNovo = motivoDoNomeDeCategoria(nomeNovo, nomes);
+
+  function avisoDeGravacao(erro: string | null) {
+    if (erro) toast({ tom: 'perigo', texto: erro });
+    else toast({ tom: 'sucesso', texto: 'Categoria salva com sucesso!' });
   }
 
-  const sections: RulesSection[] = [
-    {
-      titulo: 'Respostas prontas',
-      /*
-       * Their literal empty-state text — `FICHA-replies.md` §6, the only part of the material not subject to the category mismatch described above: the text doesn't mention category or #, so it's copied without caveat.
-       */
-      empty: 'Você ainda não criou respostas prontas',
-      emptyDescription: 'Crie respostas para agilizar seus atendimentos',
-      cards: respostas.map((r) => ({
-        id: r.id,
-        campos: [
-          { rotulo: 'Atalho', value: `#${r.shortcut}` },
-          { rotulo: 'Título', value: r.title },
-          { rotulo: 'Fila / canal', value: r.category ?? '—' },
-          { rotulo: 'Corpo', value: r.body },
-        ],
-        situation: r.ativa ? 'Ativa' : 'Desativada',
-        active: r.ativa,
-        acao: (
-          <ResponseActions
-            resposta={r}
-            onErrorToggle={setErrorToggle}
-            onExcluir={() => setRespostaParaExcluir(r)}
-          />
-        ),
-        procura: `${r.title} ${r.shortcut}`.toLowerCase(),
-      })),
-    },
-  ];
+  function criarCategoria() {
+    if (motivoNovo) return;
+    const nome = nomeNovo.trim();
+    setRascunhos((r) => [...r, nome]);
+    setModalCriar(false);
+    setNomeNovo('');
+    setAberta({ nome });
+  }
+
+  async function confirmarExclusao() {
+    setExcluindo(true);
+    setErroExclusao(null);
+    if (respostaParaExcluir) {
+      const r = await excluirRespostaPronta(respostaParaExcluir.id);
+      setExcluindo(false);
+      if (!r.ok) return setErroExclusao(r.error);
+      setRespostaParaExcluir(null);
+      avisoDeGravacao(null);
+      return;
+    }
+    const alvo = categoriaParaExcluir;
+    if (!alvo) return;
+    const temRespostas = reais.some((c) => c.nome === alvo.nome);
+    const r = alvo.nome !== null && temRespostas ? await excluirCategoriaDeRespostas(alvo.nome) : { ok: true as const };
+    setExcluindo(false);
+    if (!r.ok) return setErroExclusao(r.error);
+    setRascunhos((lista) => lista.filter((n) => n !== alvo.nome));
+    setCategoriaParaExcluir(null);
+    setAberta(null);
+  }
+
+  const confirmacao = (
+    <ConfirmModal
+      aberto={respostaParaExcluir !== null || categoriaParaExcluir !== null}
+      titulo={respostaParaExcluir ? 'Excluir resposta' : 'Excluir categoria'}
+      message={
+        respostaParaExcluir
+          ? 'Tem certeza que deseja excluir essa resposta?'
+          : `Tem certeza que deseja excluir a categoria "${categoriaParaExcluir?.nome ?? 'Sem categoria'}" e as respostas dela?`
+      }
+      error={erroExclusao}
+      confirmando={excluindo}
+      onConfirmar={() => void confirmarExclusao()}
+      onCancelar={() => {
+        setRespostaParaExcluir(null);
+        setCategoriaParaExcluir(null);
+        setErroExclusao(null);
+      }}
+    />
+  );
+  const avisos = (
+    <Toasts
+      toasts={toasts}
+      onFechar={(id) => setToasts((prev) => dismissToast(prev, id))}
+      onPausar={() => {}}
+      onRetomar={() => {}}
+    />
+  );
+
+  if (aberta) {
+    const atual = categorias.find((c) => c.nome === aberta.nome);
+    return (
+      <>
+        <DetalheDaCategoria
+          nome={aberta.nome}
+          respostas={atual?.respostas ?? []}
+          nomes={nomes}
+          aoVoltar={() => setAberta(null)}
+          aoRenomear={(novo) => {
+            setRascunhos((l) => l.map((n) => (n === aberta.nome ? novo : n)));
+            setAberta({ nome: novo });
+          }}
+          aoExcluirResposta={(r) => setRespostaParaExcluir(r)}
+          aoSalvar={avisoDeGravacao}
+          toast={toast}
+        />
+        {confirmacao}
+        {avisos}
+      </>
+    );
+  }
 
   return (
     <>
@@ -102,38 +155,190 @@ export function PageCannedResponses() {
           variante="primario"
           icone="mais"
           className="board-acao"
-          onClick={() => setModalAberto(true)}
+          onClick={() => {
+            setNomeNovo('');
+            setModalCriar(true);
+          }}
         >
-          Nova resposta pronta
+          Criar categoria
         </Botao>
       </div>
 
-      {errorToggle ? <Etiqueta tom="erro">{errorToggle}</Etiqueta> : null}
+      {categorias.length === 0 ? (
+        <div className="empty">
+          <strong>Você ainda não criou respostas prontas</strong>
+          <p className="sub">Crie respostas para agilizar seus atendimentos</p>
+        </div>
+      ) : (
+        pagina.visiveis.map((c) => (
+          <div key={c.nome ?? '__sem_categoria__'} className="resp-cartao resp-cartao--categoria">
+            <button type="button" className="resp-cartao-nome" onClick={() => setAberta({ nome: c.nome })}>
+              <span className="sub">Categoria</span>
+              <strong>{c.nome ?? 'Sem categoria'}</strong>
+            </button>
+            <BotaoDeIcone nome="lapis" rotulo="Editar" onClick={() => setAberta({ nome: c.nome })} />
+            <BotaoDeIcone nome="lixeira" rotulo="Excluir" onClick={() => setCategoriaParaExcluir({ nome: c.nome })} />
+          </div>
+        ))
+      )}
+      <Pagination layout="grade" state={pagina} afastado />
 
-      <ListaRegras sections={sections} placeholder="Buscar por título ou por atalho" sectionHideHeader />
-
-      <Modal
-        aberto={modalAberto}
-        titulo="Nova resposta pronta"
-        onFechar={() => setModalAberto(false)}
-      >
-        <FormularioRespostaPronta aoSalvar={() => setModalAberto(false)} />
+      <Modal aberto={modalCriar} titulo="Criar nova categoria" onFechar={() => setModalCriar(false)}>
+        <p className="sub">Dê um nome para essa categoria de respostas prontas</p>
+        <Campo
+          aria-label="Nome da categoria"
+          placeholder="Nome da categoria"
+          value={nomeNovo}
+          maxLength={LIMITES_RESPOSTA.categoria}
+          autoFocus
+          onChange={(e) => setNomeNovo(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') criarCategoria();
+          }}
+        />
+        {nomeNovo && motivoNovo ? <Etiqueta tom="erro">{motivoNovo}</Etiqueta> : null}
+        <div className="cl-actions">
+          <Botao onClick={() => setModalCriar(false)}>Cancelar</Botao>
+          <Botao variante="primario" disabled={motivoNovo !== null} onClick={criarCategoria}>
+            Salvar
+          </Botao>
+        </div>
       </Modal>
+      {confirmacao}
+      {avisos}
+    </>
+  );
+}
 
-      <ConfirmModal
-        aberto={respostaParaExcluir !== null}
-        titulo="Excluir resposta"
-        message={
-          <>Excluir a resposta "{respostaParaExcluir?.title}"? Esta ação não pode ser desfeita.</>
-        }
-        error={errorDeletion}
-        confirmando={excluindo}
-        onConfirmar={() => void excluir()}
-        onCancelar={() => {
-          setRespostaParaExcluir(null);
-          setErrorDeletion(null);
-        }}
-      />
+function DetalheDaCategoria({
+  nome,
+  respostas,
+  nomes,
+  aoVoltar,
+  aoRenomear,
+  aoExcluirResposta,
+  aoSalvar,
+  toast,
+}: {
+  nome: string | null;
+  respostas: RespostaProntaListada[];
+  nomes: (string | null)[];
+  aoVoltar: () => void;
+  aoRenomear: (novo: string) => void;
+  aoExcluirResposta: (r: RespostaProntaListada) => void;
+  aoSalvar: (erro: string | null) => void;
+  toast: (t: ToastInput) => void;
+}) {
+  const [renomeando, setRenomeando] = useState(false);
+  const [rotulo, setRotulo] = useState(nome ?? '');
+  const [erroNome, setErroNome] = useState<string | null>(null);
+  const [menu, setMenu] = useState(false);
+  const [novas, setNovas] = useState<number[]>([]);
+  const proxima = useRef(0);
+  const existente = respostas.length > 0;
+
+  async function salvarNome() {
+    const novo = rotulo.trim();
+    if (!nome || novo === nome) {
+      setRenomeando(false);
+      setErroNome(null);
+      return;
+    }
+    const motivo = motivoDoNomeDeCategoria(novo, nomes, nome);
+    if (motivo) return setErroNome(motivo);
+    if (existente) {
+      const r = await renomearCategoriaDeRespostas(nome, novo);
+      if (!r.ok) return setErroNome(r.error);
+      toast({ tom: 'sucesso', texto: 'Categoria salva com sucesso!' });
+    }
+    setRenomeando(false);
+    setErroNome(null);
+    aoRenomear(novo);
+  }
+
+  return (
+    <>
+      <div className="board-head">
+        <BotaoDeIcone nome="esquerda" rotulo="Voltar" onClick={aoVoltar} />
+        {renomeando && nome ? (
+          <>
+            <Campo
+              aria-label="Nome da categoria"
+              value={rotulo}
+              maxLength={LIMITES_RESPOSTA.categoria}
+              autoFocus
+              onChange={(e) => setRotulo(e.target.value)}
+              onBlur={() => void salvarNome()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') e.currentTarget.blur();
+                if (e.key === 'Escape') {
+                  setRotulo(nome);
+                  setRenomeando(false);
+                }
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <h2>{nome ?? 'Sem categoria'}</h2>
+            {nome ? <BotaoDeIcone nome="lapis" rotulo="Editar" onClick={() => setRenomeando(true)} /> : null}
+          </>
+        )}
+        <div className="board-acao resp-menu">
+          <Botao variante="primario" icone="mais" aria-expanded={menu} onClick={() => setMenu((v) => !v)}>
+            Adicionar resposta
+          </Botao>
+          {menu ? (
+            <div className="resp-menu-lista" role="menu">
+              {TIPOS_DE_RESPOSTA.map((tipo) => {
+                const disponivel = tipo === 'Texto';
+                return (
+                  <button
+                    key={tipo}
+                    type="button"
+                    role="menuitem"
+                    className="resp-menu-item"
+                    disabled={!disponivel}
+                    title={disponivel ? undefined : AVISO_EM_BREVE}
+                    onClick={() => {
+                      setNovas((l) => [...l, proxima.current++]);
+                      setMenu(false);
+                    }}
+                  >
+                    {tipo}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+      </div>
+      {erroNome ? <Etiqueta tom="erro">{erroNome}</Etiqueta> : null}
+
+      {respostas.map((r) => (
+        <CartaoResposta
+          key={r.id}
+          resposta={r}
+          categoria={nome}
+          aoSalvar={aoSalvar}
+          aoExcluir={() => aoExcluirResposta(r)}
+        />
+      ))}
+      {novas.map((chave) => (
+        <CartaoResposta
+          key={`nova-${chave}`}
+          categoria={nome}
+          aoSalvar={aoSalvar}
+          aoCriar={() => setNovas((l) => l.filter((k) => k !== chave))}
+          aoExcluir={() => setNovas((l) => l.filter((k) => k !== chave))}
+        />
+      ))}
+      {respostas.length === 0 && novas.length === 0 ? (
+        <div className="empty">
+          <strong>Nenhuma resposta nesta categoria</strong>
+          <p className="sub">Use "Adicionar resposta" para criar a primeira.</p>
+        </div>
+      ) : null}
     </>
   );
 }

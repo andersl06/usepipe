@@ -82,3 +82,64 @@ export interface ChannelWhatsapp {
   id: string;
   name: string;
 }
+
+/** Limites que o servidor também confere (`communication.ts` da API). */
+export const LIMITES_RESPOSTA = { atalho: 50, titulo: 100, corpo: 4096, categoria: 100 } as const;
+
+export interface CategoriaDeRespostas {
+  /** `null`: respostas antigas sem categoria. */
+  nome: string | null;
+  respostas: RespostaProntaListada[];
+}
+
+/** Agrupa as respostas por categoria, em ordem alfabética; "sem categoria" vai por último. */
+export function agruparPorCategoria(respostas: readonly RespostaProntaListada[]): CategoriaDeRespostas[] {
+  const mapa = new Map<string | null, RespostaProntaListada[]>();
+  for (const r of respostas) {
+    const nome = r.category?.trim() || null;
+    mapa.set(nome, [...(mapa.get(nome) ?? []), r]);
+  }
+  return [...mapa.entries()]
+    .map(([nome, lista]) => ({ nome, respostas: lista }))
+    .sort((x, y) => {
+      if (x.nome === null) return 1;
+      if (y.nome === null) return -1;
+      return x.nome.localeCompare(y.nome, 'pt-BR');
+    });
+}
+
+/** Valida o nome de uma categoria nova ou renomeada; devolve o motivo ou `null`. */
+export function motivoDoNomeDeCategoria(
+  nome: string,
+  existentes: readonly (string | null)[],
+  atual?: string | null,
+): string | null {
+  const limpo = nome.trim();
+  if (!limpo) return 'Informe o nome da categoria.';
+  if (limpo.length > LIMITES_RESPOSTA.categoria) {
+    return `O nome aceita até ${LIMITES_RESPOSTA.categoria} caracteres.`;
+  }
+  if (limpo !== atual && existentes.includes(limpo)) return `Já existe a categoria "${limpo}".`;
+  return null;
+}
+
+/** Valida uma resposta de texto; devolve o motivo ou `null`. */
+export function motivoDaResposta(r: { shortcut: string; title: string; body: string }): string | null {
+  const atalho = r.shortcut.trim().replace(/^#/, '');
+  if (!r.title.trim()) return 'Informe o título.';
+  if (r.title.trim().length > LIMITES_RESPOSTA.titulo) return `O título aceita até ${LIMITES_RESPOSTA.titulo} caracteres.`;
+  if (!atalho) return 'Informe o atalho.';
+  if (/\s/.test(atalho)) return 'O atalho não pode ter espaço.';
+  if (atalho.length > LIMITES_RESPOSTA.atalho) return `O atalho aceita até ${LIMITES_RESPOSTA.atalho} caracteres.`;
+  if (!r.body.trim()) return 'Informe o texto da resposta.';
+  if (r.body.trim().length > LIMITES_RESPOSTA.corpo) return `O texto aceita até ${LIMITES_RESPOSTA.corpo} caracteres.`;
+  return null;
+}
+
+/** Quebra o texto do modelo em trechos para destacar `{{n}}` sem HTML (a tela renderiza como texto). */
+export function trechosDoModelo(texto: string): { texto: string; variavel: boolean }[] {
+  return texto
+    .split(/(\{\{\s*\w+\s*\}\})/g)
+    .filter((t) => t !== '')
+    .map((t) => ({ texto: t, variavel: /^\{\{\s*\w+\s*\}\}$/.test(t) }));
+}

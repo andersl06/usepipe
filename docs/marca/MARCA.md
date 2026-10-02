@@ -109,6 +109,9 @@ Mesmo rodapé "Resultados por página" em grades e listas; só a margem de cima 
 | `--p-atend-equipe-avatar` | `56px` | Lado do avatar de iniciais acima do cartão de Editar e Permissões | `atendentes-medidas-blip.md` ([M]) |
 | `--p-atend-equipe-linha-permissao` | `56px` | Altura de cada linha de permissão | `atendentes-medidas-blip.md` ([M]) |
 | `--p-atend-equipe-interruptor-largura` / `-altura` | `32px` / `21px` | Interruptor curto das páginas de atendente (altura 18px em Adicionar, 21,3px em Editar [M]; 21px adotado) | `atendentes-medidas-blip.md` ([M]) |
+| `--p-atend-resposta-cartao-padding` | `20px` | Padding dos cartões de categoria e de resposta em Respostas prontas | `replies-blip.md` ([M]) |
+| `--p-atend-resposta-cartao-altura` | `86px` | Altura do cartão de categoria | `replies-blip.md` ([M]) |
+| `--p-atend-resposta-cartao-passo` | `10px` | Espaço vertical entre cartões (passo de 96px) | `replies-blip.md` ([M]) |
 | `--p-atend-fila-cartao-raio` | `16px` | Raio dos cinco cartões da edição de fila | `queue-management-editar-blip.md` ([M]) |
 | `--p-atend-fila-cartao-padding` | `40px` | Padding dos cartões da edição de fila | `queue-management-editar-blip.md` ([M]) |
 | `--p-atend-fila-cartao-margem` | `20px` | Espaço entre os cartões empilhados | `queue-management-editar-blip.md` ([M]) |

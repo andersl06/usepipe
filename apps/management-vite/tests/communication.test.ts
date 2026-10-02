@@ -85,3 +85,40 @@ test('templatePayload uses the field names the API reads', () => {
     exemplos: ['Ana'],
   });
 });
+
+import { agruparPorCategoria, motivoDaResposta, motivoDoNomeDeCategoria, trechosDoModelo } from '../src/lib/communication.ts';
+
+const resposta = (id: string, category: string | null) => ({
+  id, shortcut: id, title: id, body: 'x', category, ativa: true,
+});
+
+test('agrupa respostas por categoria em ordem alfabética, sem categoria por último', () => {
+  const grupos = agruparPorCategoria([resposta('1', 'Vendas'), resposta('2', null), resposta('3', 'Abertura'), resposta('4', 'Vendas')]);
+  assert.deepEqual(grupos.map((g) => [g.nome, g.respostas.length]), [['Abertura', 1], ['Vendas', 2], [null, 1]]);
+});
+
+test('nome de categoria: vazio, repetido e longo são recusados; o próprio nome é aceito', () => {
+  assert.ok(motivoDoNomeDeCategoria('  ', []));
+  assert.ok(motivoDoNomeDeCategoria('Vendas', ['Vendas']));
+  assert.ok(motivoDoNomeDeCategoria('x'.repeat(101), []));
+  assert.equal(motivoDoNomeDeCategoria('Vendas', ['Vendas'], 'Vendas'), null);
+  assert.equal(motivoDoNomeDeCategoria('Novo', ['Vendas']), null);
+});
+
+test('resposta de texto exige título, atalho sem espaço e texto', () => {
+  assert.ok(motivoDaResposta({ shortcut: 'a', title: '', body: 'x' }));
+  assert.ok(motivoDaResposta({ shortcut: 'a b', title: 't', body: 'x' }));
+  assert.ok(motivoDaResposta({ shortcut: '#', title: 't', body: 'x' }));
+  assert.ok(motivoDaResposta({ shortcut: 'a', title: 't', body: ' ' }));
+  assert.equal(motivoDaResposta({ shortcut: '#ola', title: 't', body: 'x' }), null);
+});
+
+test('destaca as variáveis do modelo sem tratar o texto como HTML', () => {
+  assert.deepEqual(trechosDoModelo('Olá {{1}}, <b>{{ nome }}</b>'), [
+    { texto: 'Olá ', variavel: false },
+    { texto: '{{1}}', variavel: true },
+    { texto: ', <b>', variavel: false },
+    { texto: '{{ nome }}', variavel: true },
+    { texto: '</b>', variavel: false },
+  ]);
+});

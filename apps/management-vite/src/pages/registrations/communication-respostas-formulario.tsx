@@ -1,78 +1,146 @@
-import { useEffect, useRef } from 'react';
-import { useActionState } from 'react';
-import { Botao, Campo, Etiqueta } from '@pipe/ui';
-import { salvarRespostaPronta } from '../../lib/actions';
-import { envioQuePreserva } from '../../components/envio-de-formulario';
+import { useEffect, useRef, useState } from 'react';
+import { BotaoDeIcone, Campo, Etiqueta } from '@pipe/ui';
+import type { RespostaProntaListada } from '../../lib/communication';
+import { LIMITES_RESPOSTA, motivoDaResposta } from '../../lib/communication';
+import {
+  alternarRespostaPronta,
+  criarRespostaPronta,
+  editarRespostaPronta,
+} from '../../lib/communication-gravar';
+
+export const AVISO_EM_BREVE = 'Este recurso será liberado em breve para este fluxo.';
 
 /**
- * Canned-reply registration — only `escopo = 'empresa'` (see the comment in `lib/comunicacao.ts`). Attendants create their personal ones in Desk. No "labeled form field" class exists yet in the shared design system — only `.cl-campo` (label above a READ-ONLY VALUE, from the list card) and `.lbl`, which the comment in `base.css` forbids using for a field name. So the label here is `.sub` (a small caption, already existing) instead of a new class.
+ * Cartão de uma resposta de texto dentro da categoria aberta. Como na Blip, não há botão de salvar:
+ * ao sair de um campo, uma resposta válida e alterada é gravada na hora (criada ou editada) e a tela
+ * avisa o resultado. Resposta nova só grava quando título, atalho e texto estão preenchidos, porque o
+ * atalho é o que o atendente digita no compositor do Desk. O texto é sempre desenhado como texto.
  */
-export function FormularioRespostaPronta({ aoSalvar }: { aoSalvar?: () => void }) {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [resultado, enviar, enviando] = useActionState(salvarRespostaPronta, { ok: true });
-  /* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`. */
-  const stateInitial = useRef(resultado);
+export function CartaoResposta({
+  resposta,
+  categoria,
+  aoSalvar,
+  aoCriar,
+  aoExcluir,
+}: {
+  /** Ausente: cartão novo, ainda não gravado. */
+  resposta?: RespostaProntaListada;
+  categoria: string | null;
+  aoSalvar: (erro: string | null) => void;
+  aoCriar?: () => void;
+  aoExcluir: () => void;
+}) {
+  const [title, setTitle] = useState(resposta?.title ?? '');
+  const [shortcut, setShortcut] = useState(resposta ? `#${resposta.shortcut}` : '');
+  const [body, setBody] = useState(resposta?.body ?? '');
+  const [editandoTitulo, setEditandoTitulo] = useState(!resposta);
+  const [erro, setErro] = useState<string | null>(null);
+  const gravando = useRef(false);
 
+  // A leitura recarregada (outra aba, renomeação) volta a ser a verdade do cartão.
   useEffect(() => {
-    if (resultado === stateInitial.current) return;
-    if (resultado.ok) {
-      formRef.current?.reset();
-      aoSalvar?.();
+    if (!resposta) return;
+    setTitle(resposta.title);
+    setShortcut(`#${resposta.shortcut}`);
+    setBody(resposta.body);
+  }, [resposta?.title, resposta?.shortcut, resposta?.body]);
+
+  async function gravar() {
+    if (gravando.current) return;
+    const atalho = shortcut.trim().replace(/^#/, '');
+    const motivo = motivoDaResposta({ shortcut: atalho, title, body });
+    const alterada =
+      !resposta || title.trim() !== resposta.title || atalho !== resposta.shortcut || body.trim() !== resposta.body;
+    if (!alterada) return;
+    if (motivo) {
+      // Cartão novo incompleto espera o resto; cartão salvo mostra o motivo.
+      setErro(resposta ? motivo : null);
+      return;
     }
-  }, [resultado]);
+    gravando.current = true;
+    setErro(null);
+    const r = resposta
+      ? await editarRespostaPronta(resposta.id, { title: title.trim(), shortcut: atalho, body: body.trim() })
+      : await criarRespostaPronta({ title: title.trim(), shortcut: atalho, body: body.trim(), category: categoria });
+    gravando.current = false;
+    if (!r.ok) {
+      setErro(r.error);
+      aoSalvar(r.error);
+      return;
+    }
+    aoSalvar(null);
+    if (!resposta) aoCriar?.();
+  }
+
+  async function alternar() {
+    if (!resposta) return;
+    const r = await alternarRespostaPronta(resposta.id, resposta.ativa);
+    if (!r.ok) {
+      setErro(r.error);
+      aoSalvar(r.error);
+    }
+  }
 
   return (
-    <>
-      <p className="sub">
-        O atalho é o que o atendente digita depois do <b>#</b> no compositor do Desk (ver §5 de{' '}
-        <code>2026-09-05-desk-requisitos.md</code>). A tabela não tem índice único de atalho por
-        tenant — só um índice de busca —, então o conflito é checado aqui, ao salvar.
-      </p>
-
-      <form
-        ref={formRef}
-        onSubmit={envioQuePreserva(enviar)}
-        style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-e-3)' }}
-      >
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span className="sub">Atalho (sem espaço, sem o #)</span>
-          <Campo name="atalho" placeholder="saudacao-inicial" required disabled={enviando} />
-        </label>
-
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span className="sub">Título</span>
-          <Campo name="titulo" placeholder="Saudação inicial" required disabled={enviando} />
-        </label>
-
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span className="sub">Fila ou canal a que pertence (opcional)</span>
+    <div className="resp-cartao resp-cartao--resposta">
+      <div className="resp-cartao-topo">
+        {editandoTitulo ? (
           <Campo
-            name="categoria"
-            placeholder="Ex.: Suporte, Financeiro, WhatsApp"
-            disabled={enviando}
+            aria-label="Título da resposta"
+            value={title}
+            maxLength={LIMITES_RESPOSTA.titulo}
+            placeholder="Título da resposta"
+            autoFocus={!resposta}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={() => {
+              if (title.trim()) setEditandoTitulo(false);
+              void gravar();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.currentTarget.blur();
+            }}
           />
-        </label>
-
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span className="sub">Corpo</span>
-          <textarea
-            name="corpo"
-            className="campo"
-            rows={4}
-            placeholder="Suporta contato.nome, contato.email, atendente.nome…"
-            required
-            disabled={enviando}
-          />
-        </label>
-
-        {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
-
-        <div className="cl-actions">
-          <Botao type="submit" variante="primario" disabled={enviando}>
-            {enviando ? 'Salvando…' : 'Salvar resposta pronta'}
-          </Botao>
-        </div>
-      </form>
-    </>
+        ) : (
+          <>
+            <strong className="resp-cartao-titulo">{title}</strong>
+            <BotaoDeIcone nome="lapis" rotulo="Editar" onClick={() => setEditandoTitulo(true)} />
+          </>
+        )}
+        <span className="resp-etiqueta-tipo">Texto</span>
+        {resposta ? (
+          <button
+            type="button"
+            className="interruptor"
+            role="switch"
+            aria-checked={resposta.ativa}
+            aria-label={resposta.ativa ? `Desativar a resposta ${resposta.title}` : `Ativar a resposta ${resposta.title}`}
+            title={resposta.ativa ? 'Desativar esta resposta' : 'Ativar esta resposta'}
+            onClick={() => void alternar()}
+          >
+            <span className="interruptor-bolinha" />
+          </button>
+        ) : null}
+        <BotaoDeIcone nome="lixeira" rotulo="Excluir" onClick={aoExcluir} />
+      </div>
+      <Campo
+        aria-label="Atalho"
+        value={shortcut}
+        maxLength={LIMITES_RESPOSTA.atalho + 1}
+        placeholder="#atalho (é o que o atendente digita no Desk)"
+        onChange={(e) => setShortcut(e.target.value)}
+        onBlur={() => void gravar()}
+      />
+      <textarea
+        aria-label="Texto da resposta"
+        className="campo"
+        rows={3}
+        value={body}
+        maxLength={LIMITES_RESPOSTA.corpo}
+        placeholder="Algum texto"
+        onChange={(e) => setBody(e.target.value)}
+        onBlur={() => void gravar()}
+      />
+      {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+    </div>
   );
 }

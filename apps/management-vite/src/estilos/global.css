@@ -5531,3 +5531,121 @@ tr.grupo th {
 .regras-form .horario-rodape > .btn.perigo {
   margin-right: auto;
 }
+
+/* Respostas prontas: cartões de categoria e de resposta, menu de tipos e modal de modelo. */
+.resp-cartao {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin-bottom: var(--p-atend-resposta-cartao-passo);
+  padding: var(--p-atend-resposta-cartao-padding);
+  border-radius: var(--p-atend-fila-cartao-raio);
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-atend-fila-cartao-sombra);
+}
+
+.resp-cartao--categoria {
+  min-height: var(--p-atend-resposta-cartao-altura);
+}
+
+.resp-cartao--resposta {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.resp-cartao-topo {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.resp-cartao-topo .resp-etiqueta-tipo {
+  margin-left: auto;
+}
+
+.resp-cartao-nome {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.resp-etiqueta-tipo {
+  color: var(--p-conteudo-fantasma);
+  font-size: var(--g-t-rotulo);
+}
+
+.resp-menu {
+  position: relative;
+}
+
+.resp-menu-lista {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  right: 0;
+  display: flex;
+  min-width: var(--p-atend-menu-largura);
+  flex-direction: column;
+  margin-top: 4px;
+  padding: 4px 0;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-atend-sombra-flutuante);
+}
+
+.resp-menu-item {
+  padding: 8px 16px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.resp-menu-item:hover:not(:disabled) {
+  background: var(--p-superficie-1);
+}
+
+.resp-menu-item:disabled {
+  color: var(--p-conteudo-fantasma);
+  cursor: not-allowed;
+}
+
+.modelo-variavel {
+  color: var(--p-marca);
+  font-weight: 600;
+}
+
+.modelo-texto {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.modelo-previa {
+  display: -webkit-box;
+  max-width: 420px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.modelo-abrir {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-marca);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
