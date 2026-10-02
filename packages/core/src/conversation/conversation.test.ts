@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  SQL_STATES_ACTIVE,
+  SQL_STATES_CLOSED,
+  STATES_ACTIVE,
   STATES_CONVERSATION,
+  TRANSITIONS,
   TransitionDeliveryInvalidError,
   TransitionInvalidError,
   aplicarEvento,
+  closedStateOf,
   eventStateTarget,
+  isClosedState,
   reproduzirEventos,
   tentarAplicarEvento,
   tentarTransitar,
@@ -16,21 +22,25 @@ import {
   type StateConversation,
   type StateDelivery,
 } from './index.js';
-import type { TipoEvento } from '../metrics/eventos.js';
+import type { EventAttendance, TipoEvento } from '../metrics/eventos.js';
 
-/**
- * All 36 combinations from the §8 diagram. True means the diagram has that edge; every other transition must be rejected.
- */
+const FECHADOS: StateConversation[] = [
+  'ClosedAttendant',
+  'ClosedClient',
+  'ClosedClientInactivity',
+  'Transferred',
+];
+
+/** Arestas do diagrama; qualquer outra combinação deve ser recusada. */
 const PERMITIDAS: [StateConversation, StateConversation][] = [
-  ['na_fila', 'atribuida'],
-  ['na_fila', 'encerrada'],
-  ['atribuida', 'em_atendimento'],
-  ['atribuida', 'encerrada'],
-  ['em_atendimento', 'em_espera'],
-  ['em_atendimento', 'encerrada'],
-  ['em_espera', 'em_atendimento'],
-  ['em_espera', 'encerrada'],
-  ['encerrada', 'na_fila'],
+  ['Waiting', 'Assigned'],
+  ['Assigned', 'Open'],
+  ...(['Waiting', 'Assigned', 'Open'] as const).flatMap((de) =>
+    FECHADOS.map((para) => [de, para] as [StateConversation, StateConversation]),
+  ),
+  ['ClosedAttendant', 'Waiting'],
+  ['ClosedClient', 'Waiting'],
+  ['ClosedClientInactivity', 'Waiting'],
 ];
 
 function ehPermitida(de: StateConversation, para: StateConversation): boolean {
@@ -38,6 +48,18 @@ function ehPermitida(de: StateConversation, para: StateConversation): boolean {
 }
 
 describe('conversation transition table', () => {
+  it('has the seven Blip states in order', () => {
+    expect(STATES_CONVERSATION).toEqual([
+      'Waiting',
+      'Assigned',
+      'Open',
+      'ClosedAttendant',
+      'ClosedClient',
+      'ClosedClientInactivity',
+      'Transferred',
+    ]);
+  });
+
   for (const de of STATES_CONVERSATION) {
     for (const para of STATES_CONVERSATION) {
       const esperado = ehPermitida(de, para);
@@ -59,77 +81,101 @@ describe('conversation transition table', () => {
     for (const state of STATES_CONVERSATION) expect(transitionAllowed(state, removido)).toBe(false);
   });
 
-  it('transfer is not an edge: it exits through closed and opens a new conversation', () => {
-    expect(transitionAllowed('atribuida', 'na_fila')).toBe(false);
-    expect(transitionAllowed('em_atendimento', 'na_fila')).toBe(false);
-    expect(transitionAllowed('atribuida', 'encerrada')).toBe(true);
+  it('standby is not an edge and Transferred never reopens', () => {
+    expect(transitionAllowed('Open', 'Waiting')).toBe(false);
+    expect(transitionAllowed('Assigned', 'Waiting')).toBe(false);
+    expect(TRANSITIONS.Transferred).toEqual([]);
+    expect(transitionAllowed('Transferred', 'Waiting')).toBe(false);
+    expect(transitionAllowed('ClosedClient', 'Waiting')).toBe(true);
+  });
+});
+
+describe('closed state helpers', () => {
+  it('closedStateOf maps who closed to the Blip state', () => {
+    expect(closedStateOf('atendente')).toBe('ClosedAttendant');
+    expect(closedStateOf('cliente')).toBe('ClosedClient');
+    expect(closedStateOf('inatividade')).toBe('ClosedClientInactivity');
+    expect(closedStateOf('transferencia')).toBe('Transferred');
+  });
+
+  it('isClosedState and the SQL lists come from the same constants', () => {
+    expect(isClosedState('Transferred')).toBe(true);
+    expect(isClosedState('Open')).toBe(false);
+    expect(STATES_ACTIVE).toEqual(['Waiting', 'Assigned', 'Open']);
+    expect(SQL_STATES_CLOSED).toBe(
+      "('ClosedAttendant', 'ClosedClient', 'ClosedClientInactivity', 'Transferred')",
+    );
+    expect(SQL_STATES_ACTIVE).toBe("('Waiting', 'Assigned', 'Open')");
   });
 });
 
 describe('transitar', () => {
   it('returns the new state when the transition exists', () => {
-    expect(transitar('na_fila', 'atribuida')).toBe('atribuida');
+    expect(transitar('Waiting', 'Assigned')).toBe('Assigned');
   });
 
   it('throws a typed error when it does not exist', () => {
-    expect(() => transitar('encerrada', 'em_atendimento')).toThrow(TransitionInvalidError);
+    expect(() => transitar('ClosedClient', 'Open')).toThrow(TransitionInvalidError);
     try {
-      transitar('encerrada', 'em_atendimento');
+      transitar('ClosedClient', 'Open');
       expect.unreachable('deveria ter lançado');
     } catch (error) {
       expect(error).toBeInstanceOf(TransitionInvalidError);
       const tipado = error as TransitionInvalidError;
       expect(tipado.codigo).toBe('transicao_invalida');
-      expect(tipado.de).toBe('encerrada');
-      expect(tipado.para).toBe('em_atendimento');
-      expect(tipado.message).toContain('encerrada');
+      expect(tipado.de).toBe('ClosedClient');
+      expect(tipado.para).toBe('Open');
+      expect(tipado.message).toContain('ClosedClient');
     }
   });
 
   it('the no-exception version returns the error in the result', () => {
-    expect(tentarTransitar('na_fila', 'atribuida')).toEqual({ ok: true, state: 'atribuida' });
-    const recusa = tentarTransitar('na_fila', 'em_espera');
+    expect(tentarTransitar('Waiting', 'Assigned')).toEqual({ ok: true, state: 'Assigned' });
+    const recusa = tentarTransitar('Waiting', 'Open');
     expect(recusa.ok).toBe(false);
     if (!recusa.ok) expect(recusa.error).toBeInstanceOf(TransitionInvalidError);
   });
 });
 
 describe('target state of each event', () => {
-  const casos: [TipoEvento, StateConversation | null][] = [
-    ['criada', 'na_fila'],
-    ['enfileirada', 'na_fila'],
-    ['atribuida', 'atribuida'],
-    ['reatribuida', 'atribuida'],
-    ['primeira_resposta', 'em_atendimento'],
-    ['espera_iniciada', 'em_espera'],
-    ['espera_encerrada', 'em_atendimento'],
-    ['encerrada', 'encerrada'],
-    ['reaberta', 'na_fila'],
-    ['mensagem_entrada', null],
-    ['mensagem_saida', null],
-    ['transferida_fila', null],
-    ['sla_alertado', null],
-    ['sla_estourado', null],
-    ['avaliada', null],
-    ['pesquisa_respondida', null],
+  const casos: [Pick<EventAttendance, 'tipo' | 'closedBy'>, StateConversation | null][] = [
+    [{ tipo: 'criada' }, 'Waiting'],
+    [{ tipo: 'enfileirada' }, 'Waiting'],
+    [{ tipo: 'atribuida' }, 'Assigned'],
+    [{ tipo: 'reatribuida' }, 'Assigned'],
+    [{ tipo: 'primeira_resposta' }, 'Open'],
+    [{ tipo: 'espera_iniciada' }, null],
+    [{ tipo: 'espera_encerrada' }, null],
+    [{ tipo: 'encerrada' }, 'ClosedAttendant'],
+    [{ tipo: 'encerrada', closedBy: 'atendente' }, 'ClosedAttendant'],
+    [{ tipo: 'encerrada', closedBy: 'cliente' }, 'ClosedClient'],
+    [{ tipo: 'encerrada', closedBy: 'inatividade' }, 'ClosedClientInactivity'],
+    [{ tipo: 'encerrada', closedBy: 'transferencia' }, 'Transferred'],
+    [{ tipo: 'reaberta' }, 'Waiting'],
+    [{ tipo: 'mensagem_entrada' }, null],
+    [{ tipo: 'mensagem_saida' }, null],
+    [{ tipo: 'transferida_fila' }, null],
+    [{ tipo: 'sla_alertado' }, null],
+    [{ tipo: 'sla_estourado' }, null],
+    [{ tipo: 'avaliada' }, null],
+    [{ tipo: 'pesquisa_respondida' }, null],
   ];
 
-  for (const [tipo, esperado] of casos) {
-    it(`${tipo} → ${esperado ?? 'não mexe no estado'}`, () => {
-      expect(eventStateTarget(tipo)).toBe(esperado);
+  for (const [evento, esperado] of casos) {
+    const nome = `${evento.tipo}${evento.closedBy ? ` (${evento.closedBy})` : ''}`;
+    it(`${nome} → ${esperado ?? 'não mexe no estado'}`, () => {
+      expect(eventStateTarget(evento)).toBe(esperado);
     });
   }
 });
 
 describe('aplicar evento', () => {
   const caminhoFeliz: { de: StateConversation; tipo: TipoEvento; para: StateConversation }[] = [
-    { de: 'na_fila', tipo: 'atribuida', para: 'atribuida' },
-    { de: 'atribuida', tipo: 'primeira_resposta', para: 'em_atendimento' },
-    { de: 'em_atendimento', tipo: 'espera_iniciada', para: 'em_espera' },
-    { de: 'em_espera', tipo: 'espera_encerrada', para: 'em_atendimento' },
-    { de: 'em_atendimento', tipo: 'encerrada', para: 'encerrada' },
-    { de: 'encerrada', tipo: 'reaberta', para: 'na_fila' },
-    { de: 'na_fila', tipo: 'encerrada', para: 'encerrada' },
+    { de: 'Waiting', tipo: 'atribuida', para: 'Assigned' },
+    { de: 'Assigned', tipo: 'primeira_resposta', para: 'Open' },
+    { de: 'Open', tipo: 'encerrada', para: 'ClosedAttendant' },
+    { de: 'ClosedAttendant', tipo: 'reaberta', para: 'Waiting' },
+    { de: 'Waiting', tipo: 'encerrada', para: 'ClosedAttendant' },
   ];
 
   for (const caso of caminhoFeliz) {
@@ -137,6 +183,18 @@ describe('aplicar evento', () => {
       expect(aplicarEvento(caso.de, { tipo: caso.tipo })).toEqual({ state: caso.para, mudou: true });
     });
   }
+
+  it('closing by transfer ends in Transferred', () => {
+    expect(aplicarEvento('Open', { tipo: 'encerrada', closedBy: 'transferencia' })).toEqual({
+      state: 'Transferred',
+      mudou: true,
+    });
+  });
+
+  it('standby events never change state', () => {
+    expect(aplicarEvento('Open', { tipo: 'espera_iniciada' })).toEqual({ state: 'Open', mudou: false });
+    expect(aplicarEvento('Open', { tipo: 'espera_encerrada' })).toEqual({ state: 'Open', mudou: false });
+  });
 
   it('an event that maps to no state never changes state', () => {
     for (const state of STATES_CONVERSATION) {
@@ -146,24 +204,18 @@ describe('aplicar evento', () => {
   });
 
   it('webhook redelivery is idempotent, it does not turn into an exception', () => {
-    expect(aplicarEvento('encerrada', { tipo: 'encerrada' })).toEqual({
-      state: 'encerrada',
-      mudou: false,
-    });
-    expect(aplicarEvento('em_espera', { tipo: 'espera_iniciada' })).toEqual({
-      state: 'em_espera',
+    expect(aplicarEvento('ClosedAttendant', { tipo: 'encerrada' })).toEqual({
+      state: 'ClosedAttendant',
       mudou: false,
     });
   });
 
   describe('a customer event never takes the conversation to an invalid state', () => {
     const recusas: { nome: string; de: StateConversation; tipo: TipoEvento }[] = [
-      { nome: 'fluxo tenta pôr em espera uma conversa já encerrada', de: 'encerrada', tipo: 'espera_iniciada' },
-      { nome: 'resposta em conversa que ainda está na fila', de: 'na_fila', tipo: 'primeira_resposta' },
-      { nome: 'fim de espera em conversa que nunca esteve em atendimento', de: 'na_fila', tipo: 'espera_encerrada' },
-      { nome: 'atribuição de conversa já encerrada', de: 'encerrada', tipo: 'atribuida' },
-      { nome: 'conversa encerrada não volta a atender sem reabrir', de: 'encerrada', tipo: 'espera_encerrada' },
-      { nome: 'reabertura de conversa que está em atendimento', de: 'em_atendimento', tipo: 'reaberta' },
+      { nome: 'resposta em conversa que ainda está na fila', de: 'Waiting', tipo: 'primeira_resposta' },
+      { nome: 'atribuição de conversa já encerrada', de: 'ClosedAttendant', tipo: 'atribuida' },
+      { nome: 'conversa transferida não reabre', de: 'Transferred', tipo: 'reaberta' },
+      { nome: 'reabertura de conversa que está em atendimento', de: 'Open', tipo: 'reaberta' },
     ];
 
     for (const caso of recusas) {
@@ -192,12 +244,12 @@ describe('aplicar evento', () => {
       'encerrada',
       'pesquisa_respondida',
     ];
-    expect(reproduzirEventos(ciclo.map((tipo) => ({ tipo })))).toBe('encerrada');
+    expect(reproduzirEventos(ciclo.map((tipo) => ({ tipo })))).toBe('ClosedAttendant');
   });
 
   it('reopened goes back to the queue and the cycle restarts', () => {
     const ciclo: TipoEvento[] = ['criada', 'atribuida', 'encerrada', 'reaberta', 'atribuida'];
-    expect(reproduzirEventos(ciclo.map((tipo) => ({ tipo })))).toBe('atribuida');
+    expect(reproduzirEventos(ciclo.map((tipo) => ({ tipo })))).toBe('Assigned');
   });
 });
 

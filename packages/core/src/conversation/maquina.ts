@@ -1,33 +1,75 @@
 /**
- * Conversation state machine from data-model §8. Allowed states and transitions follow the diagram. A transfer is not a transition: it closes the current conversation with `encerrada_por = transferencia` and opens another at the destination (Blip rules §2.6, measured in production), so `atribuida` has no edge back to `na_fila`. Customer events must not force invalid states, avoiding the Blip community's "ticket encerrado pelo usuário em fluxo humano" bug.
+ * Máquina de estados da conversa, no vocabulário da Blip. Transferir não é uma aresta: fecha o ticket como `Transferred` e abre outro com pai (o atendimento segue no filho, então `Transferred` não reabre). Standby não é estado: é `em_espera_desde` preenchido com o estado `Open`. Eventos do cliente não podem forçar estados inválidos.
  */
 
-import type { EventAttendance, TipoEvento } from '../metrics/eventos.js';
+import type { ClosedBy, EventAttendance, TipoEvento } from '../metrics/eventos.js';
 
 export type StateConversation =
-  | 'na_fila'
-  | 'atribuida'
-  | 'em_atendimento'
-  | 'em_espera'
-  | 'encerrada';
+  | 'Waiting'
+  | 'Assigned'
+  | 'Open'
+  | 'ClosedAttendant'
+  | 'ClosedClient'
+  | 'ClosedClientInactivity'
+  | 'Transferred';
 
 export const STATES_CONVERSATION: readonly StateConversation[] = [
-  'na_fila',
-  'atribuida',
-  'em_atendimento',
-  'em_espera',
-  'encerrada',
+  'Waiting',
+  'Assigned',
+  'Open',
+  'ClosedAttendant',
+  'ClosedClient',
+  'ClosedClientInactivity',
+  'Transferred',
 ];
 
+export type ClosedState = Extract<
+  StateConversation,
+  'ClosedAttendant' | 'ClosedClient' | 'ClosedClientInactivity' | 'Transferred'
+>;
+
+export const STATES_CLOSED: readonly ClosedState[] = [
+  'ClosedAttendant',
+  'ClosedClient',
+  'ClosedClientInactivity',
+  'Transferred',
+];
+
+export const STATES_ACTIVE: readonly StateConversation[] = ['Waiting', 'Assigned', 'Open'];
+
+export function isClosedState(s: string): s is ClosedState {
+  return (STATES_CLOSED as readonly string[]).includes(s);
+}
+
+/** Estado de encerramento derivado de quem encerrou. */
+export function closedStateOf(closedBy: ClosedBy): ClosedState {
+  switch (closedBy) {
+    case 'atendente':
+      return 'ClosedAttendant';
+    case 'cliente':
+      return 'ClosedClient';
+    case 'inatividade':
+      return 'ClosedClientInactivity';
+    case 'transferencia':
+      return 'Transferred';
+  }
+}
+
+const listaSql = (l: readonly string[]) => `(${l.map((x) => `'${x}'`).join(', ')})`;
+
+/** Listas prontas para `sql.raw` no SQL cru; só constantes, nenhuma entrada de requisição. */
+export const SQL_STATES_CLOSED = listaSql(STATES_CLOSED);
+export const SQL_STATES_ACTIVE = listaSql(STATES_ACTIVE);
 
 export const TRANSITIONS: Readonly<Record<StateConversation, readonly StateConversation[]>> = {
-  na_fila: ['atribuida', 'encerrada'],
-  atribuida: ['em_atendimento', 'encerrada'],
-  em_atendimento: ['em_espera', 'encerrada'],
-  em_espera: ['em_atendimento', 'encerrada'],
-  encerrada: ['na_fila'],
+  Waiting: ['Assigned', ...STATES_CLOSED],
+  Assigned: ['Open', ...STATES_CLOSED],
+  Open: [...STATES_CLOSED],
+  ClosedAttendant: ['Waiting'],
+  ClosedClient: ['Waiting'],
+  ClosedClientInactivity: ['Waiting'],
+  Transferred: [],
 };
-
 
 export class TransitionInvalidError extends Error {
   readonly codigo = 'transicao_invalida' as const;
@@ -71,26 +113,23 @@ export function tentarTransitar(
 }
 
 /**
- * Destination state per event type; null means the event does not change state (customer message, SLA alert, evaluation, or queue transfer recorded as history).
+ * Destination state per event type; null means the event does not change state (customer message, SLA alert, evaluation, queue transfer recorded as history, or standby, which is a flag).
  */
-export function eventStateTarget(tipo: TipoEvento): StateConversation | null {
-  switch (tipo) {
+export function eventStateTarget(
+  evento: Pick<EventAttendance, 'tipo' | 'closedBy'>,
+): StateConversation | null {
+  switch (evento.tipo) {
     case 'criada':
     case 'enfileirada':
-      return 'na_fila';
+    case 'reaberta':
+      return 'Waiting';
     case 'atribuida':
     case 'reatribuida':
-      return 'atribuida';
+      return 'Assigned';
     case 'primeira_resposta':
-      return 'em_atendimento';
-    case 'espera_iniciada':
-      return 'em_espera';
-    case 'espera_encerrada':
-      return 'em_atendimento';
+      return 'Open';
     case 'encerrada':
-      return 'encerrada';
-    case 'reaberta':
-      return 'na_fila';
+      return closedStateOf(evento.closedBy ?? 'atendente');
     default:
       return null;
   }
@@ -106,9 +145,9 @@ export interface ResultApplication {
  */
 export function aplicarEvento(
   stateCurrent: StateConversation,
-  evento: Pick<EventAttendance, 'tipo'>,
+  evento: Pick<EventAttendance, 'tipo' | 'closedBy'>,
 ): ResultApplication {
-  const alvo = eventStateTarget(evento.tipo);
+  const alvo = eventStateTarget(evento);
   if (alvo === null) return { state: stateCurrent, mudou: false };
   if (alvo === stateCurrent) return { state: stateCurrent, mudou: false };
   if (!transitionAllowed(stateCurrent, alvo)) {
@@ -120,7 +159,7 @@ export function aplicarEvento(
 
 export function tentarAplicarEvento(
   stateCurrent: StateConversation,
-  evento: Pick<EventAttendance, 'tipo'>,
+  evento: Pick<EventAttendance, 'tipo' | 'closedBy'>,
 ): Tentativa<ResultApplication> {
   try {
     return { ok: true, state: aplicarEvento(stateCurrent, evento) };
@@ -134,8 +173,8 @@ export function tentarAplicarEvento(
  * Replay events from an initial state to recompute history; this is why events are immutable.
  */
 export function reproduzirEventos(
-  eventos: readonly Pick<EventAttendance, 'tipo'>[],
-  stateInitial: StateConversation = 'na_fila',
+  eventos: readonly Pick<EventAttendance, 'tipo' | 'closedBy'>[],
+  stateInitial: StateConversation = 'Waiting',
 ): StateConversation {
   let state = stateInitial;
   for (const evento of eventos) {
