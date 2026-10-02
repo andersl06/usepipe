@@ -4,8 +4,8 @@
 
 import { compararIdentificador } from '../comum/time.js';
 
-/** Data-model §3 `status_atendente.estado`; only `online` agents receive conversations. */
-export type StateAgent = 'online' | 'pausa' | 'invisivel' | 'offline';
+/** Data-model §3 `status_atendente.estado`; only `Online` agents receive conversations. */
+export type StateAgent = 'Online' | 'Pause' | 'Invisible' | 'Offline';
 
 export interface AgentAvailable {
   id: string;
@@ -84,7 +84,7 @@ export function motivoInelegivel(
   options: OptionsDistribution,
 ): MotivoInelegivel | null {
   if (!agent.queues.includes(options.queueId)) return 'fora_da_fila';
-  if (agent.state !== 'online') return 'nao_esta_online';
+  if (agent.state !== 'Online') return 'nao_esta_online';
   if (vagas(agent) <= 0) return 'sem_vaga';
   const teto = options.ceilingWithoutFirstResponse;
   if (typeof teto === 'number' && agent.withoutFirstResponse >= teto) {

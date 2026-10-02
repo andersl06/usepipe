@@ -2,13 +2,22 @@
  * Desk screen contracts describe responses from `GET /v1/desk/…` rendered by the front end. Dates cross JSON as ISO 8601 text; the display converts them with `new Date(...)`, never the contract. This was the sole shape change in the Next Desk migration, where page and database shared a process and queries returned `Date`. These shapes follow queries in `apps/api/src/dominio/desk/*.ts`; changing a query column requires a matching contract change, surfaced by front-end `tsc`.
  */
 
-export type StateConversation = 'na_fila' | 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
+/** Espelha o StateConversation de @pipe/core (o pacote não importa outros pacotes). */
+
+export type StateConversation =
+  | 'Waiting'
+  | 'Assigned'
+  | 'Open'
+  | 'ClosedAttendant'
+  | 'ClosedClient'
+  | 'ClosedClientInactivity'
+  | 'Transferred';
 /**
  * Priority levels match `@pipe/core/conversa` (`NIVEIS_PRIORIDADE`) but are spelled out here because the contracts package imports no packages. All five literals match; front-end `tsc` catches divergence when indexing `ROTULOS_PRIORIDADE` with this type.
  */
 export type PriorityOfDesk = 'maxima' | 'alta' | 'media' | 'baixa' | 'sem_prioridade';
 export type TypeChannelDatabase = 'whatsapp_cloud' | 'instagram' | 'email' | 'widget';
-export type StateAgent = 'online' | 'pausa' | 'invisivel' | 'offline';
+export type StateAgent = 'Online' | 'Pause' | 'Invisible' | 'Offline';
 
 /* ------------------------------------------------------------ a fila */
 
@@ -24,6 +33,8 @@ export interface ConversationOfList {
   janelaExpiraEm: string | null;
   /** When the hold started, used by the On Hold card timer. */
   emEsperaDesde: string | null;
+  /** Derivado de estado = 'Open' e em_espera_desde preenchido, como isTicketInStandBy da Blip. */
+  emStandby: boolean;
   contatoNome: string | null;
   contatoTelefone: string | null;
   filaNome: string | null;
@@ -93,6 +104,11 @@ export interface ConversationOpen {
   criadaEm: string;
   firstResponseAt: string | null;
   emEsperaDesde: string | null;
+  /** Mesmo critério de standby de ConversationOfList. */
+  emStandby: boolean;
+  /** Número sequencial do ticket por tenant e do ticket pai, quando houver. */
+  sequentialId: number;
+  parentSequentialId: number | null;
   windowExpiresAt: string | null;
   queueName: string | null;
   channelId: string;

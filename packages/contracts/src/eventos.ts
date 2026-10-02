@@ -7,7 +7,7 @@ export const ASSUNTOS = [
   'conversation',
   /** Queue size or composition changed. */
   'queue',
-  /** Agent status changed: online, paused, or invisible. */
+  /** Agent status changed: Online, Pause ou Invisible. */
   'agent',
   /** Monitoring figures changed enough to warrant a redraw. */
   'monitoring',

@@ -16,7 +16,7 @@ function em(relogio: string): Date {
 
 function agent(parcial: Partial<AgentAvailable> & { id: string }): AgentAvailable {
   return {
-    state: 'online',
+    state: 'Online',
     queues: ['suporte'],
     limiteSimultaneo: 5,
     ativas: 0,
@@ -64,9 +64,9 @@ describe('eligibility (§7)', () => {
   const casos: { nome: string; agent: AgentAvailable; motivo: MotivoInelegivel | null }[] = [
     { nome: 'online, na fila e com vaga', agent: agent({ id: 'ok', ativas: 2 }), motivo: null },
     { nome: 'não pertence à fila', agent: agent({ id: 'x', queues: ['vendas'] }), motivo: 'fora_da_fila' },
-    { nome: 'em pausa', agent: agent({ id: 'x', state: 'pausa' }), motivo: 'nao_esta_online' },
-    { nome: 'invisível', agent: agent({ id: 'x', state: 'invisivel' }), motivo: 'nao_esta_online' },
-    { nome: 'offline', agent: agent({ id: 'x', state: 'offline' }), motivo: 'nao_esta_online' },
+    { nome: 'em pausa', agent: agent({ id: 'x', state: 'Pause' }), motivo: 'nao_esta_online' },
+    { nome: 'invisível', agent: agent({ id: 'x', state: 'Invisible' }), motivo: 'nao_esta_online' },
+    { nome: 'offline', agent: agent({ id: 'x', state: 'Offline' }), motivo: 'nao_esta_online' },
     { nome: 'sem vaga: ativas igual ao limite', agent: agent({ id: 'x', limiteSimultaneo: 5, ativas: 5 }), motivo: 'sem_vaga' },
     { nome: 'estourou o limite', agent: agent({ id: 'x', limiteSimultaneo: 5, ativas: 7 }), motivo: 'sem_vaga' },
     { nome: 'última vaga ainda serve', agent: agent({ id: 'x', limiteSimultaneo: 5, ativas: 4 }), motivo: null },
@@ -127,7 +127,7 @@ describe('choice by load', () => {
   it('picks no one when no one is eligible, and says why', () => {
     const escolha = chooseAgent(
       [
-        agent({ id: 'a1', state: 'pausa' }),
+        agent({ id: 'a1', state: 'Pause' }),
         agent({ id: 'a2', queues: ['vendas'] }),
         agent({ id: 'a3', limiteSimultaneo: 2, ativas: 2 }),
         agent({ id: 'a4', withoutFirstResponse: 5 }),
