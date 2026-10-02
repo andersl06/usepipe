@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import { SQL_STATES_ACTIVE } from '@pipe/core';
 import { noTenant } from './database.js';
 import { ausente, collection, falha, ok, pagina, partirUri, statusEncerra, TYPE_DOCUMENT, TIPO_TICKET } from './lime.js';
 import type { ComandoLime, RespostaLime } from './lime.js';
@@ -37,15 +38,20 @@ type Manipulador = (ctx: Context) => Promise<RespostaLime>;
 type Rota = [RegExp, Manipulador, string[]?];
 
 const COLUNAS = `
-  c.id, c.estado, c.prioridade, c.criada_em, c.atribuida_em, c.encerrada_em,
-  c.ultima_mensagem_em, c.ultima_mensagem_de, c.fila_id, f.nome as fila_nome,
-  c.atendente_id, u.nome as atendente_nome, u.email as atendente_email,
-  ct.id as contato_id, ct.nome as contato_nome, ct.telefone_e164 as contato_telefone,
-  ca.tipo as canal_tipo,
+  c.id, c.estado as "state", c.prioridade as "priority", c.criada_em, c.atribuida_em, c.encerrada_em,
+  c.numero_sequencial as "sequentialNumber",
+  (select p.numero_sequencial from conversa p
+    where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialNumber",
+  c.em_espera_desde as "emEsperaDesde",
+  c.ultima_mensagem_em as "lastMessageIn", c.ultima_mensagem_de as "lastMessageOf",
+  c.fila_id as "queueId", f.nome as "queueName",
+  c.atendente_id as "agentId", u.nome as "agentName", u.email as "agentEmail",
+  ct.id as "contactId", ct.nome as "contactName", ct.telefone_e164 as "contactPhone",
+  ca.tipo as "channelType",
   (select m.conteudo from mensagem m
-    where m.conversa_id = c.id order by m.criada_em desc limit 1) as ultima_mensagem_texto,
+    where m.conversa_id = c.id order by m.criada_em desc limit 1) as "lastMessageText",
   (select count(*)::int from mensagem m
-    where m.conversa_id = c.id and m.direcao = 'entrada' and m.lida_em is null) as nao_lidas
+    where m.conversa_id = c.id and m.direcao = 'entrada' and m.lida_em is null) as "nao_lidas"
 `;
 
 const DE = `
@@ -58,7 +64,7 @@ const DE = `
 `;
 
 
-const ABERTAS = `c.estado in ('na_fila','atribuida','em_atendimento','em_espera')`;
+const ABERTAS = `c.estado in ${SQL_STATES_ACTIVE}`;
 
 async function conversationsOpen(session: Session, limite = 100): Promise<ConversationRow[]> {
   return noTenant(session.tenantId, async (tx) => {
@@ -202,7 +208,7 @@ const rotas: Rota[] = [
            limit 1
         `);
         return {
-          estado: state[0]?.state ?? 'offline',
+          estado: state[0]?.state ?? 'Offline',
           filas: queues.map((f) => f.nome),
           ehAdministrador: admin.length > 0,
         };
@@ -227,7 +233,7 @@ const rotas: Rota[] = [
     ROTA_INFO_AGENTE,
     async ({ session }) => {
       const linhas = await conversationsOpen(session, 500);
-      const inQueue = linhas.filter((l) => l.state === 'na_fila').length;
+      const inQueue = linhas.filter((l) => l.state === 'Waiting').length;
       const minhas = linhas.filter((l) => l.agentId === session.userId);
       return ok(
         {

@@ -5,7 +5,6 @@ import {
   asDocuments,
   comoTicket,
   identity,
-  numeroVisivel,
 } from '../src/translation.js';
 import type { ConversationRow, MessageRow } from '../src/translation.js';
 
@@ -16,7 +15,10 @@ import type { ConversationRow, MessageRow } from '../src/translation.js';
 function conversation(sobre: Partial<ConversationRow> = {}): ConversationRow {
   return {
     id: '3f2504e0-4f89-41d3-9a0c-0305e82c3301',
-    state: 'na_fila',
+    state: 'Waiting',
+    sequentialNumber: 42,
+    parentSequentialNumber: null,
+    emEsperaDesde: null,
     priority: 'sem_prioridade',
     criada_em: '2026-09-12T10:00:00.000Z',
     atribuida_em: null,
@@ -38,12 +40,23 @@ function conversation(sobre: Partial<ConversationRow> = {}): ConversationRow {
 }
 
 describe('conversation -> ticket', () => {
-  it('queued becomes Waiting; in attendance becomes Open; closed becomes Closed', () => {
+  it('o status sai igual ao valor gravado', () => {
     expect(comoTicket(conversation()).status).toBe('Waiting');
-    expect(comoTicket(conversation({ state: 'em_atendimento' })).status).toBe('Open');
-    expect(comoTicket(conversation({ state: 'atribuida' })).status).toBe('Open');
-    expect(comoTicket(conversation({ state: 'em_espera' })).status).toBe('Open');
-    expect(comoTicket(conversation({ state: 'encerrada' })).status).toBe('Closed');
+    expect(comoTicket(conversation()).isNew).toBe(true);
+    const fechado = comoTicket(conversation({ state: 'ClosedClientInactivity' }));
+    expect(fechado.status).toBe('ClosedClientInactivity');
+    expect(fechado.isNew).toBe(false);
+  });
+
+  it('sequencial, pai e início do standby vêm do banco', () => {
+    const t = comoTicket(conversation());
+    expect(t.sequentialId).toBe(42);
+    expect(t.parentSequentialId).toBeNull();
+    expect(t.standbyModeStart).toBeNull();
+    const filho = comoTicket(conversation({ state: 'Transferred', parentSequentialNumber: 41 }));
+    expect(filho.parentSequentialId).toBe(41);
+    const espera = comoTicket(conversation({ state: 'Open', emEsperaDesde: '2026-09-12T10:10:00.000Z' }));
+    expect(espera.standbyModeStart).toBe('2026-09-12T10:10:00.000Z');
   });
 
   it('carries name, phone and queue the way the screen reads them', () => {
@@ -75,14 +88,6 @@ describe('conversation -> ticket', () => {
       customerAccount: { extras: Record<string, string> };
     };
     expect(t.customerAccount.extras['prioridadePipe']).toBe('maxima');
-  });
-
-  it('o número visível é estável para o mesmo id', () => {
-    const a = numeroVisivel('3f2504e0-4f89-41d3-9a0c-0305e82c3301');
-    const b = numeroVisivel('3f2504e0-4f89-41d3-9a0c-0305e82c3301');
-    expect(a).toBe(b);
-    expect(a).toBeGreaterThanOrEqual(0);
-    expect(numeroVisivel('00000000-0000-0000-0000-000000000000')).toBe(0);
   });
 });
 
@@ -128,14 +133,14 @@ describe('message -> document', () => {
 describe('agent account', () => {
   it('translates state and never returns an empty status', () => {
     const account = asAccount(
-      { id: 'u1', nome: 'Ana Ribeiro', email: 'ana@demo.pipe.app', state: 'online' },
+      { id: 'u1', nome: 'Ana Ribeiro', email: 'ana@demo.pipe.app', state: 'Online' },
       ['Suporte'],
     );
     expect(account['status']).toBe('Online');
     // Without an admin role, the sidebar hides management items.
     expect(account['isOwner']).toBe(false);
     const admin = asAccount(
-      { id: 'u1', nome: 'Ana', email: 'ana@demo.pipe.app', state: 'online', ehAdministrador: true },
+      { id: 'u1', nome: 'Ana', email: 'ana@demo.pipe.app', state: 'Online', ehAdministrador: true },
       [],
     );
     expect(admin['isOwner']).toBe(true);
@@ -148,8 +153,8 @@ describe('agent account', () => {
   });
 
   it('pausa e invisível têm nome próprio na tela', () => {
-    const pausa = asAccount({ id: 'u', nome: 'X', email: 'x@y.z', state: 'pausa' }, []);
-    const invisivel = asAccount({ id: 'u', nome: 'X', email: 'x@y.z', state: 'invisivel' }, []);
+    const pausa = asAccount({ id: 'u', nome: 'X', email: 'x@y.z', state: 'Pause' }, []);
+    const invisivel = asAccount({ id: 'u', nome: 'X', email: 'x@y.z', state: 'Invisible' }, []);
     expect(pausa['status']).toBe('Pause');
     expect(invisivel['status']).toBe('Invisible');
   });

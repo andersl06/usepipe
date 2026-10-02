@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import { SQL_STATES_ACTIVE } from '@pipe/core';
 import { closeConversation, transferConversation } from '@pipe/api/domain/conversation';
 import { assumeConversation } from '@pipe/api/domain/assume';
 import { flowOfConversation } from '@pipe/api/domain/queue-entry';
@@ -30,7 +31,7 @@ export async function assumirProximo(session: Session): Promise<string | null> {
         from conversa c
         join fila_atendente fa
           on fa.fila_id = c.fila_id and fa.usuario_id = ${session.userId}::uuid
-       where c.estado = 'na_fila'
+       where c.estado = 'Waiting'
        order by c.criada_em
        limit 1
     `);
@@ -54,7 +55,7 @@ export async function identityConversation(
       select c.id from conversa c
         join contato ct on ct.id = c.contato_id
        where ct.telefone_e164 = ${telefone}
-         and c.estado in ('na_fila','atribuida','em_atendimento','em_espera')
+         and c.estado in ${sql.raw(SQL_STATES_ACTIVE)}
        order by c.criada_em desc
        limit 1
     `);

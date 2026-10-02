@@ -2,16 +2,7 @@
  * Translate Pipe records into objects the Blip screen can render. Never invent fields: when Blip has a concept Pipe lacks, either omit the field and document it here or omit the entire value. A guessed value would appear on screen as genuine client data.
  */
 
-import { channelIdentity, type StateConversation } from '@pipe/core';
-
-/** Map Pipe states to the `status` values Desk uses to distinguish queued from active conversations. */
-const STATUS_BY_STATE: Record<StateConversation, string> = {
-  na_fila: 'Waiting',
-  atribuida: 'Open',
-  em_atendimento: 'Open',
-  em_espera: 'Open',
-  encerrada: 'Closed',
-};
+import { channelIdentity } from '@pipe/core';
 
 /** `entrada` means the client speaking and `saida` the company speaking. `interna` is not a conversation message. */
 const DIRECTION_BLIP: Record<string, string> = {
@@ -29,17 +20,12 @@ const TIPO_BLIP: Record<string, string> = {
   localizacao: 'application/vnd.lime.location+json',
 };
 
-/** Estado do atendente no Pipe → o que o seletor de status do Desk espera. */
-const STATUS_AGENT_BLIP: Record<string, string> = {
-  online: 'Online',
-  pausa: 'Pause',
-  invisivel: 'Invisible',
-  offline: 'Offline',
-};
-
 export type ConversationRow = {
   id: string;
   state: string;
+  sequentialNumber: number;
+  parentSequentialNumber: number | null;
+  emEsperaDesde: string | Date | null;
   priority: string;
   criada_em: string | Date | null;
   atribuida_em: string | Date | null;
@@ -81,27 +67,20 @@ export function identity(email: string | null | undefined, domain = 'pipe.local'
   return `${email.replace('@', '%40')}@${domain}`;
 }
 
-/**
- * Desk displays a conversation number prefixed with "#" and allows searching by it. Pipe has no per-tenant sequential number; conversations use UUIDs. Until that decision is made, derive the number from the UUID: deterministic, stable, and practically unique within a tenant. It is not truly sequential and cannot mean "ticket number 4 today". The intended solution is a `numero` column with a per-tenant sequence, set when the conversation is created; see `docs/specs/2026-09-12-ponte-lime.md`.
- */
-export function numeroVisivel(id: string): number {
-  const hex = id.replace(/-/g, '').slice(0, 8);
-  return parseInt(hex, 16) % 1_000_000;
-}
-
 export function comoTicket(linha: ConversationRow, domain?: string): Record<string, unknown> {
   const telefone = linha.contactPhone ?? '';
   const abertura = iso(linha.criada_em);
   return {
     id: linha.id,
-    sequentialId: numeroVisivel(linha.id),
+    sequentialId: Number(linha.sequentialNumber),
+    parentSequentialId: linha.parentSequentialNumber === null ? null : Number(linha.parentSequentialNumber),
     // Pipe has no router here; the conversation owner is the channel through which it arrived.
     ownerIdentity: `${linha.channelType ?? 'canal'}@pipe.local`,
     customerIdentity: channelIdentity({ contactId: linha.contactId, phone: telefone }),
     customerName: linha.contactName ?? 'Sem nome',
     customerPhoneNumber: telefone,
     agentIdentity: linha.agentEmail ? identity(linha.agentEmail, domain) : null,
-    status: STATUS_BY_STATE[linha.state as StateConversation] ?? 'Open',
+    status: linha.state,
     team: linha.queueName ?? 'Default',
     storageDate: abertura,
     openDate: iso(linha.atribuida_em) ?? abertura,
@@ -115,12 +94,12 @@ export function comoTicket(linha: ConversationRow, domain?: string): Record<stri
       : null,
     lastMessageSort: linha.lastMessageIn ? new Date(iso(linha.lastMessageIn)!).getTime() : 0,
     unreadMessages: Number(linha.nao_lidas ?? 0),
-    isNew: linha.state === 'na_fila',
+    isNew: linha.state === 'Waiting',
+    standbyModeStart: linha.state === 'Open' ? iso(linha.emEsperaDesde) : null,
     /*
-     * Pipe lacks the three following fields, but Desk's list requires them to build each card; omitting one crashed the whole list when the bridge was connected. Use neutral values, never fabricated ones.
+     * Pipe lacks the two following fields, but Desk's list requires them to build each card; omitting one crashed the whole list when the bridge was connected. Use neutral values, never fabricated ones.
      */
     customerEmail: null,
-    standbyModeStart: null,
     sequentialSuffix: '',
     tags: [],
     customerAccount: {
@@ -185,7 +164,7 @@ export function asAccount(
     identity: identity(user.email, domain),
     fullName: user.nome ?? user.email,
     email: user.email,
-    status: STATUS_AGENT_BLIP[user.state ?? 'offline'] ?? 'Offline',
+    status: user.state ?? 'Offline',
     isOwner: user.ehAdministrador ?? false,
     isEnabled: true,
     phoneNumber: '',
@@ -200,4 +179,4 @@ export function comoTime(queue: { id: string; nome: string }): Record<string, un
   return { id: queue.id, name: queue.nome };
 }
 
-export { STATUS_BY_STATE, STATUS_AGENT_BLIP, DIRECTION_BLIP, TIPO_BLIP };
+export { DIRECTION_BLIP, TIPO_BLIP };
