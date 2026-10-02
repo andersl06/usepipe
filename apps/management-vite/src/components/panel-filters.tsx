@@ -290,7 +290,7 @@ const contactIdentifier = (c: ContactOption) => c.phone ?? c.email ?? idShort(c.
 const contactLabel = (c: ContactOption) => `${c.name?.trim() || 'Contato sem nome'} - ${contactIdentifier(c)}`;
 
 /**
- * Contact filter as an autocomplete (reference `bds-autocomplete` server-side, `ref/verificacao/filtro-contato.md`): searches the server while typing (250 ms debounce, 2+ characters, stale requests aborted, 20 results) and submits the chosen name, which is what the screens filter on.
+ * Contact filter as an autocomplete (server-side autocomplete as in the reference, `ref/verificacao/filtro-contato.md`): searches the server while typing (250 ms debounce, 2+ characters, stale requests aborted, 20 results) and submits the chosen name, which is what the screens filter on.
  */
 export function FieldContact({ name, defaultValue }: { name: string; defaultValue: string }) {
   const listaId = useId();

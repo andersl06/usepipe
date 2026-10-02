@@ -102,7 +102,7 @@ Mesmo rodapé "Resultados por página" em grades e listas; só a margem de cima 
 | `--p-atend-menu-largura` | `240px` | Largura mínima do menu de três pontos | `monitoring.md` §menu ([M], menu suspenso da Blip) |
 | `--p-atend-ticket-detalhe-largura` | `444px` | Largura do painel lateral de detalhe do ticket | `monitoring.md` §detalhe ([M], `width=444` do painel lateral da Blip) |
 | `--p-atend-sombra-flutuante` | `0 6px 16px -4px rgba(0,0,0,.16)` | Sombra do menu de três pontos e dos tooltips | `monitoring.md` ([M], menu suspenso e tooltip da Blip) |
-| `--p-atend-equipe-cartao-raio` | `16px` | Raio do cartão das páginas Adicionar, Editar e Permissões do atendente | `atendentes-medidas-blip.md` ([M], `bds-paper`) |
+| `--p-atend-equipe-cartao-raio` | `16px` | Raio do cartão das páginas Adicionar, Editar e Permissões do atendente | `atendentes-medidas-blip.md` ([M], cartão da página) |
 | `--p-atend-equipe-cartao-padding` | `40px` | Padding do cartão (20px embaixo em Permissões) | `atendentes-medidas-blip.md` ([M]) |
 | `--p-atend-equipe-cartao-margem` | `20px` | Margem acima do cartão | `atendentes-medidas-blip.md` ([M]) |
 | `--p-atend-equipe-campo-largura` | `643.5px` | Largura da coluna de campos (rótulos à esquerda, campos alinhados à direita) | `atendentes-medidas-blip.md` ([M]) |
