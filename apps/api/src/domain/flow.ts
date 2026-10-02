@@ -110,7 +110,7 @@ export async function flowPublishedOfChannel(
   return linha ? { flowId: linha.flowId, versaoId: linha.versao_id } : null;
 }
 
-type LineBlock = { id: string; code: string; content: Record<string, unknown> };
+type LineBlock = { id: string; code: string; name: string; content: Record<string, unknown> };
 type LineTransition = {
   ofBlockId: string;
   para_codigo: string | null;
@@ -125,12 +125,12 @@ type LineTransition = {
 export async function loadFlow(
   tx: TransactionPipe,
   publicado: FlowPublished,
-): Promise<{ flow: FlowBlip; blockByCode: Map<string, string> }> {
+): Promise<{ flow: FlowBlip; blockByCode: Map<string, string>; blockNameByCode: Map<string, string> }> {
   const { rows: versions } = await tx.execute<{ global: Record<string, unknown> }>(
     sql`select global from fluxo_versao where id = ${publicado.versaoId}`,
   );
   const { rows: blocos } = await tx.execute<LineBlock>(
-    sql`select id, codigo as code, conteudo as content from bloco where versao_id = ${publicado.versaoId}`,
+    sql`select id, codigo as code, nome as name, conteudo as content from bloco where versao_id = ${publicado.versaoId}`,
   );
   const { rows: transitions } = await tx.execute<LineTransition>(sql`
     select t.de_bloco_id as "ofBlockId", b.codigo as para_codigo,
@@ -163,6 +163,7 @@ export async function loadFlow(
   return {
     flow: { ...global, id: publicado.flowId, states } as FlowBlip,
     blockByCode: new Map(blocos.map((b) => [b.code, b.id])),
+    blockNameByCode: new Map(blocos.map((b) => [b.code, b.name])),
   };
 }
 
@@ -361,7 +362,7 @@ export async function runFlowInInbound(
   }
   const executionId = execution.id;
 
-  const { flow, blockByCode } = await loadFlow(tx, publicado);
+  const { flow, blockByCode, blockNameByCode } = await loadFlow(tx, publicado);
   const flowFunctions = await loadFlowFunctions(tx, publicado.flowId);
   // Powers the engine's `resource` variable source (Context.resources); resources belong to THIS
   // flow's own recurso_do_fluxo rows, never the router's, even when `sharesContext` shares
@@ -495,6 +496,7 @@ export async function runFlowInInbound(
           relogio(),
           saida.dados,
           saida.tipo,
+          blockStamp(variables, flow, blockByCode, blockNameByCode),
         ));
         respostas += 1;
       },
@@ -727,7 +729,8 @@ export async function runFlowInInbound(
         await tx.execute(sql`
           update execucao_fluxo
              set estado = 'aguardando', contexto = ${JSON.stringify(variables)}::jsonb,
-                 bloco_atual_id = ${blockOfFlowState(variables, flow, blockByCode, erro.cursor.estadoId)}
+                 bloco_atual_id = ${blockOfFlowState(variables, flow, blockByCode, erro.cursor.estadoId)},
+                 bloco_anterior_id = ${blockOfFlowState(variables, flow, blockByCode, variables[`previous-stateId@${flow.id}`])}
            where id = ${executionId}
         `);
         await saveContextOfRouter();
@@ -1099,6 +1102,36 @@ function blockOfFlowState(
   return blockByCode.get(stateId) ?? null;
 }
 
+/**
+ * D-06: bloco atual e anterior de uma mensagem do bot, para agrupar por bloco e achar onde a pessoa
+ * travou. A Blip (`stateTrack`) é só régua de comportamento. Em subfluxo não há linha em `bloco`:
+ * o id fica nulo e o nome guarda o código do estado.
+ */
+interface BlockStamp {
+  currentId: string | null;
+  currentName: string | null;
+  previousId: string | null;
+  previousName: string | null;
+}
+
+function blockStamp(
+  variables: Record<string, string>,
+  flow: FlowBlip,
+  blockByCode: Map<string, string>,
+  blockNameByCode: Map<string, string>,
+): BlockStamp {
+  const name = (code: string | undefined): string | null =>
+    code ? (activeFlowSession(variables, flow).subflow ? code : (blockNameByCode.get(code) ?? code)) : null;
+  const current = variables[`stateId@${flow.id}`];
+  const previous = variables[`previous-stateId@${flow.id}`];
+  return {
+    currentId: blockOfFlowState(variables, flow, blockByCode, current),
+    currentName: name(current),
+    previousId: blockOfFlowState(variables, flow, blockByCode, previous),
+    previousName: name(previous),
+  };
+}
+
 async function saveExecution(
   tx: TransactionPipe,
   executionId: string,
@@ -1114,6 +1147,7 @@ async function saveExecution(
     update execucao_fluxo
        set contexto = ${JSON.stringify(variables)}::jsonb,
            bloco_atual_id = ${estado ? (blockByCode.get(estado) ?? null) : null},
+           bloco_anterior_id = ${(blockByCode.get(variables[`previous-stateId@${flowId}`] ?? '') ?? null)},
            estado = ${concluida ? 'concluida' : 'aguardando'},
            encerrada_em = ${concluida ? sql`now()` : null}
      where id = ${executionId}
@@ -1302,6 +1336,7 @@ async function gravarRespostaDoBot(
   /** `{ pergunta }` for a menu (the worker chooses buttons, a list, or text) or `{ midia }` for a media type. */
   data: Record<string, unknown> | null = null,
   tipo: TipoEnvio = 'texto',
+  stamp: BlockStamp | null = null,
 ): Promise<void> {
   const categoria = classificarCusto({
     conteudo: 'texto_livre',
@@ -1311,10 +1346,13 @@ async function gravarRespostaDoBot(
   const { rows } = await tx.execute<{ id: string }>(sql`
     insert into mensagem (
       tenant_id, conversa_id, execucao_id, direcao, autor_tipo, tipo, conteudo, estado_entrega, criada_em,
-      dentro_da_janela, categoria_cobranca, dados
+      dentro_da_janela, categoria_cobranca, dados,
+      bloco_atual_id, bloco_atual_nome,
+      bloco_anterior_id, bloco_anterior_nome
     ) values (
       ${tenantId}, ${where.conversationId}, ${where.executionId}, 'saida', 'bot', ${tipo}, ${texto}, 'pendente', ${em}, true, ${categoria},
-      ${data ? JSON.stringify(data) : null}::jsonb
+      ${data ? JSON.stringify(data) : null}::jsonb,
+      ${stamp?.currentId ?? null}, ${stamp?.currentName ?? null}, ${stamp?.previousId ?? null}, ${stamp?.previousName ?? null}
     )
     returning id
   `);
