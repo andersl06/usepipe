@@ -192,10 +192,10 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
   // New agents start Invisible so no one receives conversations before declaring readiness.
   await db
     .insert(statusAgent)
-    .values({ usuarioId: anaId, tenantId, estado: 'invisivel' })
+    .values({ usuarioId: anaId, tenantId, estado: 'Invisible' })
     .onConflictDoUpdate({
       target: statusAgent.usuarioId,
-      set: { estado: 'invisivel', desde: agora },
+      set: { estado: 'Invisible', desde: agora },
     });
 
   await db.insert(motivoPausa).values([
@@ -461,7 +461,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     contactId: string;
     inboxId: string;
     queueId: string;
-    state: 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
+    state: 'Assigned' | 'Open' | 'ClosedAttendant';
     priority: 'baixa' | 'media' | 'alta';
     /** When the contact last spoke; determines the 24-hour service window. */
     lastOfContactAgo: number | null;
@@ -478,7 +478,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       contactId: marcelo.id,
       inboxId: inboxWhatsId,
       queueId: comercialId,
-      state: 'em_atendimento',
+      state: 'Open',
       priority: 'alta',
       lastOfContactAgo: 2 * HORA + 12 * MIN,
       lastMessageAgo: 2 * HORA + 5 * MIN,
@@ -490,7 +490,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       contactId: juliana.id,
       inboxId: inboxWhatsId,
       queueId: suporteId,
-      state: 'em_atendimento',
+      state: 'Open',
       priority: 'media',
       // Janela perto de expirar: faltam ~38 minutos.
       lastOfContactAgo: 23 * HORA + 22 * MIN,
@@ -503,7 +503,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       contactId: renata.id,
       inboxId: inboxEmailId,
       queueId: financialId,
-      state: 'atribuida',
+      state: 'Assigned',
       priority: 'media',
       // Email has no 24-hour window; that rule is channel-specific.
       lastOfContactAgo: null,
@@ -516,7 +516,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       contactId: diego.id,
       inboxId: inboxSiteId,
       queueId: comercialId,
-      state: 'atribuida',
+      state: 'Assigned',
       priority: 'baixa',
       lastOfContactAgo: null,
       lastMessageAgo: 12 * MIN,
@@ -528,7 +528,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       contactId: cassia.id,
       inboxId: inboxWhatsId,
       queueId: suporteId,
-      state: 'em_espera',
+      state: 'Open',
       priority: 'media',
       // The window has closed: more than 24 hours since her last message.
       lastOfContactAgo: 30 * HORA,
@@ -542,7 +542,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       contactId: paulo.id,
       inboxId: inboxWhatsId,
       queueId: closerId,
-      state: 'em_atendimento',
+      state: 'Open',
       priority: 'alta',
       lastOfContactAgo: 18 * HORA,
       lastMessageAgo: 17 * HORA + 50 * MIN,
@@ -555,7 +555,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       contactId: marcelo.id,
       inboxId: inboxWhatsId,
       queueId: suporteId,
-      state: 'encerrada',
+      state: 'ClosedAttendant',
       priority: 'baixa',
       lastOfContactAgo: null,
       lastMessageAgo: 3 * 24 * HORA,
@@ -582,7 +582,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       ultimaMensagemDe: c.lastMessageOf,
       janelaExpiraEm:
         c.lastOfContactAgo === null ? null : atras(c.lastOfContactAgo - 24 * HORA),
-      ...(c.inWaitSince ? { inWaitSince: atras(c.inWaitSince) } : {}),
+      ...(c.inWaitSince ? { emEsperaDesde: atras(c.inWaitSince) } : {}),
       ...(c.encerradaAtras
         ? { encerradaEm: atras(c.encerradaAtras), encerradaPor: anaId, motivoEncerramento: 'resolvido' }
         : {}),

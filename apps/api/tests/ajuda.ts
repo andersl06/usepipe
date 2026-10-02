@@ -81,7 +81,7 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
   `);
   await dono.execute(sql`
     insert into status_atendente (usuario_id, tenant_id, estado, desde, conectado_em)
-    values (${agent.id}, ${tenant.id}, 'online', now(), now())
+    values (${agent.id}, ${tenant.id}, 'Online', now(), now())
   `);
 
   const token = await createKey(dono, tenant.id, ['*']);
