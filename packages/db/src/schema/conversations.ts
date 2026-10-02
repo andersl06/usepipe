@@ -24,7 +24,7 @@ import {
   listaCheck,
   moment,
 } from './comum.js';
-import { executionFlow, flow } from './automation.js';
+import { block, executionFlow, flow } from './automation.js';
 import { refTenant, user } from './identity.js';
 
 /** Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TYPES_CHANNEL` now also includes Instagram and Messenger. */
@@ -249,11 +249,20 @@ export const templateMessage = pgTable(
       .default(sql`'[]'::jsonb`),
     /** `nenhum` | `texto` | `imagem` | `video` | `documento`. */
     cabecalhoTipo: text('cabecalho_tipo').notNull().default('nenhum'),
+    /** Bloco do Builder onde a conversa continua quando o cliente responde ao modelo; nulo se removido. */
+    fluxoRetornoBlocoId: uuid('fluxo_retorno_bloco_id').references(() => block.id, {
+      onDelete: 'set null',
+    }),
+    /** Se o modelo pode ser usado no envio (independe do status de aprovação na Meta). */
+    ativo: boolean('ativo').notNull().default(true),
     ...carimbos(),
   },
   (t) => [
     listaCheck('template_mensagem_categoria_ck', t.categoria, CATEGORIAS_TEMPLATE),
     uniqueIndex('template_mensagem_uk').on(t.tenantId, t.canalId, t.nome, t.idioma),
+    index('template_mensagem_fluxo_retorno_idx')
+      .on(t.fluxoRetornoBlocoId)
+      .where(sql`${t.fluxoRetornoBlocoId} is not null`),
   ],
 );
 

@@ -428,6 +428,13 @@
       "when": 1790240000000,
       "tag": "0088_horario_regular_e_periodos",
       "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1790250000000,
+      "tag": "0089_modelo_fluxo_retorno_e_ativo",
+      "breakpoints": true
     }
   ]
 }
