@@ -4,7 +4,7 @@ import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
 
 /**
- * Let an attendant claim a queued conversation. Automatic load distribution and transfer existed, but claim did not, even though selecting and taking a conversation from the queue is a common attendant action. Do not reuse `transferirConversa`: the source platform's transfer closes the current conversation and opens another (reason "Transferida"). Using it to claim would close the customer conversation and create an empty one, as a previous shortcut did. Like automatic distribution, claim only from `na_fila`. If two attendants click together, the second update changes no row and is rejected; the database `where` decides the winner without a race.
+ * Let an attendant claim a queued conversation. Automatic load distribution and transfer existed, but claim did not, even though selecting and taking a conversation from the queue is a common attendant action. Do not reuse `transferirConversa`: the source platform's transfer closes the current conversation and opens another (reason "Transferida"). Using it to claim would close the customer conversation and create an empty one, as a previous shortcut did. Like automatic distribution, claim only from `Waiting`. If two attendants click together, the second update changes no row and is rejected; the database `where` decides the winner without a race.
  */
 export async function assumeConversation(
   ator: { tenantId: string; agentId: string },
@@ -20,15 +20,15 @@ export async function assumeConversation(
 
     const { rowCount } = await tx.execute(sql`
       update conversa
-         set atendente_id = ${ator.agentId}::uuid, estado = 'atribuida',
+         set atendente_id = ${ator.agentId}::uuid, estado = 'Assigned',
              atribuida_em = ${em}, atualizado_em = now()
-       where id = ${conversationId}::uuid and estado = 'na_fila'
+       where id = ${conversationId}::uuid and estado = 'Waiting'
     `);
 
     if (!rowCount) {
       throw PipeError.request(
         'conversation_unavailable',
-        conversation.state === 'na_fila'
+        conversation.state === 'Waiting'
           ? 'Não foi possível assumir a conversa.'
           : `A conversa não está na fila (estado: ${conversation.state}).`,
       );

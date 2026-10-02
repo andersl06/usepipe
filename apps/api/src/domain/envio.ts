@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { MAX_FILES_BY_MESSAGE, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/storage';
-import { avaliarEnvio, classificarCusto } from '@pipe/core';
+import { avaliarEnvio, classificarCusto, isClosedState } from '@pipe/core';
 import type { CategoriaTemplate, TypeChannel } from '@pipe/core';
 import { positionOfVariable } from '@pipe/workers/whatsapp';
 import type { CabecalhoTemplate } from '@pipe/workers/whatsapp';
@@ -109,7 +109,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     `);
     const conversation = rows[0];
     if (!conversation) throw PipeError.naoEncontrado('Conversa');
-    if (conversation.state === 'encerrada') {
+    if (isClosedState(conversation.state)) {
       throw PipeError.conflito(
         'conversation_closed',
         'A conversa está encerrada. Reabra antes de responder.',
@@ -236,12 +236,9 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     `);
 
     if (!pedido.automatica) {
-      // Replying moves a conversation from `atribuida` or `em_espera`, the two transitions
-      // the state machine allows into `em_atendimento`.
-      const stateNew =
-        conversation.state === 'atribuida' || conversation.state === 'em_espera'
-          ? 'em_atendimento'
-          : conversation.state;
+      // Replying moves an Assigned ticket to Open; standby is only a flag, so a reply leaves it by
+      // clearing `em_espera_desde` and adding the elapsed time to `pausado_seg`.
+      const stateNew = conversation.state === 'Assigned' ? 'Open' : conversation.state;
       // A REPLY presupposes a question. Count `primeira_resposta` only after the client
       // has spoken in this conversation (`ultima_mensagem_em` set). For an active-message
       // conversation we started first; counting that send as a first reply
@@ -253,7 +250,9 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
 
       await tx.execute(sql`
       update conversa
-         set estado = ${stateNew}, em_espera_desde = null,
+         set estado = ${stateNew},
+             pausado_seg = pausado_seg + coalesce(round(extract(epoch from (${agora}::timestamptz - em_espera_desde)))::int, 0),
+             em_espera_desde = null,
              ultima_mensagem_em = ${agora}, ultima_mensagem_de = 'atendente',
              primeira_resposta_em = coalesce(primeira_resposta_em, ${firstResponse ? agora : null}),
              atualizado_em = now()

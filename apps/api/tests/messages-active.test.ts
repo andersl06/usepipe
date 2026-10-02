@@ -120,9 +120,9 @@ describe('disparo', () => {
       sql`select atendente_id as "agentId", estado as state from conversa where id = ${data[0]!.conversa_id}::uuid`,
     );
     expect(rows[0]!.agentId).toBe(cenario.agentId);
-    // It is created as `atribuida`, and the dispatch itself already moves it to `em_atendimento` — the template
+    // It is created as `Assigned`, and the dispatch itself already moves it to `Open` — the template
     // is the agent's first message.
-    expect(rows[0]!.state).toBe('em_atendimento');
+    expect(rows[0]!.state).toBe('Open');
 
     const { rows: ev } = await cenario.dono.execute<{ data: Record<string, string> }>(sql`
       select dados as "data" from evento_atendimento
@@ -167,7 +167,7 @@ describe('disparo', () => {
 
     // Closes it so as not to hit the "already in service" rejection.
     await cenario.dono.execute(
-      sql`update conversa set estado = 'encerrada', encerrada_em = now() where contato_id = ${d1[0]!.contato_id}::uuid`,
+      sql`update conversa set estado = 'ClosedAttendant', encerrada_em = now() where contato_id = ${d1[0]!.contato_id}::uuid`,
     );
 
     const segundo = await disparar({ contacts: [{ phone: telefone }], parametros: ['x'] });

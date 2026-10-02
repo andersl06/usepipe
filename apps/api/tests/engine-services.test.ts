@@ -60,19 +60,19 @@ describe('engineServices', () => {
   it('closes on the customer side by default and accepts inactivity', async () => {
     const { calls, effects } = withEffects();
     const s = services(effects);
-    await s.sendCommand!(command('/tickets/x/status', { status: 'encerrada' }));
-    await s.sendCommand!(command('/tickets/x/status', { status: 'encerrada', closedBy: 'inatividade' }));
-    await expect(s.sendCommand!(command('/tickets/x/status', { status: 'encerrada', closedBy: 'atendente' }))).rejects.toThrow(
+    await s.sendCommand!(command('/tickets/x/status', { status: 'ClosedClient' }));
+    await s.sendCommand!(command('/tickets/x/status', { status: 'ClosedClient', closedBy: 'inatividade' }));
+    await expect(s.sendCommand!(command('/tickets/x/status', { status: 'ClosedClient', closedBy: 'atendente' }))).rejects.toThrow(
       'closedBy',
     );
     expect(calls).toEqual(['close:cliente', 'close:inatividade']);
   });
 
-  it('refuses agent-only states and routes na_fila to a rule-decided entry', async () => {
+  it('refuses agent-only states and routes Waiting to a rule-decided entry', async () => {
     const { calls, effects } = withEffects();
     const s = services(effects);
-    await expect(s.sendCommand!(command('/tickets/x/status', { status: 'em_atendimento' }))).rejects.toThrow('exige um atendente');
-    await s.sendCommand!(command('/tickets/x/status', { status: 'na_fila' }));
+    await expect(s.sendCommand!(command('/tickets/x/status', { status: 'Open' }))).rejects.toThrow('exige um atendente');
+    await s.sendCommand!(command('/tickets/x/status', { status: 'Waiting' }));
     expect(calls).toEqual(['enqueue']);
   });
 

@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import { SQL_STATES_ACTIVE } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import type { ChannelResolved } from '../database.js';
@@ -137,7 +138,7 @@ async function aDestination(
 
     const { rows: inAttendance } = await tx.execute<{ id: string }>(sql`
       select id from conversa
-       where contato_id = ${contactId}::uuid and estado <> 'encerrada' limit 1
+       where contato_id = ${contactId}::uuid and estado in ${sql.raw(SQL_STATES_ACTIVE)} limit 1
     `);
     if (inAttendance[0]) {
       // Blip code 1602: an open conversation uses the normal send path, not active messaging. `enviarMensagem` already uses a template outside the window when needed.
@@ -249,7 +250,7 @@ async function openConversationOfTrigger(
 
   const agora = new Date();
   const agent = pedido.agentId ?? null;
-  const state = agent ? 'atribuida' : 'na_fila';
+  const state = agent ? 'Assigned' : 'Waiting';
 
   const { rows } = await tx.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, atendente_id, estado,

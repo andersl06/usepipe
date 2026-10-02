@@ -5,6 +5,7 @@ import {
   contactRegisterMessage,
   transitionDeliveryAllowed,
 } from '@pipe/core';
+import { SQL_STATES_ACTIVE } from '@pipe/core';
 import type { StateDelivery } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import type { ResultOfFlow } from './flow.js';
@@ -308,7 +309,7 @@ async function receiveMessage(
 
     // A conversation still queued is eligible for distribution on each new message if
     // atendente entrou online depois da primeira, ela sai da fila agora.
-    if (!bot.tratou && conversation && !conversation.nova && conversation.state === 'na_fila' && !conversation.agentId && conversation.queueId) {
+    if (!bot.tratou && conversation && !conversation.nova && conversation.state === 'Waiting' && !conversation.agentId && conversation.queueId) {
       await distributeConversation(tx, canal.tenantId, conversation.id, conversation.queueId, em);
     }
 
@@ -490,7 +491,7 @@ async function findOpenTicket(
     queueId: string | null;
   }>(sql`
     select id, estado as state, atendente_id as "agentId", fila_id as "queueId" from conversa
-     where contato_id = ${contactId} and inbox_id = ${inbox.id} and estado <> 'encerrada'
+     where contato_id = ${contactId} and inbox_id = ${inbox.id} and estado in ${sql.raw(SQL_STATES_ACTIVE)}
      order by criada_em desc
      limit 1
   `);
@@ -509,7 +510,7 @@ async function openTicketAtEntry(
 ): Promise<ConversationResolved> {
   const { rows: criada } = await tx.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em)
-    values (${canal.tenantId}, ${inbox.id}, ${contactId}, null, 'na_fila', ${em})
+    values (${canal.tenantId}, ${inbox.id}, ${contactId}, null, 'Waiting', ${em})
     returning id
   `);
   const conversaId = criada[0]?.id;
@@ -530,7 +531,7 @@ async function openTicketAtEntry(
   });
   return {
     id: conversaId,
-    state: entry.agentId ? 'atribuida' : 'na_fila',
+    state: entry.agentId ? 'Assigned' : 'Waiting',
     agentId: entry.agentId,
     queueId: entry.queueId,
     nova: true,

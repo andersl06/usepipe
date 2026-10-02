@@ -47,7 +47,7 @@ export interface TicketEffects {
   changeTags(tx: TransactionPipe, tags: string[]): Promise<void>;
   /** An existing, active queue of this tenant (already checked). */
   transfer(tx: TransactionPipe, queueId: string): Promise<void>;
-  /** `/status na_fila`: enter a queue with no explicit one, so the attendance rules decide. */
+  /** `/status Waiting`: enter a queue with no explicit one, so the attendance rules decide. */
   enqueue(tx: TransactionPipe): Promise<void>;
   close(tx: TransactionPipe, closedBy: ClosedBy): Promise<void>;
   setPriority(tx: TransactionPipe, priority: string): Promise<void>;
@@ -183,21 +183,21 @@ export async function executeCommand(
     result['resource'] = { queueId };
   } else if (route === 'pipe.tickets.status') {
     const status = text('status');
-    if (!status || !['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'].includes(status)) {
+    if (!status || !['Waiting', 'Assigned', 'Open', 'ClosedClient', 'ClosedClientInactivity'].includes(status)) {
       throw new Error('O comando de status exige um status do Pipe válido.');
     }
-    if (status === 'na_fila') {
+    if (status === 'Waiting') {
       await tickets.enqueue(tx);
-    } else if (status === 'encerrada') {
+    } else if (status === 'ClosedClient' || status === 'ClosedClientInactivity') {
       // The bot closes on the customer's side of the conversation (Blip `ClosedClient`); a flow that
       // closes for customer inactivity says so with `closedBy: 'inatividade'`.
-      const closedBy = (text('closedBy', 'encerradaPor') ?? 'cliente') as ClosedBy;
+      const closedBy = (text('closedBy', 'encerradaPor') ?? (status === 'ClosedClientInactivity' ? 'inatividade' : 'cliente')) as ClosedBy;
       if (!CLOSED_BY_CUSTOMER.includes(closedBy)) {
         throw new Error("O comando de status aceita 'closedBy' igual a 'cliente' ou 'inatividade'.");
       }
       await tickets.close(tx, closedBy);
     } else {
-      // The state machine only reaches these with an agent (`atribuida` → `em_atendimento` → `em_espera`).
+      // The state machine only reaches these with an agent (`Assigned` → `Open`).
       throw new Error(`O bot não pode colocar a conversa em '${status}': esse estado exige um atendente.`);
     }
     result['resource'] = { status };
