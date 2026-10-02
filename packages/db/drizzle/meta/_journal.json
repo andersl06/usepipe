@@ -435,6 +435,13 @@
       "when": 1790250000000,
       "tag": "0089_modelo_fluxo_retorno_e_ativo",
       "breakpoints": true
+    },
+    {
+      "idx": 90,
+      "version": "7",
+      "when": 1790260000000,
+      "tag": "0090_tenant_configuracao_atendimento",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   foreignKey,
   index,
   jsonb,
@@ -101,11 +102,19 @@ export const tenant = pgTable(
     optinWhatsapp: boolean('optin_whatsapp').notNull().default(false),
     /** Null means onboarding is incomplete, and Management routes to "minha conta". */
     onboardingConcluidoEm: moment('onboarding_concluido_em'),
+    /** Preferências globais do atendimento (Configurações gerais) e encerramento automático global; validado na API. A fila vence a global. */
+    configuracaoAtendimento: jsonb('configuracao_atendimento')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
     ...carimbos(),
   },
   (t) => [
     listaCheck('tenant_implantacao_ck', t.deployment, DEPLOYMENTS),
     listaCheck('tenant_plano_ck', t.plano, PLANOS),
+    check(
+      'tenant_configuracao_atendimento_ck',
+      sql`jsonb_typeof(${t.configuracaoAtendimento}) = 'object'`,
+    ),
   ],
 );
 
