@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { chooseAgent } from '@pipe/core';
+import { SQL_STATES_ACTIVE, chooseAgent } from '@pipe/core';
 import type { AgentAvailable, ChoiceDistribution, StateAgent } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { emitir } from '../webhooks-saida.js';
@@ -11,7 +11,7 @@ import { lerConfigAtendimento } from './management/atendimento-config.js';
  * ponytail: fixed 3 min TTL; make it configurable per bot if Blip exposes it.
  */
 export const PRESENCE_TTL_SQL = sql.raw(`(s.conectado_em > now() - interval '3 minutes')`);
-export const PRESENCE_STATE_SQL = sql`(case when ${PRESENCE_TTL_SQL} then coalesce(s.estado, 'offline') else 'offline' end)`;
+export const PRESENCE_STATE_SQL = sql`(case when ${PRESENCE_TTL_SQL} then coalesce(s.estado, 'Offline') else 'Offline' end)`;
 
 /**
  * Distribute by actual load (spec §4.3, metrics spec §7). `@pipe/core` owns the decision; this file collects agent state for `escolherAtendente` rather than reimplementing weighted-load tie breaking in `api`. The core rule has table-driven tests.
@@ -36,13 +36,13 @@ export async function candidatesOfQueue(
            ${PRESENCE_STATE_SQL} as state,
            coalesce(fa.capacidade_override, f.capacidade_padrao) as "limit",
            (select count(*) from conversa c
-             where c.atendente_id = u.id and c.estado <> 'encerrada')::text as ativas,
+             where c.atendente_id = u.id and c.estado in ${sql.raw(SQL_STATES_ACTIVE)})::text as ativas,
            (select count(*) from conversa c
-             where c.atendente_id = u.id and c.estado <> 'encerrada'
+             where c.atendente_id = u.id and c.estado in ${sql.raw(SQL_STATES_ACTIVE)}
                and (c.ultima_mensagem_de is distinct from 'atendente'))::text
              as "waitingAgent",
            (select count(*) from conversa c
-             where c.atendente_id = u.id and c.estado <> 'encerrada'
+             where c.atendente_id = u.id and c.estado in ${sql.raw(SQL_STATES_ACTIVE)}
                and c.primeira_resposta_em is null)::text as "withoutFirstResponse",
            (select max(c.atribuida_em) from conversa c
              where c.atendente_id = u.id) as "lastAssignmentAt"
@@ -82,13 +82,13 @@ export async function queuesOfAgent(
            ${PRESENCE_STATE_SQL} as state,
            coalesce(fa.capacidade_override, f.capacidade_padrao) as "limit",
            (select count(*) from conversa c
-             where c.atendente_id = u.id and c.estado <> 'encerrada')::text as ativas,
+             where c.atendente_id = u.id and c.estado in ${sql.raw(SQL_STATES_ACTIVE)})::text as ativas,
            (select count(*) from conversa c
-             where c.atendente_id = u.id and c.estado <> 'encerrada'
+             where c.atendente_id = u.id and c.estado in ${sql.raw(SQL_STATES_ACTIVE)}
                and (c.ultima_mensagem_de is distinct from 'atendente'))::text
              as "waitingAgent",
            (select count(*) from conversa c
-             where c.atendente_id = u.id and c.estado <> 'encerrada'
+             where c.atendente_id = u.id and c.estado in ${sql.raw(SQL_STATES_ACTIVE)}
                and c.primeira_resposta_em is null)::text as "withoutFirstResponse",
            (select max(c.atribuida_em) from conversa c
              where c.atendente_id = u.id) as "lastAssignmentAt"
@@ -159,9 +159,9 @@ export async function distributeConversation(
   const agentId = escolha.escolhido.id;
   await tx.execute(sql`
     update conversa
-       set atendente_id = ${agentId}, estado = 'atribuida', atribuida_em = ${em},
+       set atendente_id = ${agentId}, estado = 'Assigned', atribuida_em = ${em},
            atualizado_em = now()
-     where id = ${conversationId} and estado = 'na_fila'
+     where id = ${conversationId} and estado = 'Waiting'
   `);
   await tx.execute(sql`
     insert into atribuicao (tenant_id, conversa_id, para_usuario_id, de_fila_id, motivo, em)

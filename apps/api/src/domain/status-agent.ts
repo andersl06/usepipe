@@ -6,7 +6,7 @@ import { requirePermission } from '../session.js';
 import { evento, publicar } from '../realtime.js';
 
 /**
- * Agent status is online, paused, invisible, or offline. Keep this transition in the API domain, as with closing and pausing conversations: the event cannot depend on a screen remembering to emit it. Otherwise Management learns of exits only on refresh, and disconnecting an inactive agent could not change another person's status safely through the screen.
+ * Agent status is Online, Pause, Invisible or Offline (Offline and Reconnect are set by the system only). Keep this transition in the API domain, as with closing and pausing conversations: the event cannot depend on a screen remembering to emit it. Otherwise Management learns of exits only on refresh, and disconnecting an inactive agent could not change another person's status safely through the screen.
  */
 
 const STATES_AGENT = schema.STATES_AGENT;
@@ -22,9 +22,9 @@ export function ehStateAgent(value: string): value is StateAgent {
  * Closing the tab and F5 are the same `beforeunload` event: without "Continuar online" the agent goes Offline; with it only Online is kept (Pause and Invisible still go Offline). Logout always goes Offline.
  * The API gets no signal when a tab dies, so each opening applies the effect of the unload that preceded it. Assumption: a tab killed without `beforeunload` is Offline by lost session (not verified in Blip).
  */
-export const PRESENCE_ON_REOPEN: StateAgent = 'offline';
-export const PRESENCE_ON_RELOAD: StateAgent = 'offline';
-export const PRESENCE_ON_LOGOUT: StateAgent = 'offline';
+export const PRESENCE_ON_REOPEN: StateAgent = 'Offline';
+export const PRESENCE_ON_RELOAD: StateAgent = 'Offline';
+export const PRESENCE_ON_LOGOUT: StateAgent = 'Offline';
 /** With "Continuar online", an agent that was Online stays Online across close/F5. */
 export const KEEP_ONLINE_KEEPS_PREVIOUS = true;
 
@@ -33,7 +33,7 @@ export function stateOnDeskOpening(
   previous: StateAgent,
   opening: { reload: boolean; keepOnline: boolean },
 ): StateAgent | null {
-  if (opening.keepOnline && KEEP_ONLINE_KEEPS_PREVIOUS && previous === 'online') return null;
+  if (opening.keepOnline && KEEP_ONLINE_KEEPS_PREVIOUS && previous === 'Online') return null;
   return opening.reload ? PRESENCE_ON_RELOAD : PRESENCE_ON_REOPEN;
 }
 
@@ -49,7 +49,7 @@ export interface PedidoDeStatus {
 
 export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: StateAgent }> {
   // Pausa exige motivo, escolhido da lista que o gestor cadastra. Sem motivo, o tempo
-  if (pedido.state === 'pausa' && !pedido.motivoPausaId) {
+  if (pedido.state === 'Pause' && !pedido.motivoPausaId) {
     throw PipeError.request('reason_required', 'Escolha o motivo da pausa.');
   }
 
@@ -83,7 +83,7 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: St
        where usuario_id = ${pedido.targetUserId}::uuid and encerrada_em is null
     `);
 
-    if (pedido.state === 'pausa' && pedido.motivoPausaId) {
+    if (pedido.state === 'Pause' && pedido.motivoPausaId) {
       const { rows: motivos } = await tx.execute<{ id: string }>(
         sql`select id from motivo_pausa where id = ${pedido.motivoPausaId}::uuid and ativo limit 1`,
       );

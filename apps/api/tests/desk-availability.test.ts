@@ -235,7 +235,7 @@ describe('queue-entry helpers', () => {
     await fecharFila(vaziaId);
     expect(await check(vaziaId, ['OutOfAttendanceHour', 'NoAgentAvailable'])).toBe('OutOfAttendanceHour');
     // An agent that is offline does not count.
-    await cenario.dono.execute(sql`update status_atendente set estado = 'offline' where usuario_id = ${cenario.agentId}::uuid`);
+    await cenario.dono.execute(sql`update status_atendente set estado = 'Offline' where usuario_id = ${cenario.agentId}::uuid`);
     expect(await check(cenario.queueId, ['NoAgentAvailable'])).toBe('NoAgentAvailable');
   });
 });
@@ -245,10 +245,10 @@ describe('Desk presence (Blip rule)', () => {
 
   it('stateOnDeskOpening: Offline unless "Continuar online" keeps Online; F5 equals reopening', () => {
     for (const reload of [false, true]) {
-      expect(stateOnDeskOpening('online', { reload, keepOnline: false })).toBe('offline');
-      expect(stateOnDeskOpening('online', { reload, keepOnline: true })).toBeNull();
-      expect(stateOnDeskOpening('pausa', { reload, keepOnline: true })).toBe('offline');
-      expect(stateOnDeskOpening('invisivel', { reload, keepOnline: true })).toBe('offline');
+      expect(stateOnDeskOpening('Online', { reload, keepOnline: false })).toBe('Offline');
+      expect(stateOnDeskOpening('Online', { reload, keepOnline: true })).toBeNull();
+      expect(stateOnDeskOpening('Pause', { reload, keepOnline: true })).toBe('Offline');
+      expect(stateOnDeskOpening('Invisible', { reload, keepOnline: true })).toBe('Offline');
     }
   });
 
@@ -268,15 +268,15 @@ describe('Desk presence (Blip rule)', () => {
   it('logout leaves the agent Offline and out of the distribution', async () => {
     const headers = await sessao();
     expect((await fetch(`${api.url}/v1/auth/sair`, { method: 'POST', headers })).status).toBe(204);
-    expect(await estadoDoAgente()).toBe('offline');
+    expect(await estadoDoAgente()).toBe('Offline');
   });
 
   it('opening the Desk: Offline without the preference, Online kept with it', async () => {
     const headers = await sessao();
-    expect(await (await abrir(headers, { reload: true, keepOnline: true })).json()).toEqual({ state: 'online' });
-    expect(await estadoDoAgente()).toBe('online');
-    expect(await (await abrir(headers, { reload: false, keepOnline: false })).json()).toEqual({ state: 'offline' });
-    expect(await estadoDoAgente()).toBe('offline');
+    expect(await (await abrir(headers, { reload: true, keepOnline: true })).json()).toEqual({ state: 'Online' });
+    expect(await estadoDoAgente()).toBe('Online');
+    expect(await (await abrir(headers, { reload: false, keepOnline: false })).json()).toEqual({ state: 'Offline' });
+    expect(await estadoDoAgente()).toBe('Offline');
   });
 
   it('online without a presence signal for 4 minutes does not receive; a fresh signal does', async () => {

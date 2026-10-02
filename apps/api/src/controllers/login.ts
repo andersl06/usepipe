@@ -494,10 +494,10 @@ export class MeController {
 
     const { rows } = await noTenant(tenantId, (tx) =>
       tx.execute<{ state: string }>(
-        sql`select coalesce((select estado from status_atendente where usuario_id = ${userId}::uuid), 'offline') as state`,
+        sql`select coalesce((select estado from status_atendente where usuario_id = ${userId}::uuid), 'Offline') as state`,
       ),
     );
-    const previous: StateAgent = ehStateAgent(rows[0]?.state ?? '') ? (rows[0]!.state as StateAgent) : 'offline';
+    const previous: StateAgent = ehStateAgent(rows[0]?.state ?? '') ? (rows[0]!.state as StateAgent) : 'Offline';
     const next = stateOnDeskOpening(previous, { reload, keepOnline });
     const state =
       next && next !== previous

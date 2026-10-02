@@ -71,6 +71,7 @@ afterAll(async () => {
 async function newConversation(
   state: string,
   agentId: string | null = cenario.agentId,
+  standby = false,
 ): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (
@@ -79,7 +80,7 @@ async function newConversation(
     ) values (
       ${cenario.tenantId}, ${cenario.inboxId}, ${contactId}, ${cenario.queueId},
       ${agentId}, ${state},
-      ${state === 'em_espera' ? sql`now() - interval '30 seconds'` : null},
+      ${standby ? sql`now() - interval '30 seconds'` : null},
       now() + interval '20 hours'
     )
     returning id
@@ -104,7 +105,7 @@ async function eventosDe(conversationId: string): Promise<string[]> {
 
 describe('Close conversations and record their events', () => {
   it('Record the `encerrada` event so reports recognize conversation closure', async () => {
-    const id = await newConversation('em_atendimento');
+    const id = await newConversation('Open');
 
     const resposta = await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
 
@@ -113,7 +114,7 @@ describe('Close conversations and record their events', () => {
   });
 
   it('Record who closed a conversation and which label was used in its event', async () => {
-    const id = await newConversation('em_atendimento');
+    const id = await newConversation('Open');
 
     await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
 
@@ -127,7 +128,7 @@ describe('Close conversations and record their events', () => {
   });
 
   it('Record all selected labels and retain the first as the legacy event reason', async () => {
-    const id = await newConversation('em_atendimento');
+    const id = await newConversation('Open');
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into etiqueta (tenant_id, nome) values (${cenario.tenantId}, 'Dúvida') returning id
     `);
@@ -143,14 +144,14 @@ describe('Close conversations and record their events', () => {
   });
 
   it('Require a label when closing a conversation to preserve its reason', async () => {
-    const id = await newConversation('em_atendimento');
+    const id = await newConversation('Open');
     const resposta = await chamar(`/v1/conversations/${id}/close`, {});
     expect(resposta.status).toBe(400);
     expect(await eventosDe(id)).toHaveLength(0);
   });
 
   it('End an active wait before closing a conversation so paused time counts toward effort', async () => {
-    const id = await newConversation('em_espera');
+    const id = await newConversation('Open', cenario.agentId, true);
 
     await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
 
@@ -164,13 +165,13 @@ describe('Close conversations and record their events', () => {
   });
 
   it('Reject closing a conversation that is already closed', async () => {
-    const id = await newConversation('encerrada');
+    const id = await newConversation('ClosedAttendant');
     const resposta = await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
     expect(resposta.status).toBe(409);
   });
 
   it('Reject closure of another agent\'s conversation', async () => {
-    const id = await newConversation('em_atendimento', otherAgentId);
+    const id = await newConversation('Open', otherAgentId);
     const resposta = await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
     expect(resposta.status).toBe(403);
     expect(await eventosDe(id)).toHaveLength(0);
@@ -191,7 +192,7 @@ describe('Close conversations and record their events', () => {
       values (${cenario.tenantId}, ${cenario.agentId}, ${roleId}) on conflict do nothing
     `);
 
-    const id = await newConversation('em_atendimento', otherAgentId);
+    const id = await newConversation('Open', otherAgentId);
     expect((await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId })).status).toBe(201);
     expect(await eventosDe(id)).toContain('encerrada');
   });
@@ -199,22 +200,26 @@ describe('Close conversations and record their events', () => {
 
 describe('espera', () => {
   it('Record `espera_iniciada` when a conversation enters the waiting state', async () => {
-    const id = await newConversation('em_atendimento');
+    const id = await newConversation('Open');
 
     const resposta = await chamar(`/v1/conversations/${id}/wait`);
 
     expect(resposta.status).toBe(201);
-    expect(((await resposta.json()) as { state: string }).state).toBe('em_espera');
+    expect(((await resposta.json()) as { state: string }).state).toBe('Open');
+    const { rows: marca } = await cenario.dono.execute<{ standby: boolean }>(
+      sql`select em_espera_desde is not null as standby from conversa where id = ${id}::uuid`,
+    );
+    expect(marca[0]!.standby).toBe(true);
     expect(await eventosDe(id)).toContain('espera_iniciada');
   });
 
   it('sair da espera grava `espera_encerrada` com os segundos pausados', async () => {
-    const id = await newConversation('em_espera');
+    const id = await newConversation('Open', cenario.agentId, true);
 
     const resposta = await chamar(`/v1/conversations/${id}/wait`);
     const corpo = (await resposta.json()) as { state: string; pausado_seg: number };
 
-    expect(corpo.state).toBe('em_atendimento');
+    expect(corpo.state).toBe('Open');
     // // The conversation was born with `em_espera_desde` 30 seconds ago.
     expect(corpo.pausado_seg).toBeGreaterThanOrEqual(29);
     const { rows } = await cenario.dono.execute<{ data: Record<string, number> }>(sql`
@@ -225,7 +230,7 @@ describe('espera', () => {
   });
 
   it('Record both wait transitions and accumulated waiting time on the conversation', async () => {
-    const id = await newConversation('em_atendimento');
+    const id = await newConversation('Open');
 
     await chamar(`/v1/conversations/${id}/wait`);
     await chamar(`/v1/conversations/${id}/wait`);
@@ -236,7 +241,7 @@ describe('espera', () => {
   });
 
   it('Reject closure of another agent\'s conversation', async () => {
-    const id = await newConversation('em_atendimento', otherAgentId);
+    const id = await newConversation('Open', otherAgentId);
     const resposta = await chamar(`/v1/conversations/${id}/wait`);
     expect(resposta.status).toBe(403);
     expect(await eventosDe(id)).toHaveLength(0);
