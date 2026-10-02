@@ -8,6 +8,8 @@
 
 **Capturas recebidas em 2026-10-01 (Onda 3):** medições ao vivo, somente leitura, de Respostas, Modelos de mensagens, Canais e Configurações gerais, guardadas em `ref/verificacao/replies-blip.md`, `message-template-blip.md`, `channels-blip.md` e `general-settings-blip.md` (imagens brutas fora do Git). Nenhum interruptor foi clicado, nenhuma conexão iniciada e nada foi gravado; vazio, carregando e erro das quatro telas seguem sem captura e opcionais.
 
+**Onda 4 (2026-10-02):** a captura ao vivo da Blip FALHOU (sessão do Chrome de automação expirada); Relatório de atendimento, Esforço e Satisfação foram verificados só por leitura de código, fichas e capturas de 2026-09-07 (`ref/verificacao/report.md`, `effort.md`, `survey-dashboard.md`), todas as linhas NEEDS VALIDATION. Os dashboards de ligações e vendas não foram entregues (Q6); a rota depende da tensão T-01. Vazio, carregando e erro seguem sem captura da Blip; no Pipe, Esforço e Satisfação ganharam estados de carregamento e erro.
+
 | Tela | Segmento Blip | Rota Pipe atual (App.tsx) | Onda | Tema (da captura) | lista | vazio | carregando | erro | abertos (D-10) |
 |---|---|---|---|---|---|---|---|---|---|
 | Casca (barra do Portal, barra do contato, desk-sidebar) | attendance (AttendanceShell + desk-sidebar) | `attendance` (índice -> monitoring) | 0 | a confirmar na medição | a confirmar nas capturas de tela (a casca aparece em todas) | a confirmar nas capturas de tela (a casca aparece em todas) | pendente | pendente | sem item aberto conhecido |
@@ -26,5 +28,5 @@
 | Relatório de atendimento (report) | report | `attendance/report` | 4 | a confirmar na medição | capturado (attendance-desk-report, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
 | Relatório de esforço (effort) | effort | `attendance/effort` | 4 | a confirmar na medição | pendente (sem captura attendance-desk-effort; ver FICHA-relatorio-esforco.md) | pendente | pendente | pendente | sem item aberto conhecido |
 | Relatório de satisfação (survey-dashboard) | survey-dashboard | `attendance/survey-dashboard` (R-05) | 4 | a confirmar na medição | capturado (attendance-desk-survey-dashboard, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
-| Dashboard de ligações | calls-dashboard | sem rota (R-04) | 4 | a confirmar na medição | capturado (attendance-desk-calls-dashboard, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
-| Dashboard de vendas | sales-dashboard | sem rota (R-04) | 4 | a confirmar na medição | capturado (attendance-desk-sales-dashboard, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
+| Dashboard de ligações | calls-dashboard | sem rota (Q6 x R-04, tensão T-01) | 4 | a confirmar na medição | capturado (attendance-desk-calls-dashboard, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |
+| Dashboard de vendas | sales-dashboard | sem rota (Q6 x R-04, tensão T-01) | 4 | a confirmar na medição | capturado (attendance-desk-sales-dashboard, 2026-09-07) | pendente | pendente | pendente | sem item aberto conhecido |

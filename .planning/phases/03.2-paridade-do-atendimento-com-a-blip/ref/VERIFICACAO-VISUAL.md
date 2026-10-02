@@ -325,3 +325,67 @@ Nada abaixo foi respondido pelo dono; tudo continua valendo para o portão final
 - Onda 0: lacunas L-01 a L-05 já aprovadas; ficam NEEDS VALIDATION a cor da barra do Portal, os cinzas das barras, o item ativo (borda e hover), o grupo Comunicação (captura pendente), a paginação da grade sem render e as linhas de tabela com dados.
 - Onda 1: as 14 perguntas ao dono (L-11 a L-34), as capturas C-08, C-12, C-13, C-14 e C-15 (parcial) que o dono envia depois, a geometria sem render de Monitoramento, Histórico, Filas e Atendentes (L-34) e o vazio, carregando e erro (C-17 a C-57, opcionais).
 - Onda 2: as 13 perguntas ao dono (L-35 a L-54), com a migração de Horários já resolvida (D-H01) e restando o relógio de SLA; a integração com o Builder (CRUD de etiquetas, seletores de fila e etiqueta, painel de filas, mensagem de encerramento automático); 90 linhas NEEDS VALIDATION; capturas da lista de SLA com regras e da lista e exclusão de Pausas.
+
+## Onda 4
+
+**Fonte das linhas:** `ref/verificacao/report.md`, `effort.md` e `survey-dashboard.md` (cada uma com `Base:` e as seções por estado). **A captura ao vivo da Blip FALHOU em 2026-10-02** (a sessão do Chrome de automação na Blip expirou): nada foi medido nesta onda. As fontes da Blip são `referencias-blip/desk/desk/desk-relatorio-atendimento__pagina.html`, `desk-satisfacao__pagina.html`, as fichas (`FICHA-relatorio-atendimento.md`, `FICHA-relatorio-satisfacao.md`, `FICHA-relatorio-esforco.md`) e as capturas congeladas de 2026-09-07. Do lado do Pipe, só leitura de código, tipos e testes automáticos (API com banco real); o navegador não foi usado. Por isso **0 VISUALLY VERIFIED**: toda linha de aparência é NEEDS VALIDATION. As contagens são linhas de tabela dos arquivos de origem.
+
+### Perguntas ao dono
+
+Cada item vem, sem acréscimo, de `03.2-23-SUMMARY.md`, `03.2-24-SUMMARY.md` e de `DECISOES-DONO.md`.
+
+1. Dashboards de ligações e vendas (T-01): criar as duas rotas com um placeholder de dependência (a) ou não criar rota e registrar como divergência deliberada (b)? R-04 manda criar, Q6 manda não entregar. Hoje as rotas não existem. (L-71)
+2. Relatórios (atendimento, esforço, satisfação): o teto de 90 dias valeria também aqui (aplicado no servidor e no cliente por decisão do dono para o Histórico); o limite da Blip nos relatórios não foi observado. Manter? (L-70)
+3. Esforço: a Blip tem essa tela? Não há captura de tela de esforço na Blip; se não existir, manter ou remover? (L-68)
+4. Satisfação: gráficos (pizza, barras, série) e filtros Pesquisas, Tipos de avaliação, Atendentes, Filas e Contato; fórmulas de média, taxa de resposta, NPS e CSAT. Exigem captura ao vivo e consultas novas. (L-69)
+5. Relatório de atendimento: indicadores sem consulta no Pipe (SLA agregado, tempo máximo, Abertos, série diária, Disponibilidade) seguem como vazio honesto; construir? (L-67)
+6. Conversa sem fila aparece como "Sem fila" no eixo Filas; conferir o fallback de fila padrão para ligações. (L-73)
+7. Cartão único (D-06): sem medida ao vivo, `Metrica` continua compartilhada e `CardConfig` e `pages/flow/cards.tsx` ficam fora da unificação; aceitar? (L-72)
+
+### Relatório de atendimento (`ref/verificacao/report.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Cartões de indicadores | sem geometria medida (captura ao vivo falhou) | `Metrica` compartilhada com o Monitoramento | desconhecida | NEEDS VALIDATION |
+| Fórmulas dos indicadores | sem captura | as do Pipe (coerência com o motor lida no código) | desconhecida | NEEDS VALIDATION; lacuna L-67 |
+| Abas Atendentes, Filas, Tags | descritas na ficha [A] | abas por `?aba=`, tabela unificada (`tblwrap`) | desconhecida | NEEDS VALIDATION |
+| Paginação e exportação | sem captura | CSV da aba visível; sem paginação própria | desconhecida | NEEDS VALIDATION; lacuna L-67 |
+| Vazio ("Dados insuficientes") | texto da ficha [A] | mesmos textos | desconhecida | NEEDS VALIDATION |
+| Carregando e erro (inclui 400 `periodo_longo_demais`) | sem captura | `TabelaCarregando`, `TabelaErro` com "Tentar novamente" | não medido | NEEDS VALIDATION |
+| Filtro de período (painel lateral) | painel "Filtros" medido no Histórico | `PanelFilters` + `FieldPeriod maxDias=90` | limite da Blip não observado | NEEDS VALIDATION; lacuna L-70 |
+| Resumo | 8 linhas de tabela NEEDS VALIDATION, 0 VISUALLY VERIFIED | | | |
+
+### Esforço (`ref/verificacao/effort.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Existência da tela | sem captura de tela de esforço na Blip | "Esforço por atendente" | desconhecida | NEEDS VALIDATION; lacuna L-68 |
+| Cartões "Total do período" e tabela de 11 colunas | sem captura | 3 cartões e tabela por atendente | desconhecida | NEEDS VALIDATION |
+| Ordenação | sem captura | por esforço decrescente | desconhecida | NEEDS VALIDATION |
+| Filtro de período | atalhos + Personalizado | `PanelFilters` + `FieldPeriod maxDias=90` (antes: dois `<input type=date>` num formulário) | limite da Blip desconhecido | NEEDS VALIDATION; lacuna L-70 |
+| Vazio, carregando, erro | sem captura | texto próprio; `TabelaCarregando`; `TabelaErro` (antes: tela em branco) | não medido | NEEDS VALIDATION; lacuna L-73 |
+| Resumo | 11 linhas de tabela NEEDS VALIDATION, 0 VISUALLY VERIFIED | | | |
+
+### Pesquisa de satisfação (`ref/verificacao/survey-dashboard.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Título, período, "Dados gerais" (4 cartões) | texto da captura de 2026-09-07 [A] | iguais; média "—" com mais de uma escala | fórmulas da Blip desconhecidas | NEEDS VALIDATION; lacuna L-69 |
+| Satisfação geral, comparativo, análise do período | pizza, barras, série diária [A] | tabela de distribuição e vazio honesto | sem gráfico (`--p-grafico-*` não aplicado) | NEEDS VALIDATION; lacuna L-69 |
+| Detalhamento (abas Geral, Filas, Atendentes) | [A] | iguais, na URL | nenhuma conhecida | NEEDS VALIDATION |
+| Filtros | Pesquisas, Tipos de avaliação, Atendentes, Filas, Contato | só período | filtros ausentes | NEEDS VALIDATION; lacuna L-69 |
+| Filtro de período | atalhos + Personalizado | `FieldPeriod maxDias=90` + teto no servidor | limite da Blip desconhecido | NEEDS VALIDATION; lacuna L-70 |
+| Tabela de respostas, exportar, configurar pesquisa | colunas "esperadas" na ficha | tabelas por aba; sem exportar | não confirmado | NEEDS VALIDATION |
+| Vazio, carregando, erro | sem captura | estado vazio do Pipe; `TabelaCarregando`; `TabelaErro` | não medido | NEEDS VALIDATION |
+| Resumo | 16 linhas de tabela NEEDS VALIDATION, 0 VISUALLY VERIFIED | | | |
+
+### Dashboards de ligações e vendas (plano 24)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| calls-dashboard | capturado em 2026-09-07 (`attendance-desk-calls-dashboard`); captura ao vivo falhou | sem rota, sem tela (Q6) | tela não entregue | Dependência (`DEPENDENCIAS-03.1.md`); tensão T-01 aberta; lacuna L-71 |
+| sales-dashboard | capturado em 2026-09-07 (`attendance-desk-sales-dashboard`); captura ao vivo falhou | sem rota, sem tela (Q6) | tela não entregue | Dependência; T-01 aberta; lacuna L-71 |
+
+### Contagem da Onda 4
+
+0 VISUALLY VERIFIED; 35 linhas de tabela NEEDS VALIDATION nos três arquivos de origem (8 + 11 + 16); 2 telas em dependência (Q6); 7 lacunas novas (L-67 a L-73), todas abertas (coluna do dono vazia).

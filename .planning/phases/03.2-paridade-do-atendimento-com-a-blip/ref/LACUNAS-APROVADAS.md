@@ -92,3 +92,17 @@
 | L-64 | `etiqueta.exclusiva_por_fila` sem edição na tela; renomear tag é remover e criar (só sem conversa etiquetada) | general-settings.md, 03.2-21 | Decidir | |
 | L-65 | Respostas, Modelos, Canais e Configurações gerais: geometria, tipografia, tema escuro e larguras medidas (cartão 1401,9 x 86; canais 343 x 270; interruptor 56 x 32 da Blip x 38 x 22 do Pipe; cartão `#f6f6f6` x fundo branco do Pipe) sem render no Pipe | replies.md, channels.md, general-settings.md | Medir por CDP com dados de teste; token só se divergir além de 1px | |
 | L-66 | Configurações gerais: textos de cartões não capturados na íntegra (por exemplo Envio de áudios, Emojis) escritos de forma neutra; vazio, carregando e erro das quatro telas sem captura da Blip | general-settings.md, 03.2-21 | Conferir na Blip | |
+
+# Lacunas da Onda 4 (Relatórios, Esforço, Satisfação, dashboards)
+
+**Origem:** `ref/verificacao/report.md`, `effort.md`, `survey-dashboard.md`, `03.2-23-SUMMARY.md` e `03.2-24-SUMMARY.md`. A captura ao vivo da Blip falhou em 2026-10-02 (sessão expirada): nenhuma medida nova. Coluna do dono vazia.
+
+| ID | Lacuna | Origem | Proposta | Aprovada pelo dono |
+|---|---|---|---|---|
+| L-67 | Relatório de atendimento: geometria, fórmulas dos indicadores, filtros Canal, Tag, Pesquisas, Tipos de avaliação e Contato, formato da exportação e paginação sem medida da Blip; sem consulta no Pipe para SLA agregado, tempo máximo, Abertos, série diária e Disponibilidade (vazio honesto) | report.md, 03.2-23 | Capturar ao vivo com sessão válida; construir as consultas só se o dono quiser | |
+| L-68 | Esforço: não há captura de tela de esforço na Blip; não se sabe se a tela existe nem como ela é | effort.md, FICHA-relatorio-esforco | Capturar ao vivo; se não existir na Blip, o dono decide manter ou remover | |
+| L-69 | Satisfação: sem gráficos (pizza, barras, série), sem os filtros Pesquisas, Tipos de avaliação, Atendentes, Filas e Contato; fórmulas de média, taxa de resposta, NPS e CSAT da Blip desconhecidas; exportar e configurar pesquisa não confirmados | survey-dashboard.md, 03.2-23 | Capturar ao vivo; aplicar `--p-grafico-*` e filtros depois | |
+| L-70 | Teto de 90 dias nos três relatórios aplicado por regra do dono (Histórico), sem o limite da Blip observado; atalhos 120 e 180 dias do `FieldPeriod` x teto de 90 | report.md, effort.md, survey-dashboard.md, 03.2-16-CORRECOES-B2 | Manter 90 dias; decidir os atalhos 120 e 180 | |
+| L-71 | Dashboards de ligações e vendas: sem rota e sem tela (Q6); R-04 manda criar as rotas; tensão T-01 | 03.2-24, DECISOES-DONO.md | (a) rotas com placeholder de dependência ou (b) sem rota, divergência deliberada | |
+| L-72 | Cartão único (D-06): `Metrica` compartilhada, `CardConfig` e `pages/flow/cards.tsx` fora da unificação; nenhum token `--p-atend-*` novo (sem medida divergente) | report.md, 03.2-23 | Unificar só com medida ao vivo | |
+| L-73 | Relatórios: vazio, carregando e erro das três telas sem captura da Blip; fila padrão no eixo "Filas" (conversa sem fila = "Sem fila"; ligação com o fallback do motor não verificada) | 03.2-23 | Capturar ao vivo; conferir o fallback | |
