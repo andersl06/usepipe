@@ -259,7 +259,7 @@ export function PageAttendance() {
         limpar={hasFilter ? `${base}/report?de=${de}&to=${ate}` : null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
-        <FieldPeriod de={de} ate={ate} fuso={fuso} />
+        <FieldPeriod de={de} ate={ate} fuso={fuso} maxDias={90} />
         <PanelField rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
           <Select name="atendente" defaultValue={params.agent ?? ''} aria-label="Atendentes">
             <option value="">Selecione os atendentes</option>

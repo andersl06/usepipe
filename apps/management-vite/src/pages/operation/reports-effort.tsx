@@ -1,4 +1,9 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Icone } from '@pipe/ui';
+import { FieldPeriod, PanelFilters } from '../../components/panel-filters';
+import { TabelaCarregando, TabelaErro } from '../../components/estados-tabela';
+import { periodCurrent, periodLabel } from '../../lib/periodos';
 import type { ReportEffort } from '../../lib/effort';
 import { useRead } from '../../lib/query';
 import { dataOuNada, durationLong, numero, percentual } from '../../lib/format';
@@ -30,8 +35,10 @@ export function PageEffort() {
   if (params.de) q.set('from', params.de);
   if (params.ate) q.set('to', params.ate);
   const read = useRead<EffortResponse>(`/v1/management/reports/effort?${q}`);
-  if (!read.data) return null;
-  const { de, ate, relatorio: report } = read.data;
+  const [panelOpen, setPanelOpen] = useState(false);
+  if (read.isError && !read.data) return <TabelaErro aoTentar={() => void read.refetch()} />;
+  if (!read.data) return <TabelaCarregando colunas={5} />;
+  const { fuso, de, ate, relatorio: report } = read.data;
   const totalEffort = report.agents.reduce((t, a) => t + a.effortSeg, 0);
   const totalTickets = report.agents.reduce((t, a) => t + a.tickets, 0);
 
@@ -47,16 +54,22 @@ export function PageEffort() {
       {/*
  * 56px filter strip, in the place and order of their strip: label and controls on the left, period and action on the right.
  */}
-      <form className="quickfilters" method="get" action={`${base}/effort`}>
+      <div className="quickfilters">
         <span className="lbl">Filtros rápidos:</span>
-        <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
-        <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
         <div className="faixa-fim">
-          <button type="submit" className="btn primary">
-            Aplicar
+          <button type="button" className="btn fantasma rel-period" title={`${de} → ${ate}`} onClick={() => setPanelOpen(true)}>
+            {periodLabel(periodCurrent(de, ate, fuso))}
+          </button>
+          <button type="button" className="btn" onClick={() => setPanelOpen(true)}>
+            <Icone nome="funil" tamanho={20} />
+            Filtros
           </button>
         </div>
-      </form>
+      </div>
+
+      <PanelFilters aberto={panelOpen} aoFechar={() => setPanelOpen(false)} acao={`${base}/effort`} limpar={null}>
+        <FieldPeriod de={de} ate={ate} fuso={fuso} maxDias={90} />
+      </PanelFilters>
 
       {/*
  * ------------------------------------------------------------ block 1

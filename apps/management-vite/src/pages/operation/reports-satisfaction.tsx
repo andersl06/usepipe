@@ -6,6 +6,7 @@ import { ManagementIcon } from '../../components/icones-management';
 import { FieldPeriod, PanelFilters } from '../../components/panel-filters';
 import { Select } from '@pipe/ui/select';
 import { Dica } from '../../components/metrica';
+import { TabelaCarregando, TabelaErro } from '../../components/estados-tabela';
 import { useRead } from '../../lib/query';
 import { type ReportSatisfaction, type GroupSatisfaction } from '../../lib/satisfaction';
 import { dataHora, dataOuNada, numero, percentual } from '../../lib/format';
@@ -82,7 +83,8 @@ export function PageSatisfaction() {
   if (params.ate) q.set('to', params.ate);
   const read = useRead<SatisfactionResponse>(`/v1/management/reports/satisfaction?${q}`);
   const [panelOpen, setPanelOpen] = useState(false);
-  if (!read.data) return null;
+  if (read.isError && !read.data) return <TabelaErro aoTentar={() => void read.refetch()} />;
+  if (!read.data) return <TabelaCarregando colunas={5} />;
   const { fuso, de, ate, relatorio: report } = read.data;
   const groups = report.groups;
   const aba = abaValida(crus.aba);
@@ -127,7 +129,7 @@ export function PageSatisfaction() {
         limpar={null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
-        <FieldPeriod de={de} ate={ate} fuso={fuso} />
+        <FieldPeriod de={de} ate={ate} fuso={fuso} maxDias={90} />
       </PanelFilters>
 
       {/* ------------------------------------------------------------ bloco 1 */}
