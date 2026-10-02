@@ -60,16 +60,16 @@ async function setConfig(c: Cenario, valor: Corpo | null) {
 
 async function conversa(
   c: Cenario,
-  o: { ultima: Date | null; de?: string | null; primeira?: Date | null; estado?: string },
+  o: { ultima: Date | null; de?: string | null; primeira?: Date | null; estado?: string; emEspera?: boolean },
 ): Promise<string> {
   const { rows: ct } = await c.dono.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome) values (${c.tenantId}::uuid, 'Cliente') returning id
   `);
   const { rows } = await c.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em,
-                          ultima_mensagem_em, ultima_mensagem_de, primeira_resposta_em)
+                          ultima_mensagem_em, ultima_mensagem_de, primeira_resposta_em, em_espera_desde)
     values (${c.tenantId}::uuid, ${c.inboxId}::uuid, ${ct[0]!.id}::uuid, ${c.queueId}::uuid,
-            ${o.estado ?? 'em_atendimento'}, ${depois(-600)}, ${o.ultima}, ${o.de ?? 'atendente'}, ${o.primeira ?? null})
+            ${o.estado ?? 'Open'}, ${depois(-600)}, ${o.ultima}, ${o.de ?? 'atendente'}, ${o.primeira ?? null}, ${o.emEspera ? depois(-600) : null})
     returning id
   `);
   return rows[0]!.id;
@@ -92,14 +92,14 @@ async function eventosEncerrada(c: Cenario, id: string): Promise<Corpo[]> {
 const tick = (agora: Date, limite?: number) => runAutoClose(agora, efeitos, limite, [a.tenantId, b.tenantId]);
 
 describe('regra pura', () => {
-  const alvo = { state: 'em_atendimento', lastMessageAt: T0, lastMessageOf: 'atendente', firstResponseAt: T0 };
+  const alvo = { state: 'Open', lastMessageAt: T0, lastMessageOf: 'atendente', firstResponseAt: T0 };
   it('vence só depois do tempo e respeita as opções', () => {
     const cfg = config() as Parameters<typeof isDueForAutoClose>[0];
     expect(isDueForAutoClose(cfg, alvo, depois(29))).toBe(false);
     expect(isDueForAutoClose(cfg, alvo, depois(30))).toBe(true);
     expect(isDueForAutoClose({ ...cfg, unidade: 'horas', tempo: 1 }, alvo, depois(59))).toBe(false);
     expect(isDueForAutoClose({ ...cfg, ativo: false }, alvo, depois(500))).toBe(false);
-    expect(isDueForAutoClose(cfg, { ...alvo, state: 'encerrada' }, depois(500))).toBe(false);
+    expect(isDueForAutoClose(cfg, { ...alvo, state: 'ClosedClient' }, depois(500))).toBe(false);
     expect(isDueForAutoClose({ ...cfg, naoSeAguardandoAtendente: true }, { ...alvo, lastMessageOf: 'contato' }, depois(500))).toBe(false);
     expect(isDueForAutoClose({ ...cfg, soSePrimeiroAtendimento: true }, { ...alvo, firstResponseAt: null }, depois(500))).toBe(false);
   });
@@ -112,7 +112,7 @@ describe('varredura de encerramento automático', () => {
     expect((await tick(depois(0))).closed).toBe(0);
     await setConfig(a, config({ ativo: false }));
     expect((await tick(depois(0))).closed).toBe(0);
-    expect((await estado(a, c1)).estado).toBe('em_atendimento');
+    expect((await estado(a, c1)).estado).toBe('Open');
   });
 
   it('encerra a vencida, não a recente, e registra motivo e evento de inatividade', async () => {
@@ -122,9 +122,9 @@ describe('varredura de encerramento automático', () => {
     const r = await tick(depois(0));
     expect(r.closed).toBeGreaterThanOrEqual(1);
     const e = await estado(a, velha);
-    expect(e).toMatchObject({ estado: 'encerrada', motivo: AUTO_CLOSE_REASON, por: null });
+    expect(e).toMatchObject({ estado: 'ClosedClientInactivity', motivo: AUTO_CLOSE_REASON, por: null });
     expect((await eventosEncerrada(a, velha))[0]).toMatchObject({ encerrada_por: 'inatividade' });
-    expect((await estado(a, recente)).estado).toBe('em_atendimento');
+    expect((await estado(a, recente)).estado).toBe('Open');
     expect(efeitos.chamadas).toContain(velha);
     expect(efeitos.chamadas).not.toContain(recente);
   });
@@ -143,10 +143,10 @@ describe('varredura de encerramento automático', () => {
 
   it('nunca reabre nem mexe em conversa já encerrada', async () => {
     await setConfig(a, config());
-    const id = await conversa(a, { ultima: depois(-100), estado: 'encerrada' });
+    const id = await conversa(a, { ultima: depois(-100), estado: 'ClosedAttendant' });
     await a.dono.execute(sql`update conversa set encerrada_em = ${depois(-90)}, motivo_encerramento = 'Resolvido' where id = ${id}::uuid`);
     await tick(depois(0));
-    expect(await estado(a, id)).toMatchObject({ estado: 'encerrada', motivo: 'Resolvido' });
+    expect(await estado(a, id)).toMatchObject({ estado: 'ClosedAttendant', motivo: 'Resolvido' });
     expect(await eventosEncerrada(a, id)).toHaveLength(0);
   });
 
@@ -156,9 +156,9 @@ describe('varredura de encerramento automático', () => {
     const aguardando = await conversa(a, { ultima: depois(-100), de: 'contato', primeira: depois(-200) });
     const elegivel = await conversa(a, { ultima: depois(-100), de: 'atendente', primeira: depois(-200) });
     await tick(depois(0));
-    expect((await estado(a, semPrimeira)).estado).toBe('em_atendimento');
-    expect((await estado(a, aguardando)).estado).toBe('em_atendimento');
-    expect((await estado(a, elegivel)).estado).toBe('encerrada');
+    expect((await estado(a, semPrimeira)).estado).toBe('Open');
+    expect((await estado(a, aguardando)).estado).toBe('Open');
+    expect((await estado(a, elegivel)).estado).toBe('ClosedClientInactivity');
   });
 
   it('unidade em horas', async () => {
@@ -166,28 +166,28 @@ describe('varredura de encerramento automático', () => {
     const aos90 = await conversa(a, { ultima: depois(-90) });
     const aos130 = await conversa(a, { ultima: depois(-130) });
     await tick(depois(0));
-    expect((await estado(a, aos90)).estado).toBe('em_atendimento');
-    expect((await estado(a, aos130)).estado).toBe('encerrada');
+    expect((await estado(a, aos90)).estado).toBe('Open');
+    expect((await estado(a, aos130)).estado).toBe('ClosedClientInactivity');
   });
 
   it('Modo de Espera pausa o encerramento e a contagem recomeça na retomada', async () => {
     await setConfig(a, config());
-    const emEspera = await conversa(a, { ultima: depois(-300), estado: 'em_espera' });
+    const emEspera = await conversa(a, { ultima: depois(-300), emEspera: true });
     const retomada = await conversa(a, { ultima: depois(-300) });
     const semRetomada = await conversa(a, { ultima: depois(-300) });
     await a.dono.execute(sql`
       insert into evento_atendimento (tenant_id, conversa_id, tipo, em)
       values (${a.tenantId}::uuid, ${retomada}::uuid, 'espera_encerrada', ${depois(-10)})
     `);
-    expect(isDueForAutoClose(config() as Parameters<typeof isDueForAutoClose>[0], { state: 'em_espera', lastMessageAt: depois(-300), lastMessageOf: 'atendente', firstResponseAt: T0 }, depois(0))).toBe(false);
+    expect(isDueForAutoClose(config() as Parameters<typeof isDueForAutoClose>[0], { state: 'Open', emEspera: true, lastMessageAt: depois(-300), lastMessageOf: 'atendente', firstResponseAt: T0 }, depois(0))).toBe(false);
     await tick(depois(0));
-    expect((await estado(a, emEspera)).estado).toBe('em_espera');
-    expect((await estado(a, retomada)).estado).toBe('em_atendimento');
-    expect((await estado(a, semRetomada)).estado).toBe('encerrada');
+    expect((await estado(a, emEspera)).estado).toBe('Open');
+    expect((await estado(a, retomada)).estado).toBe('Open');
+    expect((await estado(a, semRetomada)).estado).toBe('ClosedClientInactivity');
     // 30 minutos depois da retomada (-10 + 30), vence.
     await tick(depois(21));
-    expect((await estado(a, retomada)).estado).toBe('encerrada');
-    expect((await estado(a, emEspera)).estado).toBe('em_espera');
+    expect((await estado(a, retomada)).estado).toBe('ClosedClientInactivity');
+    expect((await estado(a, emEspera)).estado).toBe('Open');
   });
 
   it('aplica as tags de encerramento que existem no tenant e ignora as demais', async () => {
@@ -207,7 +207,7 @@ describe('varredura de encerramento automático', () => {
     await setConfig(a, config({ tags: { ativo: true, tags: ['sem retorno', 'Fantasma'] } }));
     const id = await conversa(a, { ultima: depois(-100) });
     await tick(depois(0));
-    expect(await estado(a, id)).toMatchObject({ estado: 'encerrada', motivo: 'Sem Retorno' });
+    expect(await estado(a, id)).toMatchObject({ estado: 'ClosedClientInactivity', motivo: 'Sem Retorno' });
     expect((await eventosEncerrada(a, id))[0]).toMatchObject({ etiquetas: ['Sem Retorno'], tags_nao_encontradas: ['Fantasma'] });
   });
 
@@ -227,7 +227,7 @@ describe('varredura de encerramento automático', () => {
     expect(primeiro.closed).toBe(2);
     const segundo = await tick(depois(0), 2);
     expect(segundo.closed).toBe(1);
-    for (const id of ids) expect((await estado(a, id)).estado).toBe('encerrada');
+    for (const id of ids) expect((await estado(a, id)).estado).toBe('ClosedClientInactivity');
   });
 
   it('a configuração de um tenant não encerra conversas de outro', async () => {
@@ -236,16 +236,16 @@ describe('varredura de encerramento automático', () => {
     const doB = await conversa(b, { ultima: depois(-1000) });
     await conversa(a, { ultima: depois(-1000) });
     await tick(depois(0));
-    expect((await estado(b, doB)).estado).toBe('em_atendimento');
+    expect((await estado(b, doB)).estado).toBe('Open');
   });
 
   it('o escopo de tenants é respeitado: tenant fora da lista não é varrido', async () => {
     await setConfig(b, config());
     const doB = await conversa(b, { ultima: depois(-1000) });
     await runAutoClose(depois(0), efeitos, 100, [a.tenantId]);
-    expect((await estado(b, doB)).estado).toBe('em_atendimento');
+    expect((await estado(b, doB)).estado).toBe('Open');
     await tick(depois(0));
-    expect((await estado(b, doB)).estado).toBe('encerrada');
+    expect((await estado(b, doB)).estado).toBe('ClosedClientInactivity');
   });
 });
 
@@ -267,9 +267,9 @@ describe('configuração global e precedência (a fila vence a global)', () => {
     await setGlobal({ encerramentoAutomatico: config({ tempo: 20 }) });
     const id = await conversa(g, { ultima: depois(-15) });
     await tickG(depois(0));
-    expect((await estado(g, id)).estado).toBe('em_atendimento');
+    expect((await estado(g, id)).estado).toBe('Open');
     await tickG(depois(5));
-    expect((await estado(g, id)).estado).toBe('encerrada');
+    expect((await estado(g, id)).estado).toBe('ClosedClientInactivity');
   });
 
   it('a fila vence: tempo próprio maior que o da global segura o encerramento', async () => {
@@ -277,9 +277,9 @@ describe('configuração global e precedência (a fila vence a global)', () => {
     await setGlobal({ encerramentoAutomatico: config({ tempo: 10 }) });
     const id = await conversa(g, { ultima: depois(-30) });
     await tickG(depois(0));
-    expect((await estado(g, id)).estado).toBe('em_atendimento');
+    expect((await estado(g, id)).estado).toBe('Open');
     await tickG(depois(30));
-    expect((await estado(g, id)).estado).toBe('encerrada');
+    expect((await estado(g, id)).estado).toBe('ClosedClientInactivity');
   });
 
   it('a fila desligada de propósito vence a global ligada', async () => {
@@ -287,7 +287,7 @@ describe('configuração global e precedência (a fila vence a global)', () => {
     await setGlobal({ encerramentoAutomatico: config({ tempo: 10 }) });
     const id = await conversa(g, { ultima: depois(-500) });
     await tickG(depois(0));
-    expect((await estado(g, id)).estado).toBe('em_atendimento');
+    expect((await estado(g, id)).estado).toBe('Open');
   });
 
   it('global desligada e fila sem configuração: nada encerra', async () => {
@@ -295,26 +295,26 @@ describe('configuração global e precedência (a fila vence a global)', () => {
     await setGlobal({ encerramentoAutomatico: config({ ativo: false }) });
     const id = await conversa(g, { ultima: depois(-500) });
     await tickG(depois(0));
-    expect((await estado(g, id)).estado).toBe('em_atendimento');
+    expect((await estado(g, id)).estado).toBe('Open');
   });
 
   it('Modo de Espera: ligado (padrão) pausa a contagem; desligado, a conversa em espera conta inatividade', async () => {
     await setConfig(g, config({ tempo: 30 }));
     await setGlobal({});
-    const id = await conversa(g, { ultima: depois(-300), estado: 'em_espera' });
+    const id = await conversa(g, { ultima: depois(-300), emEspera: true });
     await tickG(depois(0));
-    expect((await estado(g, id)).estado).toBe('em_espera');
+    expect((await estado(g, id)).estado).toBe('Open');
     await setGlobal({ modoEspera: { ativo: true } });
     await tickG(depois(0));
-    expect((await estado(g, id)).estado).toBe('em_espera');
+    expect((await estado(g, id)).estado).toBe('Open');
     await setGlobal({ modoEspera: { ativo: false } });
     await tickG(depois(0));
-    expect((await estado(g, id)).estado).toBe('encerrada');
+    expect((await estado(g, id)).estado).toBe('ClosedClientInactivity');
   });
 
   it('regra pura: a espera só pausa quando o parâmetro pede', () => {
     const cfg = config() as Parameters<typeof isDueForAutoClose>[0];
-    const alvo = { state: 'em_espera', lastMessageAt: T0, lastMessageOf: 'atendente', firstResponseAt: T0 };
+    const alvo = { state: 'Open', emEspera: true, lastMessageAt: T0, lastMessageOf: 'atendente', firstResponseAt: T0 };
     expect(isDueForAutoClose(cfg, alvo, depois(60))).toBe(false);
     expect(isDueForAutoClose(cfg, alvo, depois(60), false)).toBe(true);
   });

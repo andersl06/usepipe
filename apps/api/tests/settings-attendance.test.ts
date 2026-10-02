@@ -81,7 +81,7 @@ async function conversaDoAgente(c: Cenario, extra: { janela?: boolean } = {}): P
   const r = await c.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, atribuida_em, janela_expira_em)
     values (${c.tenantId}::uuid, ${c.inboxId}::uuid, ${ct.rows[0]!.id}::uuid, ${c.queueId}::uuid, ${c.agentId}::uuid,
-            'em_atendimento', now(), ${extra.janela === false ? null : sql`now() + interval '1 hour'`})
+            'Open', now(), ${extra.janela === false ? null : sql`now() + interval '1 hour'`})
     returning id`);
   return r.rows[0]!.id;
 }
@@ -267,7 +267,7 @@ describe('Desk: número de aguardando e histórico', () => {
     const contato = await a.dono.execute<{ id: string }>(sql`select contato_id as id from conversa where id = ${conv}::uuid`);
     const antiga = await a.dono.execute<{ id: string }>(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, encerrada_em)
-      values (${a.tenantId}::uuid, ${a.inboxId}::uuid, ${contato.rows[0]!.id}::uuid, ${a.queueId}::uuid, 'encerrada', now() - interval '1 day') returning id`);
+      values (${a.tenantId}::uuid, ${a.inboxId}::uuid, ${contato.rows[0]!.id}::uuid, ${a.queueId}::uuid, 'ClosedAttendant', now() - interval '1 day') returning id`);
     expect(antiga.rows[0]!.id).toBeDefined();
     await definir(a, {});
     const ligado = await pedir('GET', `/v1/desk/contacts/${contato.rows[0]!.id}`, sessaoDoAgente);

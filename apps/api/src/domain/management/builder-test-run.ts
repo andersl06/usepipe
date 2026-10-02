@@ -79,7 +79,7 @@ function newTestRunStore(): TestRunStore {
   return {
     variables: {},
     contact: { identity: TEST_CONTACT_ID, name: 'Contato de teste', phoneNumber: null, email: null, extras: {} },
-    conversation: { estado: 'na_fila', prioridade: 'sem_prioridade', filaId: null, etiquetas: [] },
+    conversation: { estado: 'Waiting', prioridade: 'sem_prioridade', filaId: null, etiquetas: [] },
     lists: new Map(),
     bucket: new Map(),
     flowStates: new Map(),
@@ -171,7 +171,7 @@ function servicesOfTestRun(
   };
   const enqueue = async (queueId: string | null): Promise<void> => {
     conversation.filaId = await queueOf(tx, queueId);
-    conversation.estado = 'na_fila';
+    conversation.estado = 'Waiting';
   };
   return engineServices({
     tenantId: tid,
@@ -190,7 +190,7 @@ function servicesOfTestRun(
         transfer: (_tx, queueId) => enqueue(queueId),
         enqueue: () => enqueue(null),
         close: async () => {
-          conversation.estado = 'encerrada';
+          conversation.estado = 'ClosedAttendant';
         },
         setPriority: async (_tx, priority) => {
           conversation.prioridade = priority;

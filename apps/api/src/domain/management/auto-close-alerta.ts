@@ -1,3 +1,4 @@
+import { isClosedState, SQL_STATES_ACTIVE } from '@pipe/core';
 import { sql } from 'drizzle-orm';
 import { databaseOwner, noTenant } from '../../database.js';
 import { PipeError } from '../../errors.js';
@@ -36,10 +37,12 @@ export const CONFIG_EFETIVA = sql`coalesce(
 )`;
 
 /** Conversa em espera só fica de fora do encerramento enquanto o Modo de Espera estiver ligado (padrão). Assume `c` e `tn`. */
-export const FORA_DA_ESPERA = sql`(c.estado <> 'em_espera' or tn.configuracao_atendimento->'modoEspera'->>'ativo' = 'false')`;
+export const FORA_DA_ESPERA = sql`(c.em_espera_desde is null or tn.configuracao_atendimento->'modoEspera'->>'ativo' = 'false')`;
 
 export interface AlertTarget {
   state: string;
+  /** Em Modo de Espera (`em_espera_desde` preenchido). */
+  emEspera?: boolean;
   lastMessageAt: Date | null;
   lastMessageOf: string | null;
   firstResponseAt: Date | null;
@@ -54,7 +57,7 @@ export function isDueForAlert(
   pausarEmEspera = true,
 ): boolean {
   if (!config.ativo || !config.alerta.ativo || !config.alerta.mensagem) return false;
-  if (conversa.state === 'encerrada' || (pausarEmEspera && conversa.state === 'em_espera') || !conversa.lastMessageAt) return false;
+  if (isClosedState(conversa.state) || (pausarEmEspera && conversa.emEspera === true) || !conversa.lastMessageAt) return false;
   if (config.soSePrimeiroAtendimento && !conversa.firstResponseAt) return false;
   if (config.naoSeAguardandoAtendente && conversa.lastMessageOf === 'contato') return false;
   const limite = toMinutes(config.tempo, config.unidade);
@@ -84,7 +87,7 @@ export async function conversationsForAlert(
              then (cfg.v->'alerta'->>'antecedencia')::numeric
                   * (case cfg.v->'alerta'->>'unidade' when 'horas' then 60 else 1 end) end as ant_min
       ) t
-     where c.estado <> 'encerrada' and ${FORA_DA_ESPERA}
+     where c.estado in ${sql.raw(SQL_STATES_ACTIVE)} and ${FORA_DA_ESPERA}
        and (${tenants === undefined} or c.tenant_id = any(${`{${(tenants ?? []).join(',')}}`}::uuid[]))
        and jsonb_typeof(cfg.v) = 'object'
        and cfg.v->>'ativo' = 'true'
@@ -107,6 +110,7 @@ export async function conversationsForAlert(
 }
 
 type LinhaAlerta = {
+  emEspera: boolean;
   id: string;
   state: string;
   lastMessageAt: Date | string | null;
@@ -130,7 +134,7 @@ export async function alertConversation(
 ): Promise<boolean> {
   const texto = await noTenant(c.tenantId, async (tx) => {
     const { rows } = await tx.execute<LinhaAlerta>(sql`
-      select c.id, c.estado as state, ${INACTIVITY_REF} as "lastMessageAt", c.criada_em as "criadaEm",
+      select c.id, c.estado as state, (c.em_espera_desde is not null) as "emEspera", ${INACTIVITY_REF} as "lastMessageAt", c.criada_em as "criadaEm",
              c.ultima_mensagem_de as "lastMessageOf", c.primeira_resposta_em as "firstResponseAt",
              c.alerta_inatividade_em as "alertAt", ${CONFIG_EFETIVA} as config,
              tn.configuracao_atendimento->'modoEspera'->>'ativo' as "modoEspera"
@@ -150,6 +154,7 @@ export async function alertConversation(
     }
     const alvo: AlertTarget = {
       state: linha.state,
+      emEspera: linha.emEspera,
       lastMessageAt: data(linha.lastMessageAt ?? linha.criadaEm),
       lastMessageOf: linha.lastMessageOf,
       firstResponseAt: data(linha.firstResponseAt),

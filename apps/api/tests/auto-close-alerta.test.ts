@@ -64,7 +64,7 @@ async function setConfig(c: Cenario, valor: Corpo | null) {
   `);
 }
 
-async function conversa(c: Cenario, o: { ultima: Date; de?: string; estado?: string }): Promise<string> {
+async function conversa(c: Cenario, o: { ultima: Date; de?: string; estado?: string; emEspera?: boolean }): Promise<string> {
   const { rows: ct } = await c.dono.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome) values (${c.tenantId}::uuid, 'Cliente') returning id
   `);
@@ -72,7 +72,7 @@ async function conversa(c: Cenario, o: { ultima: Date; de?: string; estado?: str
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em,
                           ultima_mensagem_em, ultima_mensagem_de)
     values (${c.tenantId}::uuid, ${c.inboxId}::uuid, ${ct[0]!.id}::uuid, ${c.queueId}::uuid,
-            ${o.estado ?? 'em_atendimento'}, ${depois(-600)}, ${o.ultima}, ${o.de ?? 'atendente'})
+            ${o.estado ?? 'Open'}, ${depois(-600)}, ${o.ultima}, ${o.de ?? 'atendente'})
     returning id
   `);
   return rows[0]!.id;
@@ -90,7 +90,7 @@ const tick = (agora: Date) => runAutoClose(agora, efeitos, 100, [a.tenantId, b.t
 describe('alerta de inatividade', () => {
   it('regra pura: só dentro da janela da antecedência e uma vez por ciclo', () => {
     const cfg = config() as Parameters<typeof isDueForAlert>[0];
-    const alvo = { state: 'em_atendimento', lastMessageAt: T0, lastMessageOf: 'atendente', firstResponseAt: T0, alertAt: null };
+    const alvo = { state: 'Open', lastMessageAt: T0, lastMessageOf: 'atendente', firstResponseAt: T0, alertAt: null };
     expect(isDueForAlert(cfg, alvo, depois(24))).toBe(false);
     expect(isDueForAlert(cfg, alvo, depois(25))).toBe(true);
     expect(isDueForAlert(cfg, alvo, depois(30))).toBe(false);
@@ -109,9 +109,9 @@ describe('alerta de inatividade', () => {
     await tick(depois(1));
     await tick(depois(2));
     expect(alertasDe(id)).toHaveLength(1);
-    expect(await estado(a, id)).toBe('em_atendimento');
+    expect(await estado(a, id)).toBe('Open');
     await tick(depois(5));
-    expect(await estado(a, id)).toBe('encerrada');
+    expect(await estado(a, id)).toBe('ClosedClientInactivity');
     expect(alertasDe(id)).toHaveLength(1);
   });
 
@@ -122,11 +122,11 @@ describe('alerta de inatividade', () => {
     expect(alertasDe(id)).toHaveLength(1);
     await a.dono.execute(sql`update conversa set ultima_mensagem_em = ${depois(1)}, ultima_mensagem_de = 'contato' where id = ${id}::uuid`);
     await tick(depois(20));
-    expect(await estado(a, id)).toBe('em_atendimento');
+    expect(await estado(a, id)).toBe('Open');
     expect(alertasDe(id)).toHaveLength(1);
     await tick(depois(27));
     expect(alertasDe(id)).toHaveLength(2);
-    expect(await estado(a, id)).toBe('em_atendimento');
+    expect(await estado(a, id)).toBe('Open');
   });
 
   it('sem alerta ativo, ou com a fila desligada, nada é enviado', async () => {
@@ -144,7 +144,7 @@ describe('alerta de inatividade', () => {
     await setConfig(a, config({ naoSeAguardandoAtendente: true }));
     await setConfig(b, null);
     const aguardando = await conversa(a, { ultima: depois(-26), de: 'contato' });
-    const encerrada = await conversa(a, { ultima: depois(-26), estado: 'encerrada' });
+    const encerrada = await conversa(a, { ultima: depois(-26), estado: 'ClosedAttendant' });
     const doB = await conversa(b, { ultima: depois(-26) });
     await tick(depois(0));
     expect(alertasDe(aguardando)).toHaveLength(0);

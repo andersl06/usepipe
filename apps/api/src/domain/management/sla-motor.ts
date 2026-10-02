@@ -6,6 +6,7 @@ import {
   inicioDoAlvo,
   type MarcosSla,
   type LevelPriority,
+  SQL_STATES_ACTIVE,
 } from '@pipe/core';
 import { conversation, slaConversation } from '@pipe/db/schema';
 import type { TransactionPipe } from '@pipe/db';
@@ -310,7 +311,7 @@ export async function conversationsForCheckSla(lote = 200): Promise<CandidataASl
   const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`
     select distinct c.tenant_id, c.id
       from conversa c
-     where c.estado <> 'encerrada'
+     where c.estado in ${sql.raw(SQL_STATES_ACTIVE)}
         or exists (
              select 1 from sla_conversa sc
               where sc.conversa_id = c.id and sc.estado in ('correndo', 'alertado')

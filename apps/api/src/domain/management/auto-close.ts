@@ -1,3 +1,4 @@
+import { isClosedState, SQL_STATES_ACTIVE } from '@pipe/core';
 import { sql } from 'drizzle-orm';
 import { databaseOwner, noTenant } from '../../database.js';
 import { closeInTransaction } from '../conversation.js';
@@ -31,6 +32,8 @@ export interface CandidateOfAutoClose {
 
 export interface AutoCloseTarget {
   state: string;
+  /** Em Modo de Espera (`em_espera_desde` preenchido). */
+  emEspera?: boolean;
   lastMessageAt: Date | null;
   lastMessageOf: string | null;
   firstResponseAt: Date | null;
@@ -43,7 +46,7 @@ export function isDueForAutoClose(
   agora: Date,
   pausarEmEspera = true,
 ): boolean {
-  if (!config.ativo || conversa.state === 'encerrada' || (pausarEmEspera && conversa.state === 'em_espera') || !conversa.lastMessageAt) return false;
+  if (!config.ativo || isClosedState(conversa.state) || (pausarEmEspera && conversa.emEspera === true) || !conversa.lastMessageAt) return false;
   if (config.soSePrimeiroAtendimento && !conversa.firstResponseAt) return false;
   if (config.naoSeAguardandoAtendente && conversa.lastMessageOf === 'contato') return false;
   const limiteMs = toMinutes(config.tempo, config.unidade) * 60_000;
@@ -64,7 +67,7 @@ export async function conversationsForAutoClose(
       join tenant tn on tn.id = c.tenant_id
       left join fila f on f.id = c.fila_id and f.tenant_id = c.tenant_id
       cross join lateral (select ${CONFIG_EFETIVA} as v) cfg
-     where c.estado <> 'encerrada' and ${FORA_DA_ESPERA}
+     where c.estado in ${sql.raw(SQL_STATES_ACTIVE)} and ${FORA_DA_ESPERA}
        and (${tenants === undefined} or c.tenant_id = any(${`{${(tenants ?? []).join(',')}}`}::uuid[]))
        and jsonb_typeof(cfg.v) = 'object'
        and cfg.v->>'ativo' = 'true'
@@ -150,6 +153,7 @@ export async function autoCloseConversation(
     }
     const alvo: AutoCloseTarget = {
       state: linha.state,
+      emEspera: linha.em_espera_desde !== null,
       lastMessageAt: data(linha.lastMessageAt ?? linha.criadaEm),
       lastMessageOf: linha.lastMessageOf,
       firstResponseAt: data(linha.firstResponseAt),

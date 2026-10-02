@@ -57,7 +57,7 @@ async function createConversation(
       criada_em, atribuida_em, primeira_resposta_em, encerrada_em
     ) values (
       ${cenario.tenantId}::uuid, ${cenario.inboxId}::uuid, ${contactId}::uuid, ${cenario.queueId}::uuid,
-      ${opts.closedAt ? 'encerrada' : 'atribuida'}, ${opts.priority ?? 'sem_prioridade'},
+      ${opts.closedAt ? 'ClosedAttendant' : 'Assigned'}, ${opts.priority ?? 'sem_prioridade'},
       ${opts.criadaEm}, ${opts.assignedAt ?? null}, ${opts.firstResponseAt ?? null}, ${opts.closedAt ?? null}
     )
     returning id
