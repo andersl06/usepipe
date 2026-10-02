@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { TransactionPipe } from '@pipe/db';
+import { SQL_STATES_ACTIVE, SQL_STATES_CLOSED } from '@pipe/core';
 import type {
   Colega,
   ConversationOpen,
@@ -58,6 +59,7 @@ export async function listConversations(
     lastMessageOf: string | null;
     windowExpiresAt: Date | string | null;
     em_espera_desde: Date | string | null;
+    emStandby: boolean;
     contato_nome: string | null;
     contactPhone: string | null;
     fila_nome: string | null;
@@ -69,7 +71,8 @@ export async function listConversations(
   }>(sql`
     select c.id, c.estado as state, c.prioridade as priority, c.criada_em, c.primeira_resposta_em,
            c.ultima_mensagem_em, c.ultima_mensagem_de as "lastMessageOf",
-           c.janela_expira_em as "windowExpiresAt", c.em_espera_desde, ct.nome as contato_nome,
+           c.janela_expira_em as "windowExpiresAt", c.em_espera_desde,
+           (c.estado = 'Open' and c.em_espera_desde is not null) as "emStandby", ct.nome as contato_nome,
            ct.telefone_e164 as "contactPhone",
            f.nome as fila_nome,
            ca.tipo as "channelType", m.conteudo as "lastMessage", m.tipo as "lastMessageType",
@@ -89,12 +92,13 @@ export async function listConversations(
       left join marcacao_conversa mc
         on mc.conversa_id = c.id and mc.usuario_id = ${atendenteId}
      where c.atendente_id = ${atendenteId}
-       and c.estado <> 'encerrada'
+       and c.estado in ${sql.raw(SQL_STATES_ACTIVE)}
      order by c.ultima_mensagem_em desc nulls last
   `);
   return rows.map((r) => ({
     id: r.id,
     estado: r.state,
+    emStandby: r.emStandby,
     prioridade: r.priority,
     criadaEm: iso(r.criada_em),
     primeiraRespostaEm: isoOuNulo(r.primeira_resposta_em),
@@ -125,6 +129,9 @@ export async function loadConversation(
     criada_em: Date | string;
     firstResponseAt: Date | string | null;
     em_espera_desde: Date | string | null;
+    emStandby: boolean;
+    sequentialId: number | string;
+    parentSequentialId: number | string | null;
     windowExpiresAt: Date | string | null;
     queueName: string | null;
     channelId: string;
@@ -141,6 +148,10 @@ export async function loadConversation(
   }>(sql`
     select c.id, c.estado as "state", c.prioridade as "priority", c.criada_em,
            c.primeira_resposta_em as "firstResponseAt", c.em_espera_desde,
+           (c.estado = 'Open' and c.em_espera_desde is not null) as "emStandby",
+           c.numero_sequencial as "sequentialId",
+           (select p.numero_sequencial from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId",
            c.janela_expira_em as "windowExpiresAt", f.nome as "queueName", ca.id as "channelId",
            ca.tipo as "channelType",
            ct.id as "contactId", ct.nome as "contactName", ct.telefone_e164 as "phoneE164", ct.email,
@@ -161,6 +172,9 @@ export async function loadConversation(
   return {
     id: r.id,
     state: r.state,
+    emStandby: r.emStandby,
+    sequentialId: Number(r.sequentialId),
+    parentSequentialId: r.parentSequentialId === null ? null : Number(r.parentSequentialId),
     priority: r.priority,
     criadaEm: iso(r.criada_em),
     firstResponseAt: isoOuNulo(r.firstResponseAt),
@@ -346,7 +360,7 @@ export async function carregarStatus(
   `);
   const r = rows[0];
   // Without a status row, the agent has not joined yet; the spec's default is Invisível.
-  if (!r) return { estado: 'invisivel', desde: new Date().toISOString(), motivoPausa: null };
+  if (!r) return { estado: 'Invisible', desde: new Date().toISOString(), motivoPausa: null };
   return { estado: r.state, desde: iso(r.since), motivoPausa: r.reason };
 }
 
@@ -381,7 +395,7 @@ export async function listHistoryOfContact(
         select e.dados from evento_atendimento e
          where e.conversa_id = c.id and e.tipo = 'encerrada'
          order by e.em desc limit 1
-      ) ev on c.estado = 'encerrada'
+      ) ev on c.estado in ${sql.raw(SQL_STATES_CLOSED)}
      where c.contato_id = ${contactId}
        and (${exceto}::uuid is null or c.id <> ${exceto}::uuid)
      order by c.criada_em desc
@@ -469,7 +483,7 @@ export async function contarAguardando(tx: TransactionPipe, atendenteId: string)
   const { rows } = await tx.execute<{ total: number | string }>(sql`
     select count(*) as total
       from conversa c
-     where c.estado = 'na_fila'
+     where c.estado = 'Waiting'
        and (c.fila_id is null
             or c.fila_id in (select fila_id from fila_atendente where usuario_id = ${atendenteId}))
   `);

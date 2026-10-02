@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
+import { STATES_CONVERSATION } from '@pipe/core';
 import type { CloseConversationInput } from '@pipe/contracts';
 import { noTenant } from '../database.js';
 import { KeyOrSession, Scopes, atorDe, contextOf } from '../authentication.js';
@@ -24,7 +25,7 @@ import type { Page } from '../pagination.js';
  * `/v1/conversas` is the central API resource. Per `apis.md` §5, it uses a plural resource, query filters, declared ordering and cursor pagination. Queries do not manually filter `tenant_id`: RLS already does, and a duplicate filter would hide rather than expose an isolation bug.
  */
 
-const ESTADOS = ['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'];
+const ESTADOS = [...STATES_CONVERSATION];
 
 type LineConversation = {
   id: string;
@@ -366,7 +367,7 @@ export class ConversationsController {
       },
       id,
     );
-    return { state: r.state, pausado_seg: r.pausadoSeg };
+    return { state: r.state, emStandby: r.emStandby, pausado_seg: r.pausadoSeg };
   }
 }
 

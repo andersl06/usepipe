@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { TransactionPipe } from '@pipe/db';
+import { isClosedState } from '@pipe/core';
 import type { Campos, Resultado } from '../management/actions/campos.js';
 
 /**
@@ -37,7 +38,7 @@ async function checkConversation(
   );
   const conversation = rows[0];
   if (!conversation) return 'Conversa não encontrada.';
-  if (conversation.state === 'encerrada') return 'A conversa já foi encerrada.';
+  if (isClosedState(conversation.state)) return 'A conversa já foi encerrada.';
   if (conversation.agentId !== atendenteId) return 'Esta conversa não está com você.';
   return null;
 }

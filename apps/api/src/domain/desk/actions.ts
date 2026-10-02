@@ -35,12 +35,12 @@ export async function definirStatus(
   const state = String(dados.get('state') ?? '') as StateAgent;
   const motivoId = String(dados.get('motivoId') ?? '') || null;
 
-  if (!['online', 'pausa', 'invisivel', 'offline'].includes(state)) {
+  if (!['Online', 'Pause', 'Invisible', 'Offline'].includes(state)) {
     return falha('Estado desconhecido.');
   }
   // Pausa exige motivo, escolhido da lista que o gestor cadastra. Sem motivo, o tempo
   // cannot feed a report, which is why it is required.
-  if (state === 'pausa' && !motivoId) {
+  if (state === 'Pause' && !motivoId) {
     return falha('Escolha o motivo da pausa.');
   }
 
@@ -60,7 +60,7 @@ export async function definirStatus(
       .set({ encerradaEm: new Date() })
       .where(and(eq(pausa.usuarioId, atendenteId), isNull(pausa.encerradaEm)));
 
-    if (state === 'pausa' && motivoId) {
+    if (state === 'Pause' && motivoId) {
       await tx.insert(pausa).values({ tenantId, usuarioId: atendenteId, motivoId });
     }
   });
@@ -81,11 +81,11 @@ export async function failByInactivity(
     const agora = new Date();
     await tx
       .insert(statusAgent)
-      .values({ usuarioId: agentId, tenantId, estado: 'offline', desde: agora })
+      .values({ usuarioId: agentId, tenantId, estado: 'Offline', desde: agora })
       .onConflictDoUpdate({
         target: statusAgent.usuarioId,
-        set: { estado: 'offline', desde: agora },
-        where: sql`${statusAgent.estado} <> 'offline'`,
+        set: { estado: 'Offline', desde: agora },
+        where: sql`${statusAgent.estado} <> 'Offline'`,
       });
 
     await tx
@@ -136,7 +136,7 @@ function messageOfLimit(motivo: MotivoInelegivel, ativas: number): string {
 }
 
 /**
- * The column's "Atender" action mirrors source `set /tickets/claim`: the agent claims the oldest conversation among their queues. It calls `assumirConversa` (`dominio/assumir.ts`) without choosing an ID, retaining the same guard (`where estado = 'na_fila'` with `skip locked` for competing claims), `atribuicao`, and event. Only Online agents may claim, as in the source. Capacity limits also apply: the source rejects `/tickets/claim` with `code 23 / "Agent ticket list is full."` (`blip-desk-regras-tecnicas.md` §2.2–2.3). `@pipe/core` `motivoInelegivel` evaluates free capacity (`limite − ativas > 0`) and the cap on conversations lacking a first response, using `filasDoAtendente` like `distribuirConversa`; only queues with room enter the `UPDATE`. The check is atomic per agent: lock that agent's `status_atendente` row (`for update`) before counting active conversations, so simultaneous clicks run serially and the second sees the first claim. Conversation `skip locked` separately resolves competition between DIFFERENT agents.
+ * The column's "Atender" action mirrors source `set /tickets/claim`: the agent claims the oldest conversation among their queues. It calls `assumirConversa` (`dominio/assumir.ts`) without choosing an ID, retaining the same guard (`where estado = 'Waiting'` with `skip locked` for competing claims), `atribuicao`, and event. Only Online agents may claim, as in the source. Capacity limits also apply: the source rejects `/tickets/claim` with `code 23 / "Agent ticket list is full."` (`blip-desk-regras-tecnicas.md` §2.2–2.3). `@pipe/core` `motivoInelegivel` evaluates free capacity (`limite − ativas > 0`) and the cap on conversations lacking a first response, using `filasDoAtendente` like `distribuirConversa`; only queues with room enter the `UPDATE`. The check is atomic per agent: lock that agent's `status_atendente` row (`for update`) before counting active conversations, so simultaneous clicks run serially and the second sees the first claim. Conversation `skip locked` separately resolves competition between DIFFERENT agents.
  */
 export async function atender(
   tx: TransactionPipe,
@@ -153,7 +153,7 @@ export async function atender(
     const { rows: status } = await tx.execute<{ state: string }>(
       sql`select estado as "state" from status_atendente where usuario_id = ${atendenteId}::uuid for update`,
     );
-    if (status[0]?.state !== 'online') return falha('Fique online para atender.');
+    if (status[0]?.state !== 'Online') return falha('Fique online para atender.');
 
     const options = { tetoSemPrimeiraResposta: ceilingWithoutFirstResponse() };
     const byQueue = await queuesOfAgent(tx, atendenteId);
@@ -186,11 +186,11 @@ export async function atender(
     const em = new Date();
     const { rows } = await tx.execute<{ id: string; queueId: string | null }>(sql`
       update conversa
-         set atendente_id = ${atendenteId}::uuid, estado = 'atribuida',
+         set atendente_id = ${atendenteId}::uuid, estado = 'Assigned',
              atribuida_em = ${em}, atualizado_em = now()
        where id = (
          select c.id from conversa c
-          where c.estado = 'na_fila'
+          where c.estado = 'Waiting'
             and ((c.fila_id is null and ${acceptsWithoutQueue}::boolean) or ${queuesSql})
           order by c.criada_em asc
           for update skip locked
@@ -205,7 +205,7 @@ export async function atender(
       if (motivoDeRecusa !== null) {
         const { rows: esperando } = await tx.execute<{ n: string }>(sql`
           select count(*)::text as n from conversa c
-           where c.estado = 'na_fila'
+           where c.estado = 'Waiting'
              and c.fila_id in (select fila_id from fila_atendente where usuario_id = ${atendenteId}::uuid)
         `);
         if (Number(esperando[0]?.n ?? 0) > 0) {

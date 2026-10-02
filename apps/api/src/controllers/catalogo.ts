@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
+import { SQL_STATES_ACTIVE } from '@pipe/core';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { KeyOrSession, Scopes, atorDe, contextOf } from '../authentication.js';
@@ -302,10 +303,10 @@ export class QueuesController {
       }>(sql`
         select f.id, f.nome as "name", f.cor as "color", f.ordem as "order", f.ativa as "active", f.capacidade_padrao as "capacityDefault", f.fluxo_id as "flowId",
                (select count(*) from conversa c
-                 where c.fila_id = f.id and c.estado = 'na_fila')::text as aguardando,
+                 where c.fila_id = f.id and c.estado = 'Waiting')::text as aguardando,
                (select count(*) from conversa c
                  where c.fila_id = f.id
-                   and c.estado in ('atribuida', 'em_atendimento', 'em_espera'))::text
+                   and c.estado in ${sql.raw(SQL_STATES_ACTIVE)})::text
                  as "inAttendance"
           from fila f
          where ${juntar(filters)}
@@ -381,11 +382,11 @@ export class AgentsController {
     const filtros: SQL[] = [sql`u.ativo`];
     if (consulta['estado']) {
       filtros.push(
-        igualEmLista("coalesce(s.estado, 'offline')", consulta['estado'], [
-          'online',
-          'pausa',
-          'invisivel',
-          'offline',
+        igualEmLista("coalesce(s.estado, 'Offline')", consulta['estado'], [
+          'Online',
+          'Pause',
+          'Invisible',
+          'Offline',
         ]),
       );
     }
@@ -405,9 +406,9 @@ export class AgentsController {
         since: Date | string | null;
         ativas: string;
       }>(sql`
-        select u.id, u.nome as "name", u.email, coalesce(s.estado, 'offline') as "state", s.desde as "since",
+        select u.id, u.nome as "name", u.email, coalesce(s.estado, 'Offline') as "state", s.desde as "since",
                (select count(*) from conversa c
-                 where c.atendente_id = u.id and c.estado <> 'encerrada')::text as ativas
+                 where c.atendente_id = u.id and c.estado in ${sql.raw(SQL_STATES_ACTIVE)})::text as ativas
           from usuario u
           left join status_atendente s on s.usuario_id = u.id
          where ${juntar(filtros)}
