@@ -160,7 +160,7 @@ describe('Desk write commands in a published flow', () => {
     ]);
     await falar('sair');
     const conversa = await conversaAtual();
-    expect(conversa.estado).toBe('encerrada');
+    expect(conversa.estado).toBe('ClosedClient');
     expect(conversa.encerrada_em).not.toBeNull();
     expect(await statusDoTicket(conversa.id)).toBe('ClosedClient');
     expect(await etiquetasDa(conversa.id)).toEqual(['Encerrado pelo Cliente']);
@@ -181,7 +181,7 @@ describe('Desk write commands in a published flow', () => {
     ]);
     await falar('oi');
     const conversa = await conversaAtual();
-    expect(conversa.estado).not.toBe('encerrada');
+    expect(conversa.estado).not.toBe('ClosedClient');
     expect(await resposta(conversa.id, 'outro')).toMatchObject({ status: 'failure', reason: { code: 66 } });
     expect(await resposta(conversa.id, 'aberto')).toMatchObject({ status: 'failure', reason: { code: 66 } });
   });
@@ -203,7 +203,7 @@ describe('Desk write commands in a published flow', () => {
       await falar('oi');
       const conversa = await conversaAtual();
       expect(conversa.fila_id).toBe(fila[0]!.id);
-      expect(conversa.estado).toBe('na_fila');
+      expect(conversa.estado).toBe('Waiting');
       expect(await resposta(conversa.id, 'estrangeira')).toMatchObject({ status: 'failure', reason: { code: 67 } });
       expect(await resposta(conversa.id, 'inexistente')).toMatchObject({ status: 'failure', reason: { code: 67 } });
       expect(await resposta(conversa.id, 'vendas')).toMatchObject({
@@ -223,7 +223,7 @@ describe('Desk write commands in a published flow', () => {
     await falar('oi');
     const conversa = await conversaAtual();
     expect(conversa.fila_id).toBe(cenario.queueId);
-    expect(conversa.estado).not.toBe('encerrada');
+    expect(conversa.estado).not.toBe('ClosedClient');
     const { rows } = await cenario.dono.execute<{ tipo: string }>(sql`
       select tipo from evento_atendimento where conversa_id = ${conversa.id}::uuid and tipo = 'enfileirada'
     `);

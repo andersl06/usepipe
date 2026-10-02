@@ -1,5 +1,5 @@
 import { sql, type SQL } from 'drizzle-orm';
-import type { CommandMatch } from '@pipe/core';
+import { SQL_STATES_ACTIVE, SQL_STATES_CLOSED, type CommandMatch } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { PRESENCE_STATE_SQL } from './distribution.js';
 
@@ -31,16 +31,10 @@ const notFound = (description: string): CommandResponse => ({
 /** Blip agent identity: the e-mail with `@` escaped, on the `blip.ai` domain. */
 export const agentIdentity = (email: string): string => `${email.replace('@', '%40')}@blip.ai`;
 
-const AGENT_STATUS: Readonly<Record<string, string>> = {
-  online: 'Online',
-  pausa: 'Pause',
-  invisivel: 'Invisible',
-  offline: 'Offline',
-};
-
 type TicketRow = {
   id: string;
   sequentialId: number;
+  parentSequentialId: number | null;
   customerIdentity: string;
   agentEmail: string | null;
   closedByEmail: string | null;
@@ -60,6 +54,7 @@ export function ticketOf(row: TicketRow): Record<string, unknown> {
   const ticket: Record<string, unknown> = {
     id: row.id,
     sequentialId: row.sequentialId,
+    parentSequentialId: row.parentSequentialId ?? undefined,
     customerIdentity: row.customerIdentity,
     agentIdentity: row.agentEmail ? agentIdentity(row.agentEmail) : undefined,
     status: row.status,
@@ -78,11 +73,10 @@ export function ticketOf(row: TicketRow): Record<string, unknown> {
 }
 
 /**
- * Tickets in Blip's vocabulary. Status: `na_fila` → Waiting, `atribuida` → Assigned, `em_atendimento`/
- * `em_espera` → Open, `encerrada` → the closing actor (the same map the `desk:` block uses).
+ * Tickets in Blip's vocabulary: the stored state is already the ticket status (Waiting, Assigned, Open,
+ * ClosedAttendant, ClosedClient, ClosedClientInactivity, Transferred). `sequentialId` is the per-tenant
+ * `numero_sequencial`; `parentSequentialId` is the origin ticket of a transfer.
  * Every conversation is a ticket: it is created at the handoff to human attendance, never while the bot talks alone.
- * ponytail: `sequentialId` counts the tenant's conversations up to this one (same as the `desk:` block's
- * ticket); a per-tenant sequence column is the upgrade when lists get large.
  */
 async function selectTickets(
   tx: TransactionPipe,
@@ -93,21 +87,14 @@ async function selectTickets(
   const { rows } = await tx.execute<TicketRow>(sql`
     select * from (
       select c.id,
-             (select count(*)::int from conversa c2
-               where c2.tenant_id = c.tenant_id and (c2.criada_em, c2.id) <= (c.criada_em, c.id)) as "sequentialId",
+             c.numero_sequencial::int as "sequentialId",
+             (select p.numero_sequencial::int from conversa p
+               where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId",
              c.contato_id::text as "customerIdentity",
              u.email as "agentEmail",
              closer.email as "closedByEmail",
-             case c.estado
-               when 'na_fila' then 'Waiting'
-               when 'atribuida' then 'Assigned'
-               when 'encerrada' then case ev.closer_role
-                 when 'cliente' then 'ClosedClient'
-                 when 'inatividade' then 'ClosedClientInactivity'
-                 when 'transferencia' then 'Transferred'
-                 else 'ClosedAttendant' end
-               else 'Open' end as status,
-             c.estado = 'encerrada' as closed,
+             c.estado as status,
+             c.estado in ${sql.raw(SQL_STATES_CLOSED)} as closed,
              q.nome as team,
              coalesce(
                (select array_agg(et.nome order by et.nome) from conversa_etiqueta ce
@@ -124,11 +111,6 @@ async function selectTickets(
         left join fila q on q.id = c.fila_id and q.tenant_id = c.tenant_id
         left join usuario u on u.id = c.atendente_id and u.tenant_id = c.tenant_id
         left join usuario closer on closer.id = c.encerrada_por and closer.tenant_id = c.tenant_id
-        left join lateral (
-          select e.dados->>'encerrada_por' as closer_role from evento_atendimento e
-           where e.conversa_id = c.id and e.tenant_id = c.tenant_id and e.tipo = 'encerrada'
-           order by e.em desc limit 1
-        ) ev on true
        where c.tenant_id = ${tenantId}::uuid
     ) t
     where ${where}
@@ -203,7 +185,7 @@ export async function teamsWithAgentsOnline(
 ): Promise<{ id: string; name: string; agentsOnline: number }[]> {
   const { rows } = await tx.execute<{ id: string; name: string; agentsOnline: number }>(sql`
     select f.id, f.nome as name,
-           count(distinct u.id) filter (where ${PRESENCE_STATE_SQL} = 'online')::int as "agentsOnline"
+           count(distinct u.id) filter (where ${PRESENCE_STATE_SQL} = 'Online')::int as "agentsOnline"
       from fila f
       left join fila_atendente fa on fa.fila_id = f.id and fa.tenant_id = f.tenant_id
       left join usuario u on u.id = fa.usuario_id and u.tenant_id = f.tenant_id and u.ativo
@@ -233,7 +215,7 @@ const listAttendants: CommandHandler = async (tx, tenantId) => {
     select u.nome as "fullName", u.email, s.estado as state,
            array_agg(distinct f.nome order by f.nome) as teams,
            (select count(*)::int from conversa c
-             where c.tenant_id = u.tenant_id and c.atendente_id = u.id and c.estado <> 'encerrada') as "ticketsInService"
+             where c.tenant_id = u.tenant_id and c.atendente_id = u.id and c.estado in ${sql.raw(SQL_STATES_ACTIVE)}) as "ticketsInService"
       from usuario u
       join fila_atendente fa on fa.usuario_id = u.id and fa.tenant_id = u.tenant_id
       join fila f on f.id = fa.fila_id and f.tenant_id = u.tenant_id and f.ativa
@@ -249,7 +231,7 @@ const listAttendants: CommandHandler = async (tx, tenantId) => {
       fullName: r.fullName,
       email: r.email,
       teams: r.teams,
-      status: AGENT_STATUS[r.state ?? 'offline'] ?? 'Offline',
+      status: r.state ?? 'Offline',
       ticketsInService: r.ticketsInService,
     })),
   );

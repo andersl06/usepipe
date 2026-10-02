@@ -49,7 +49,7 @@ async function conversa(c: Cenario, contatoId: string, estado: string, criadaEm:
   const { rows } = await c.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em, encerrada_em)
     values (${c.tenantId}, ${c.inboxId}, ${contatoId}, ${c.queueId}, ${estado}, ${criadaEm}::timestamptz,
-            ${estado === 'encerrada' ? sql`${criadaEm}::timestamptz + interval '1 hour'` : sql`null`})
+            ${estado === 'ClosedClient' ? sql`${criadaEm}::timestamptz + interval '1 hour'` : sql`null`})
     returning id
   `);
   return rows[0]!.id;
@@ -83,7 +83,7 @@ describe('Desk read commands', () => {
   });
 
   it('agentsOnline drops when the agent pauses', async () => {
-    await a.dono.execute(sql`update status_atendente set estado = 'pausa' where usuario_id = ${a.agentId}::uuid`);
+    await a.dono.execute(sql`update status_atendente set estado = 'Pause' where usuario_id = ${a.agentId}::uuid`);
     const r = await desk(a, '/teams/agents-online');
     expect(r.resource.items.map((t: { agentsOnline: number }) => t.agentsOnline)).toEqual([0]);
   });
@@ -100,9 +100,9 @@ describe('Desk read commands', () => {
 
   it('get /tickets?$filter=customerIdentity lists open tickets, newest first; $closed=true adds closed ones', async () => {
     const cliente = await contato(a, '5511911110001');
-    const fechada = await conversa(a, cliente, 'encerrada', '2026-09-01T10:00:00Z');
-    const aberta = await conversa(a, cliente, 'na_fila', '2026-09-02T10:00:00Z');
-    await conversa(a, await contato(a, '5511911110002'), 'na_fila', '2026-09-03T10:00:00Z');
+    const fechada = await conversa(a, cliente, 'ClosedClient', '2026-09-01T10:00:00Z');
+    const aberta = await conversa(a, cliente, 'Waiting', '2026-09-02T10:00:00Z');
+    await conversa(a, await contato(a, '5511911110002'), 'Waiting', '2026-09-03T10:00:00Z');
 
     const abertas = await desk(a, `/tickets?$filter=customerIdentity%20eq%20'${cliente}'`);
     expect(abertas.resource.itemType).toBe('application/vnd.iris.ticket+json');
@@ -113,7 +113,7 @@ describe('Desk read commands', () => {
 
     const todas = await desk(a, `/tickets?$filter=(customerIdentity%20eq%20'${cliente}')&$closed=true`);
     expect(todas.resource.items.map((t: { id: string }) => t.id)).toEqual([aberta, fechada]);
-    expect(todas.resource.items[1]).toMatchObject({ status: 'ClosedAttendant', closed: true });
+    expect(todas.resource.items[1]).toMatchObject({ status: 'ClosedClient', closed: true });
     expect(todas.resource.items[0]!.sequentialId).toBeGreaterThan(todas.resource.items[1]!.sequentialId);
 
     // The channel identity Blip flows use resolves to the same contact.
@@ -137,20 +137,33 @@ describe('Desk read commands', () => {
     expect((await desk(a, filtro)).resource.items).toHaveLength(0);
     expect((await desk(a, `/tickets?$filter=status%20eq%20'waiting'`)).resource.items).toHaveLength(0);
 
-    const ticket = await conversa(a, cliente, 'na_fila', '2026-09-04T10:00:00Z');
+    const ticket = await conversa(a, cliente, 'Waiting', '2026-09-04T10:00:00Z');
     expect((await desk(a, filtro)).resource.items.map((t) => t.id)).toEqual([ticket]);
     expect((await desk(a, `/tickets?$filter=status%20eq%20'waiting'`)).resource.items).toHaveLength(1);
   });
 
   it('get /ticket/{id} and /tickets/{id} return one ticket; another tenant gets resource-not-found', async () => {
     const cliente = await contato(a, '5511911110003');
-    const id = await conversa(a, cliente, 'em_atendimento', '2026-09-02T10:00:00Z');
+    const id = await conversa(a, cliente, 'Open', '2026-09-02T10:00:00Z');
     for (const uri of [`/ticket/${id}`, `/tickets/${id}`]) {
       const r = await desk(a, uri);
       expect(r).toMatchObject({ status: 'success', type: 'application/vnd.iris.ticket+json', resource: { id, status: 'Open' } });
     }
     expect(await desk(b, `/ticket/${id}`)).toMatchObject({ status: 'failure', reason: { code: 67 } });
     expect(await desk(a, '/ticket/nao-existe')).toMatchObject({ status: 'failure', reason: { code: 67 } });
+  });
+
+  it('sequentialId is the stored ticket number and a transfer child carries parentSequentialId', async () => {
+    const cliente = await contato(a, '5511911110004');
+    const origem = await conversa(a, cliente, 'Transferred', '2026-09-02T10:00:00Z');
+    const filho = await conversa(a, cliente, 'Open', '2026-09-02T11:00:00Z');
+    await a.dono.execute(sql`update conversa set conversa_pai_id = ${origem}::uuid where id = ${filho}::uuid`);
+    const { rows } = await a.dono.execute<{ id: string; n: number }>(
+      sql`select id, numero_sequencial::int as n from conversa where id in (${origem}::uuid, ${filho}::uuid)`,
+    );
+    const n = (id: string): number => rows.find((r) => r.id === id)!.n;
+    expect((await desk(a, `/ticket/${origem}`)).resource).toMatchObject({ status: 'Transferred', sequentialId: n(origem) });
+    expect((await desk(a, `/ticket/${filho}`)).resource).toMatchObject({ status: 'Open', sequentialId: n(filho), parentSequentialId: n(origem) });
   });
 
   it('an unsupported $filter fails loudly', async () => {

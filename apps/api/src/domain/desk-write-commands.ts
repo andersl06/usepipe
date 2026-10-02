@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { ClosedBy, CommandRequest, ServicosDoMotor } from '@pipe/core';
+import { isClosedState, type ClosedBy, type CommandRequest, type ServicosDoMotor } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { ticketById, type CommandResponse } from './desk-commands.js';
 import type { TicketEffects } from './engine-services.js';
@@ -52,15 +52,6 @@ const CLOSED_BY: Readonly<Record<string, ClosedBy>> = {
   closedattendant: 'atendente',
 };
 
-/** Pipe conversation state → Blip ticket status, for the test run's in-memory conversation. */
-const STATUS_OF_STATE: Readonly<Record<string, string>> = {
-  na_fila: 'Waiting',
-  atribuida: 'Assigned',
-  em_atendimento: 'Open',
-  em_espera: 'Open',
-  encerrada: 'ClosedClient',
-};
-
 interface CurrentTicket {
   id: string;
   closed: boolean;
@@ -78,8 +69,8 @@ async function currentTicket(tx: TransactionPipe, tenantId: string, tickets: Tic
     const ticket = await ticketById(tx, tenantId, row.id);
     if (ticket) return { id: row.id, closed: ticket['closed'] === true, real: true, ticket };
   }
-  const closed = state === 'encerrada';
-  return { id: row.id, closed, real: false, ticket: { id: row.id, status: STATUS_OF_STATE[state] ?? 'Waiting', closed } };
+  const closed = isClosedState(state);
+  return { id: row.id, closed, real: false, ticket: { id: row.id, status: state || 'Waiting', closed } };
 }
 
 /** Whether a ticket id from the flow (UUID, `sequentialId`, or empty) names the current ticket. */
