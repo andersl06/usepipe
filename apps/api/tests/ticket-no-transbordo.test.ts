@@ -128,7 +128,7 @@ describe('bot conversation without a ticket', () => {
     await falar('5511966660003', 'oi');
     const tickets = await ticketsDe('5511966660003');
     expect(tickets).toHaveLength(1);
-    expect(tickets[0]!.estado).toMatch(/na_fila|atribuida/);
+    expect(tickets[0]!.estado).toMatch(/^(Waiting|Assigned)$/);
     expect(await eventos(tickets[0]!.id)).toEqual(expect.arrayContaining(['criada', 'enfileirada']));
   });
 
@@ -142,7 +142,7 @@ describe('bot conversation without a ticket', () => {
     const { rows: tk } = await cenario.dono.execute<{ id: string }>(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado)
       values (${cenario.tenantId}::uuid, ${cenario.inboxId}::uuid, ${contato[0]!.contato_id}::uuid,
-              ${cenario.queueId}::uuid, ${cenario.agentId}::uuid, 'atribuida') returning id
+              ${cenario.queueId}::uuid, ${cenario.agentId}::uuid, 'Assigned') returning id
     `);
     await cenario.dono.execute(sql`update execucao_fluxo set conversa_id = ${tk[0]!.id}::uuid where id = ${sessao.id}::uuid`);
 
@@ -168,7 +168,7 @@ describe('the handoff creates the ticket', () => {
     expect(tickets).toHaveLength(1);
     const ticket = tickets[0]!;
     expect(ticket.fila_id).toBe(cenario.queueId);
-    expect(ticket.estado).toMatch(/na_fila|atribuida/);
+    expect(ticket.estado).toMatch(/^(Waiting|Assigned)$/);
 
     const sessao = await sessaoDoBot(cenario, '5511966660010');
     expect(sessao.conversa_id).toBe(ticket.id);
@@ -217,14 +217,14 @@ describe('the handoff creates the ticket', () => {
   });
 
   it('reads no ticket and refuses to close one before the handoff', async () => {
-    await publicar([command('/tickets/atual/status', { status: 'encerrada' })]);
+    await publicar([command('/tickets/atual/status', { status: 'ClosedClient' })]);
     await falar('5511966660012', 'oi');
     await falar('5511966660012', 'tchau');
 
     // Closing without a ticket fails the action; the failure handoff opens a ticket that stays open.
     const tickets = await ticketsDe('5511966660012');
     expect(tickets).toHaveLength(1);
-    expect(tickets[0]!.estado).not.toBe('encerrada');
+    expect(tickets[0]!.estado).not.toBe('ClosedClient');
   });
 
   it('never loses the contact when no queue is possible: the ticket waits without a queue', async () => {
@@ -234,7 +234,7 @@ describe('the handoff creates the ticket', () => {
 
     const tickets = await ticketsDe('5511966660013');
     expect(tickets).toHaveLength(1);
-    expect(tickets[0]!.estado).toBe('na_fila');
+    expect(tickets[0]!.estado).toBe('Waiting');
     expect(tickets[0]!.fila_id).toBeNull();
   });
 
@@ -254,7 +254,7 @@ describe('the handoff creates the ticket', () => {
     await falar('5511966660015', 'ajuda');
     const [ticket] = await ticketsDe('5511966660015');
     await cenario.dono.execute(sql`
-      update conversa set estado = 'encerrada', encerrada_em = now() where id = ${ticket!.id}::uuid
+      update conversa set estado = 'ClosedAttendant', encerrada_em = now() where id = ${ticket!.id}::uuid
     `);
 
     await falar('5511966660015', 'voltei');

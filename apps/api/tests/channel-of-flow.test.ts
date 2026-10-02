@@ -280,7 +280,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     const contactId = contacts[0]!.id;
     const { rows: conversations } = await a.dono.execute<{ id: string }>(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, estado)
-      values (${a.tenantId}, ${inboxes[0]!.id}, ${contactId}, 'em_atendimento') returning id
+      values (${a.tenantId}, ${inboxes[0]!.id}, ${contactId}, 'Open') returning id
     `);
     await a.dono.execute(sql`
       insert into mensagem (id, tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, criada_em)

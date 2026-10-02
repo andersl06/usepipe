@@ -62,7 +62,7 @@ async function conversa(): Promise<string> {
   `);
   const { rows } = await c.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, estado)
-    values (${tenantId}, ${c.inboxId}, ${ct[0]!.id}, 'na_fila') returning id
+    values (${tenantId}, ${c.inboxId}, ${ct[0]!.id}, 'Waiting') returning id
   `);
   return rows[0]!.id;
 }
@@ -215,7 +215,7 @@ describe('filas com o mesmo nome em fluxos diferentes', () => {
     `);
     const { rows } = await c.dono.execute<{ id: string }>(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, atribuida_em)
-      values (${tenantId}, ${c.inboxId}, ${ct[0]!.id}, ${f.queueA}, ${f.userShared}, 'em_atendimento', now()) returning id
+      values (${tenantId}, ${c.inboxId}, ${ct[0]!.id}, ${f.queueA}, ${f.userShared}, 'Open', now()) returning id
     `);
     await expect(
       transferConversation(

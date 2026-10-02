@@ -61,11 +61,11 @@ beforeAll(async () => {
   await execute(serviceB, botOnly);
   await a.dono.execute(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, estado)
-    values (${a.tenantId}, ${a.inboxId}, ${withTicket}, 'em_atendimento')
+    values (${a.tenantId}, ${a.inboxId}, ${withTicket}, 'Open')
   `);
   await a.dono.execute(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, estado)
-    values (${a.tenantId}, ${a.inboxId}, ${ofChannel}, 'em_atendimento')
+    values (${a.tenantId}, ${a.inboxId}, ${ofChannel}, 'Open')
   `);
 }, 180_000);
 

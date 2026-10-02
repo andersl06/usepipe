@@ -284,7 +284,7 @@ beforeAll(async () => {
 
   // // With nobody online: the transferred conversation stays IN THE QUEUE, with no agent.
   await a.dono.execute(
-    sql`update status_atendente set estado = 'offline' where usuario_id = ${a.agentId}::uuid`,
+    sql`update status_atendente set estado = 'Offline' where usuario_id = ${a.agentId}::uuid`,
   );
 }, 180_000);
 

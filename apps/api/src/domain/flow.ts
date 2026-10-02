@@ -20,6 +20,9 @@ import {
   contactRegisterMessage,
   channelIdentity,
   tunnelIdentity,
+  isClosedState,
+  SQL_STATES_ACTIVE,
+  SQL_STATES_CLOSED,
 } from '@pipe/core';
 import { nomeCurto } from './management/regras-de-nome.js';
 import type {
@@ -267,7 +270,7 @@ export async function botSessionOf(
      for update of e
   `);
   const latest = rows[0];
-  if (latest && latest.ticketState !== 'encerrada') {
+  if (latest && !(latest.ticketState && isClosedState(latest.ticketState))) {
     return { id: latest.id, flowVersionId: latest.flowVersionId, flowId: latest.flowId, context: latest.context, created: false };
   }
   const created = await createExecution(tx, {
@@ -393,6 +396,8 @@ export async function runFlowInInbound(
   // contact attributes (`extras`) live in this overlay, starting empty. Name/e-mail/phone stay on the
   // tenant contact (D-14, no second contact). Not verified Blip behavior.
   const isolatesContact = roteador !== null && !roteador.sharesContext;
+  // ponytail: ASSUMPTION mantido; se cair na verificação humana, remover `extrasOverlay` junto.
+  const extrasOverlay = (): Record<string, unknown> | null => (isolatesContact ? (JSON.parse(variables[CONTACT_EXTRAS] ?? '{}') as Record<string, unknown>) : null);
   const contact = await loadContact(
     tx,
     e.contactId,
@@ -412,7 +417,7 @@ export async function runFlowInInbound(
   const emSavepoint = <T>(fn: (sp: TransactionPipe) => Promise<T>): Promise<T> => tx.transaction(fn);
   /** The bot's attendance handoff, shared by `forwardForAttendance` and the `/transfer` command. */
   const transferirPeloBot = async (sp: TransactionPipe, queueId: string | null): Promise<string> => {
-    const id = await transbordar(sp, e, execution.id, publicado.flowId, queueId, variables, null, relogio());
+    const id = await transbordar(sp, e, execution.id, publicado.flowId, queueId, variables, null, relogio(), false, extrasOverlay());
     if (ticketId !== id) ticketCreated = id;
     ticketId = id;
     transferida = true;
@@ -503,6 +508,7 @@ export async function runFlowInInbound(
             tenantId: e.tenantId,
             conversationId: ticketId,
             flowId: publicado.flowId,
+            extrasOverlay: extrasOverlay(),
             queueId,
             defaultQueueId: e.queueDefaultId,
             message: e.message.content,
@@ -511,6 +517,7 @@ export async function runFlowInInbound(
             tenantId: e.tenantId,
             contactId: e.contactId,
             flowId: publicado.flowId,
+            extrasOverlay: extrasOverlay(),
             queueId,
             defaultQueueId: e.queueDefaultId,
             message: e.message.content,
@@ -1161,13 +1168,14 @@ async function transbordar(
   motivo: string | null,
   em: Date,
   requireQueue = false,
+  extrasOverlay: Record<string, unknown> | null = null,
 ): Promise<string> {
   // The ticket is born here (D-15). An open one (existing, or created earlier in this run) is reused.
   let ticketId = e.conversation?.id ?? null;
   if (!ticketId) {
     const { rows } = await tx.execute<{ id: string }>(sql`
       select c.id from execucao_fluxo x join conversa c on c.id = x.conversa_id
-       where x.id = ${executionId} and x.tenant_id = ${e.tenantId} and c.estado <> 'encerrada'
+       where x.id = ${executionId} and x.tenant_id = ${e.tenantId} and c.estado in ${sql.raw(SQL_STATES_ACTIVE)}
     `);
     ticketId = rows[0]?.id ?? null;
   }
@@ -1188,7 +1196,7 @@ async function transbordar(
         tenant_id, inbox_id, contato_id, fila_id, estado, prioridade, criada_em,
         ultima_mensagem_em, ultima_mensagem_de, janela_expira_em, janela_aberta_por_mensagem_id
       ) values (
-        ${e.tenantId}, ${e.inboxId}, ${e.contactId}, null, 'na_fila', ${priority}, ${em},
+        ${e.tenantId}, ${e.inboxId}, ${e.contactId}, null, 'Waiting', ${priority}, ${em},
         ${last ? new Date(last.em) : null}, ${last?.autor ?? null},
         ${window?.expiraEm ?? null}, ${window?.openByMessageId ?? null}
       )
@@ -1226,6 +1234,7 @@ async function transbordar(
     at: em,
     origin: 'fluxo',
     requireQueue: requireQueue,
+    extrasOverlay,
     eventData: { origem: 'fluxo', ...(motivo ? { motivo } : {}) },
     beforeDistribution: async (destination) => {
       // Give the agent what the bot collected about the customer in the note shown by Desk.
@@ -1235,7 +1244,7 @@ async function transbordar(
       `);
       await emitir(tx, e.tenantId, 'conversa.estado_alterado', {
         conversa_id: id,
-        estado: 'na_fila',
+        estado: 'Waiting',
         fila_id: destination,
       });
     },
@@ -1652,7 +1661,7 @@ async function mostRecentClosedAttendance(
       from conversa c
       left join fila q on q.id = c.fila_id
       left join usuario u on u.id = c.atendente_id
-     where c.contato_id = ${contatoId} and c.estado = 'encerrada' and (${conversationCurrentId}::uuid is null or c.id <> ${conversationCurrentId}::uuid)
+     where c.contato_id = ${contatoId} and c.estado in ${sql.raw(SQL_STATES_CLOSED)} and (${conversationCurrentId}::uuid is null or c.id <> ${conversationCurrentId}::uuid)
      order by c.encerrada_em desc nulls last
      limit 1
   `);
@@ -1691,15 +1700,6 @@ async function lastAttendance(
     sequentialId: recent?.sequentialId ?? null,
   };
 }
-
-/** Pipe conversation state → Blip `TicketStatusEnum`. */
-const TICKET_STATUS_OF_STATE: Record<string, string> = {
-  na_fila: 'Waiting',
-  atribuida: 'Assigned',
-  em_atendimento: 'Open',
-  em_espera: 'Open',
-  encerrada: 'ClosedAttendant',
-};
 
 /**
  * The conversation as Blip's `Ticket` document (`blip-api-schemas.md`, Ticket), which the engine
@@ -1741,7 +1741,7 @@ export async function ticketOfConversation(
   `);
   const t = rows[0];
   if (!t) throw new Error('A conversa do atendimento não foi encontrada.');
-  const status = TICKET_STATUS_OF_STATE[t.state] ?? 'Waiting';
+  const status = t.state; // the stored state is already Blip's `TicketStatusEnum`
   return {
     id: t.id,
     sequentialId: t.sequentialId,

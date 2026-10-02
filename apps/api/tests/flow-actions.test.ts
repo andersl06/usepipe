@@ -340,25 +340,25 @@ describe('context action services', () => {
     await falar('oi');
     const conversa = await conversaAtual();
     expect(conversa.fila_id).toBe(fila[0]!.id);
-    expect(conversa.estado).toBe('na_fila');
+    expect(conversa.estado).toBe('Waiting');
     expect(await eventosDa(conversa.id)).toEqual(expect.arrayContaining(['criada', 'enfileirada']));
   });
 
-  it('SendCommand /status encerrada closes through the domain closure: encerrada_em and event (WR-01)', async () => {
+  it('SendCommand /status ClosedClient closes through the domain closure: encerrada_em and event (WR-01)', async () => {
     // D-15: sem ticket antes do transbordo não há o que encerrar; o ticket nasce no encaminhamento
-    await publicarComando('/tickets/atual/status', { status: 'encerrada' }, [{ type: 'ForwardToDesk', settings: {} }]);
+    await publicarComando('/tickets/atual/status', { status: 'ClosedClient' }, [{ type: 'ForwardToDesk', settings: {} }]);
     await falar('oi');
     const conversa = await conversaAtual();
-    expect(conversa.estado).toBe('encerrada');
+    expect(conversa.estado).toBe('ClosedClient');
     expect(conversa.encerrada_em).not.toBeNull();
     expect(await eventosDa(conversa.id)).toContain('encerrada');
   });
 
   it('SendCommand /status refuses a state that requires an agent (WR-01)', async () => {
-    await publicarComando('/tickets/atual/status', { status: 'em_atendimento' });
+    await publicarComando('/tickets/atual/status', { status: 'Open' });
     await falar('oi');
     const conversa = await conversaAtual();
-    expect(conversa.estado).not.toBe('em_atendimento');
+    expect(conversa.estado).not.toBe('Open');
     expect(conversa.fila_id).toBe(cenario.queueId);
   });
 
@@ -367,7 +367,7 @@ describe('context action services', () => {
     // D-15: a resposta avalia um atendimento encerrado do contato
     await cenario.dono.execute(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, estado, encerrada_em)
-      select e.tenant_id, ${cenario.inboxId}::uuid, e.contato_id, 'encerrada', now() from execucao_fluxo e
+      select e.tenant_id, ${cenario.inboxId}::uuid, e.contato_id, 'ClosedAttendant', now() from execucao_fluxo e
        where e.tenant_id = ${cenario.tenantId}::uuid order by e.iniciada_em desc limit 1
     `);
     const { rows: bot } = await cenario.dono.execute<{ conteudo: string }>(sql`
