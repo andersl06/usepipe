@@ -415,6 +415,27 @@ Plans:
 
 - (D-03) Cada correção tem teste ou evidência arquivo:linha registrada no inventário
 
+### Phase 03.1.1: Alinhar estados e ids ao modelo da Blip (INSERTED)
+
+**Goal:** O ciclo de vida do ticket e do atendente usa os mesmos status, em inglês e com a mesma grafia da Blip (Waiting, Assigned, Open, ClosedAttendant, ClosedClient, ClosedClientInactivity, Transferred; Online, Pause, Invisible, Offline), com standby como flag do ticket e não como status; o contato no bot continua com id próprio na execução e o ticket com id próprio, e cada mensagem do bot carrega o bloco atual e o anterior. Fecha também as 3 lacunas da verificação da 03.1 (0084, botão de template sem URL/telefone, `teams` no roteador com contexto desligado).
+**Requirements**: TBD
+**Depends on:** Phase 03.1
+**Plans:** 12 plans
+
+Plans:
+- [ ] 03.1.1-01-PLAN.md — Banco: vocabulário Blip, migration 0091 (conversão, CHECKs, sequencial/pai, carimbo de bloco) e pré-voo da árvore
+- [ ] 03.1.1-02-PLAN.md — Core e contratos: máquina de estados Blip, standby como flag, status do atendente
+- [ ] 03.1.1-03-PLAN.md — Lacunas D-08(a) migration 0084 e D-08(b) botão de template incompleto
+- [ ] 03.1.1-04-PLAN.md — API núcleo de conversa: encerramento, transferência com pai, standby, status do atendente, distribuição
+- [ ] 03.1.1-05-PLAN.md — API Desk: consultas com emStandby e ids do ticket, comandos desk:, webhook
+- [ ] 03.1.1-06-PLAN.md — API Gestão: monitoramento, encerramento automático, SLA
+- [ ] 03.1.1-07-PLAN.md — API motor: flow.ts/queue-entry.ts no vocabulário novo e D-08(c) teams no roteador
+- [ ] 03.1.1-08-PLAN.md — Bridge LIME sem tradução de status, com sequencial e pai reais
+- [ ] 03.1.1-09-PLAN.md — Carimbo de bloco atual/anterior nas mensagens do bot (D-06)
+- [ ] 03.1.1-10-PLAN.md — Desk: rótulos num mapa único, standby como flag, seletor de status
+- [ ] 03.1.1-11-PLAN.md — Gestão e CRM: rótulos num mapa por app e filtros de status
+- [ ] 03.1.1-12-PLAN.md — Suíte completa, grep final e checkpoint do dono (heurística A2)
+
 ### Phase 03.2: Paridade visual da tela Atendimento do fluxo (INSERTED)
 
 **Goal:** A tela Atendimento dentro do fluxo (`application/detail/{fluxo}/attendance`, `apps/management-vite`) fica visualmente equivalente à da Blip: layout, medidas, tipografia, espaçamentos, estados vazio/carregando/erro, componentes e menus/modais abertos, com as cores do Pipe (azul → verde). Nada da Blip entra como código, CSS, ícone ou imagem (D-33). Regras só entram quando o visual exigir. Isolamento de filas/regras, presença, distribuição, identidade roteador/subbot, atalho do compositor e SLA são da Fase 3.1 / Fase 3, não desta.
