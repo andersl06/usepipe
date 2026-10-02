@@ -420,12 +420,12 @@ Plans:
 **Goal:** O ciclo de vida do ticket e do atendente usa os mesmos status, em inglês e com a mesma grafia da Blip (Waiting, Assigned, Open, ClosedAttendant, ClosedClient, ClosedClientInactivity, Transferred; Online, Pause, Invisible, Offline), com standby como flag do ticket e não como status; o contato no bot continua com id próprio na execução e o ticket com id próprio, e cada mensagem do bot carrega o bloco atual e o anterior. Fecha também as 3 lacunas da verificação da 03.1 (0084, botão de template sem URL/telefone, `teams` no roteador com contexto desligado).
 **Requirements**: TBD
 **Depends on:** Phase 03.1
-**Plans:** 2/12 plans executed
+**Plans:** 3/12 plans executed
 
 Plans:
 - [x] 03.1.1-01-PLAN.md — Banco: vocabulário Blip, migration 0091 (conversão, CHECKs, sequencial/pai, carimbo de bloco) e pré-voo da árvore
 - [x] 03.1.1-02-PLAN.md — Core e contratos: máquina de estados Blip, standby como flag, status do atendente
-- [ ] 03.1.1-03-PLAN.md — Lacunas D-08(a) migration 0084 e D-08(b) botão de template incompleto
+- [x] 03.1.1-03-PLAN.md — Lacunas D-08(a) migration 0084 e D-08(b) botão de template incompleto
 - [ ] 03.1.1-04-PLAN.md — API núcleo de conversa: encerramento, transferência com pai, standby, status do atendente, distribuição
 - [ ] 03.1.1-05-PLAN.md — API Desk: consultas com emStandby e ids do ticket, comandos desk:, webhook
 - [ ] 03.1.1-06-PLAN.md — API Gestão: monitoramento, encerramento automático, SLA
