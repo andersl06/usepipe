@@ -470,6 +470,105 @@ describe('POST /v1/management/communication/responses-ready', () => {
   });
 });
 
+describe('categorias de respostas prontas', () => {
+  const caminho = '/v1/management/communication/response-categories';
+  const nova = () => `Cat ${randomUUID().slice(0, 8)}`;
+
+  it('renomeia todas as respostas da categoria, recusa nome em uso e registra no log', async () => {
+    const velha = nova();
+    const outra = nova();
+    await createResponse(sessionManager, { category: velha });
+    await createResponse(sessionManager, { category: velha });
+    await createResponse(sessionManager, { category: outra });
+
+    const novoNome = nova();
+    const renomeada = await pedir('PATCH', caminho, sessionManager, { name: velha, newName: novoNome });
+    expect(renomeada.status).toBe(200);
+    expect(renomeada.body).toMatchObject({ category: novoNome, atualizadas: 2 });
+
+    const emUso = await pedir('PATCH', caminho, sessionManager, { name: novoNome, newName: outra });
+    expect(emUso.status).toBe(409);
+    expect(emUso.body.error.code).toBe('category_in_use');
+
+    const inexistente = await pedir('PATCH', caminho, sessionManager, { name: velha, newName: nova() });
+    expect(inexistente.status).toBe(404);
+
+    const vazio = await pedir('PATCH', caminho, sessionManager, { name: novoNome, newName: '  ' });
+    expect(vazio.status).toBe(400);
+    const longo = await pedir('PATCH', caminho, sessionManager, { name: novoNome, newName: 'x'.repeat(101) });
+    expect(longo.status).toBe(400);
+  });
+
+  it('exige a permissão e não alcança categoria de outro tenant', async () => {
+    const cat = nova();
+    await createResponse(sessionManager, { category: cat });
+
+    const semPermissao = await pedir('PATCH', caminho, sessionOnlyQueues, { name: cat, newName: nova() });
+    expect(semPermissao.status).toBe(403);
+    const excluirSem = await pedir('DELETE', `${caminho}?name=${encodeURIComponent(cat)}`, sessionOnlyQueues);
+    expect(excluirSem.status).toBe(403);
+
+    const outro = await pedir('DELETE', `${caminho}?name=${encodeURIComponent(cat)}`, sessionOfOtherTenant);
+    expect([403, 404]).toContain(outro.status);
+    const { rows } = await a.dono.execute<{ n: string }>(
+      sql`select count(*)::text as n from resposta_pronta where tenant_id = ${a.tenantId}::uuid and categoria = ${cat}`,
+    );
+    expect(rows[0]?.n).toBe('1');
+  });
+
+  it('exclui a categoria com as respostas dela (204) e depois dá 404', async () => {
+    const cat = nova();
+    await createResponse(sessionManager, { category: cat });
+    await createResponse(sessionManager, { category: cat });
+    const apagada = await pedir('DELETE', `${caminho}?name=${encodeURIComponent(cat)}`, sessionManager);
+    expect(apagada.status).toBe(204);
+    const { rows } = await a.dono.execute<{ n: string }>(
+      sql`select count(*)::text as n from resposta_pronta where tenant_id = ${a.tenantId}::uuid and categoria = ${cat}`,
+    );
+    expect(rows[0]?.n).toBe('0');
+    const denovo = await pedir('DELETE', `${caminho}?name=${encodeURIComponent(cat)}`, sessionManager);
+    expect(denovo.status).toBe(404);
+  });
+
+  it('valida tamanhos ao criar resposta', async () => {
+    expect((await createResponse(sessionManager, { title: 'x'.repeat(101) })).body.error.code).toBe('title_too_long');
+    expect((await createResponse(sessionManager, { body: 'x'.repeat(4097) })).body.error.code).toBe('body_too_long');
+    expect((await createResponse(sessionManager, { category: 'x'.repeat(101) })).body.error.code).toBe(
+      'category_too_long',
+    );
+  });
+});
+
+describe('GET /v1/management/communication/templates (paginado)', () => {
+  it('pagina no servidor, filtra por nome e status, isola por tenant', async () => {
+    const marca = randomUUID().slice(0, 6);
+    for (let i = 0; i < 7; i++) {
+      await a.dono.execute(sql`
+        insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, status_meta, corpo)
+        values (${a.tenantId}::uuid, ${a.channelId}::uuid, ${`mod_${marca}_${i}`}, 'pt_BR', 'utilidade',
+                ${i === 0 ? 'aprovado' : 'pendente'}, 'Olá {{1}}')
+      `);
+    }
+    await b.dono.execute(sql`
+      insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, corpo)
+      values (${b.tenantId}::uuid, ${b.channelId}::uuid, ${`mod_${marca}_outro`}, 'pt_BR', 'utilidade', 'x')
+    `);
+    const base = '/v1/management/communication/templates';
+    const p1 = await pedir('GET', `${base}?q=mod_${marca}&pagina=1&porPagina=5`, sessionManager);
+    expect(p1.status).toBe(200);
+    expect(p1.body).toMatchObject({ total: 7, pagina: 1, porPagina: 5 });
+    expect(p1.body.modelos).toHaveLength(5);
+    const p2 = await pedir('GET', `${base}?q=mod_${marca}&pagina=2&porPagina=5`, sessionManager);
+    expect(p2.body.modelos).toHaveLength(2);
+    const aprovados = await pedir('GET', `${base}?q=mod_${marca}&status=aprovado`, sessionManager);
+    expect(aprovados.body.total).toBe(1);
+    const curinga = await pedir('GET', `${base}?q=${encodeURIComponent('%')}`, sessionManager);
+    expect(curinga.body.total).toBe(0);
+    expect((await pedir('GET', `${base}?porPagina=7`, sessionManager)).status).toBe(400);
+    expect((await pedir('GET', `${base}?status=inventado`, sessionManager)).status).toBe(400);
+  });
+});
+
 describe('PATCH e DELETE /v1/management/communication/responses-ready/:id', () => {
   it('Edit a saved response\'s body and category and toggle its active state', async () => {
     const { body: criada } = await createResponse(sessionManager);

@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import type { Ator, TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
+import { lerPagina } from '../pagination.js';
 import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
@@ -117,13 +118,25 @@ export class ManagementRegistrationsController {
 
   @Get('communication/templates')
   @WithSession()
-  modelos(@Req() requisicao: RequestWithSession) {
+  modelos(
+    @Req() requisicao: RequestWithSession,
+    @Query('pagina') paginaBruta?: string,
+    @Query('porPagina') porPaginaBruta?: string,
+    @Query('q') q?: string,
+    @Query('status') status?: string,
+  ) {
     const sessao = sessionOf(requisicao);
-    /* Run serially: both queries share one connection. */
-    return noTenant(sessao.tenantId, async (tx) => ({
-      modelos: await comunicacao.carregarModelos(tx),
-      channels: await comunicacao.loadChannelsWhatsapp(tx),
-    }));
+    const { pagina, porPagina, offset } = lerPagina(paginaBruta, porPaginaBruta);
+    /* Run serially: the queries share one connection. */
+    return noTenant(sessao.tenantId, async (tx) => {
+      const { modelos, total } = await comunicacao.carregarPaginaDeModelos(tx, {
+        q,
+        status,
+        limit: porPagina,
+        offset,
+      });
+      return { modelos, total, pagina, porPagina, channels: await comunicacao.loadChannelsWhatsapp(tx) };
+    });
   }
 
   @Get('communication/responses-ready')
@@ -645,6 +658,37 @@ export class ManagementRegistrationsController {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) =>
       comunicacao.createResponseReady(tx, sessao.tenantId, sessao.userId, corpo),
+    );
+  }
+
+  @Patch('communication/response-categories')
+  @WithSession()
+  async renomearCategoriaDeRespostas(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: { name?: string; newName?: string },
+  ): Promise<{ category: string; atualizadas: number }> {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      comunicacao.renomearCategoriaDeRespostas(
+        tx,
+        sessao.tenantId,
+        sessao.userId,
+        String(corpo?.name ?? ''),
+        String(corpo?.newName ?? ''),
+      ),
+    );
+  }
+
+  @Delete('communication/response-categories')
+  @HttpCode(204)
+  @WithSession()
+  async excluirCategoriaDeRespostas(
+    @Req() requisicao: RequestWithSession,
+    @Query('name') name?: string,
+  ): Promise<void> {
+    const sessao = sessionOf(requisicao);
+    await noTenant(sessao.tenantId, (tx) =>
+      comunicacao.excluirCategoriaDeRespostas(tx, sessao.tenantId, sessao.userId, name ?? ''),
     );
   }
 

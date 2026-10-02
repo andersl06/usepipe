@@ -1,4 +1,4 @@
-import { and, asc, eq, ne } from 'drizzle-orm';
+import { and, asc, count, eq, ilike, ne } from 'drizzle-orm';
 import { channel, flow, respostaPronta, templateMessage } from '@pipe/db/schema';
 import type { CATEGORIAS_TEMPLATE } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
@@ -142,6 +142,59 @@ export async function carregarModelos(
   });
 }
 
+export interface FiltroDeModelos {
+  q?: string;
+  status?: string;
+  limit: number;
+  offset: number;
+}
+
+/** Escapa `%`, `_` e a barra invertida para a busca por nome tratar o texto digitado como literal. */
+const literalDeBusca = (texto: string): string => texto.replace(/[\\%_]/g, (c) => `\\${c}`);
+
+/**
+ * Página de modelos com busca por nome e filtro de status, feitos no banco: um bot chega a ~1.490
+ * modelos e a tela não desenha todos de uma vez.
+ */
+export async function carregarPaginaDeModelos(
+  tx: TransactionPipe,
+  filtro: FiltroDeModelos,
+): Promise<{ modelos: TemplateListed[]; total: number }> {
+  const status = filtro.status?.trim();
+  if (status && !(status in ROTULO_STATUS_META)) {
+    throw PipeError.request('status_invalid', 'status não é um estado de modelo conhecido.');
+  }
+  const termo = filtro.q?.trim().slice(0, 100);
+  const onde = and(
+    status ? eq(templateMessage.statusMeta, status) : undefined,
+    termo ? ilike(templateMessage.nome, `%${literalDeBusca(termo)}%`) : undefined,
+  );
+  const [soma] = await tx.select({ n: count() }).from(templateMessage).where(onde);
+  const linhas = await tx
+    .select({
+      id: templateMessage.id,
+      channelId: templateMessage.canalId,
+      body: templateMessage.corpo,
+      name: templateMessage.nome,
+      idioma: templateMessage.idioma,
+      category: templateMessage.categoria,
+      statusMeta: templateMessage.statusMeta,
+      headerType: templateMessage.cabecalhoTipo,
+      variaveis: templateMessage.variables,
+      channelName: channel.nome,
+    })
+    .from(templateMessage)
+    .innerJoin(channel, eq(channel.id, templateMessage.canalId))
+    .where(onde)
+    .orderBy(asc(templateMessage.nome), asc(templateMessage.idioma), asc(templateMessage.id))
+    .limit(filtro.limit)
+    .offset(filtro.offset);
+  return {
+    modelos: linhas.map(({ variaveis, ...l }) => ({ ...l, variables: readVariables(variaveis) })),
+    total: soma?.n ?? 0,
+  };
+}
+
 export async function loadChannelOfFlow(
   tx: TransactionPipe,
   tid: string,
@@ -193,11 +246,28 @@ export interface RequestOfEditOfResponseReady {
   ativa?: boolean;
 }
 
+const ATALHO_MAX = 50;
+const TITULO_MAX = 100;
+const CORPO_MAX = 4096;
+export const CATEGORIA_MAX = 100;
+
+/** Vazio vira "sem categoria"; acima do limite é recusado. */
+function categoriaConferida(bruto: unknown): string | null {
+  const nome = String(bruto ?? '').trim();
+  if (nome.length > CATEGORIA_MAX) {
+    throw PipeError.request('category_too_long', `A categoria aceita até ${CATEGORIA_MAX} caracteres.`);
+  }
+  return nome || null;
+}
+
 function atalhoConferido(bruto: unknown): string {
   const atalho = String(bruto ?? '')
     .trim()
     .replace(/^#/, '');
   if (!atalho) throw PipeError.request('shortcut_required', 'Informe o atalho.');
+  if (atalho.length > ATALHO_MAX) {
+    throw PipeError.request('shortcut_too_long', `O atalho aceita até ${ATALHO_MAX} caracteres.`);
+  }
   if (/\s/.test(atalho)) {
     throw PipeError.request(
       'shortcut_with_space',
@@ -210,12 +280,18 @@ function atalhoConferido(bruto: unknown): string {
 function tituloConferido(bruto: unknown): string {
   const titulo = String(bruto ?? '').trim();
   if (!titulo) throw PipeError.request('title_required', 'Informe o título.');
+  if (titulo.length > TITULO_MAX) {
+    throw PipeError.request('title_too_long', `O título aceita até ${TITULO_MAX} caracteres.`);
+  }
   return titulo;
 }
 
 function corpoConferido(bruto: unknown): string {
   const corpo = String(bruto ?? '').trim();
   if (!corpo) throw PipeError.request('body_required', 'Informe o corpo da resposta.');
+  if (corpo.length > CORPO_MAX) {
+    throw PipeError.request('body_too_long', `O texto aceita até ${CORPO_MAX} caracteres.`);
+  }
   return corpo;
 }
 
@@ -281,7 +357,7 @@ export async function createResponseReady(
   const atalho = atalhoConferido(pedido.shortcut);
   const titulo = tituloConferido(pedido.title);
   const corpo = corpoConferido(pedido.body);
-  const categoria = pedido.category ? String(pedido.category).trim() || null : null;
+  const categoria = categoriaConferida(pedido.category);
   const active = pedido.active ?? true;
 
   const conflito = await atalhoEmUso(tx, tid, atalho);
@@ -326,7 +402,7 @@ export async function editarRespostaPronta(
   if (pedido.title !== undefined) depois.title = tituloConferido(pedido.title);
   if (pedido.body !== undefined) depois.body = corpoConferido(pedido.body);
   if (pedido.category !== undefined) {
-    depois.category = pedido.category ? String(pedido.category).trim() || null : null;
+    depois.category = categoriaConferida(pedido.category);
   }
   if (pedido.ativa !== undefined) depois.ativa = pedido.ativa;
 
@@ -392,5 +468,86 @@ export async function excluirRespostaPronta(
     objetoTipo: 'resposta_pronta',
     objetoId: id,
     antes: { atalho: atual.shortcut, titulo: atual.title },
+  });
+}
+
+/*
+ * Categorias: não há entidade de categoria, ela existe enquanto houver resposta com esse nome.
+ * Nenhum bloco do Builder referencia resposta pronta nem categoria (o Builder guarda texto próprio e
+ * ids de fila), então renomear e excluir não precisam da recusa por referência das filas
+ * (`queue-references.ts`).
+ */
+
+export async function renomearCategoriaDeRespostas(
+  tx: TransactionPipe,
+  tid: string,
+  usuarioId: string,
+  nomeAtual: string,
+  novoNome: string,
+): Promise<{ category: string; atualizadas: number }> {
+  await requirePermission(tx, usuarioId, RESPONSE_READY_MANAGE);
+  const atual = categoriaConferida(nomeAtual);
+  const novo = categoriaConferida(novoNome);
+  if (!atual) throw PipeError.request('category_required', 'Informe a categoria.');
+  if (!novo) throw PipeError.request('category_required', 'Informe o novo nome da categoria.');
+  const noEscopo = and(eq(respostaPronta.tenantId, tid), eq(respostaPronta.scope, 'empresa'));
+  const [existe] = await tx
+    .select({ id: respostaPronta.id })
+    .from(respostaPronta)
+    .where(and(noEscopo, eq(respostaPronta.categoria, atual)))
+    .limit(1);
+  if (!existe) throw PipeError.naoEncontrado('categoria');
+  if (novo !== atual) {
+    const [repetida] = await tx
+      .select({ id: respostaPronta.id })
+      .from(respostaPronta)
+      .where(and(noEscopo, eq(respostaPronta.categoria, novo)))
+      .limit(1);
+    if (repetida) {
+      throw PipeError.conflito('category_in_use', `Já existe a categoria "${novo}". Escolha outro nome.`);
+    }
+  }
+  const trocadas = await tx
+    .update(respostaPronta)
+    .set({ categoria: novo, atualizadoEm: new Date() })
+    .where(and(noEscopo, eq(respostaPronta.categoria, atual)))
+    .returning({ id: respostaPronta.id });
+  await registrarAuditoria(tx, tid, {
+    ator: { type: 'usuario', id: usuarioId },
+    acao: 'alterou',
+    objetoTipo: 'resposta_pronta',
+    objetoId: existe.id,
+    antes: { categoria: atual },
+    depois: { categoria: novo, respostas: trocadas.length },
+  });
+  return { category: novo, atualizadas: trocadas.length };
+}
+
+export async function excluirCategoriaDeRespostas(
+  tx: TransactionPipe,
+  tid: string,
+  usuarioId: string,
+  nome: string,
+): Promise<void> {
+  await requirePermission(tx, usuarioId, RESPONSE_READY_MANAGE);
+  const categoria = categoriaConferida(nome);
+  if (!categoria) throw PipeError.request('category_required', 'Informe a categoria.');
+  const removidas = await tx
+    .delete(respostaPronta)
+    .where(
+      and(
+        eq(respostaPronta.tenantId, tid),
+        eq(respostaPronta.scope, 'empresa'),
+        eq(respostaPronta.categoria, categoria),
+      ),
+    )
+    .returning({ id: respostaPronta.id });
+  if (removidas.length === 0) throw PipeError.naoEncontrado('categoria');
+  await registrarAuditoria(tx, tid, {
+    ator: { type: 'usuario', id: usuarioId },
+    acao: 'excluiu',
+    objetoTipo: 'resposta_pronta',
+    objetoId: removidas[0]!.id,
+    antes: { categoria, respostas: removidas.length },
   });
 }
