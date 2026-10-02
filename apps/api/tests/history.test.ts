@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RequestWithSession } from '../src/session.js';
+import type * as Sessao from '../src/session.js';
 
 const duplos = vi.hoisted(() => ({
   fusoDoTenant: vi.fn(async () => 'UTC'),
@@ -14,6 +15,10 @@ const duplos = vi.hoisted(() => ({
   loadHistory: vi.fn(async () => ({ linhas: [], total: 0 })),
 }));
 
+vi.mock('../src/session.js', async (original) => ({
+  ...(await original<typeof Sessao>()),
+  requirePermission: async () => undefined,
+}));
 vi.mock('../src/database.js', () => ({
   noTenant: async (_tenantId: string, ler: (tx: unknown) => Promise<unknown>) => ler({}),
 }));
