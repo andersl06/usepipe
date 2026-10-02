@@ -15,6 +15,18 @@ export interface AlertCandidate {
   conversationId: string;
 }
 
+/**
+ * Referência da inatividade: a última mensagem, ou a saída do Modo de Espera se for mais recente. Enquanto a conversa está em espera o encerramento automático fica pausado (a Blip diz: "o encerramento automático por inatividade será pausado"), e a contagem recomeça quando o atendente retoma. Assume o alias `c` da conversa.
+ */
+export const INACTIVITY_REF = sql`greatest(
+  coalesce(c.ultima_mensagem_em, c.criada_em),
+  coalesce(
+    (select max(e.em) from evento_atendimento e
+      where e.tenant_id = c.tenant_id and e.conversa_id = c.id and e.tipo = 'espera_encerrada'),
+    '-infinity'::timestamptz
+  )
+)`;
+
 export interface AlertTarget {
   state: string;
   lastMessageAt: Date | null;
@@ -26,7 +38,7 @@ export interface AlertTarget {
 /** Regra pura: respeita as opções do encerramento, falta no máximo a antecedência, ainda não venceu e o ciclo atual não foi alertado. */
 export function isDueForAlert(config: AutoCloseConfig, conversa: AlertTarget, agora: Date): boolean {
   if (!config.ativo || !config.alerta.ativo || !config.alerta.mensagem) return false;
-  if (conversa.state === 'encerrada' || !conversa.lastMessageAt) return false;
+  if (conversa.state === 'encerrada' || conversa.state === 'em_espera' || !conversa.lastMessageAt) return false;
   if (config.soSePrimeiroAtendimento && !conversa.firstResponseAt) return false;
   if (config.naoSeAguardandoAtendente && conversa.lastMessageOf === 'contato') return false;
   const limite = toMinutes(config.tempo, config.unidade);
@@ -54,7 +66,7 @@ export async function conversationsForAlert(
              then (f.encerramento_automatico->'alerta'->>'antecedencia')::numeric
                   * (case f.encerramento_automatico->'alerta'->>'unidade' when 'horas' then 60 else 1 end) end as ant_min
       ) t
-     where c.estado <> 'encerrada'
+     where c.estado not in ('encerrada', 'em_espera')
        and (${tenants === undefined} or c.tenant_id = any(${`{${(tenants ?? []).join(',')}}`}::uuid[]))
        and jsonb_typeof(f.encerramento_automatico) = 'object'
        and f.encerramento_automatico->>'ativo' = 'true'
@@ -64,13 +76,13 @@ export async function conversationsForAlert(
             or c.primeira_resposta_em is not null)
        and (f.encerramento_automatico->>'naoSeAguardandoAtendente' is distinct from 'true'
             or c.ultima_mensagem_de is distinct from 'contato')
-       and coalesce(c.ultima_mensagem_em, c.criada_em)
+       and ${INACTIVITY_REF}
              <= ${agora}::timestamptz - (t.tempo_min - t.ant_min) * interval '1 minute'
-       and coalesce(c.ultima_mensagem_em, c.criada_em)
+       and ${INACTIVITY_REF}
              > ${agora}::timestamptz - t.tempo_min * interval '1 minute'
        and (c.alerta_inatividade_em is null
             or coalesce(c.ultima_mensagem_em, c.criada_em) > c.alerta_inatividade_em)
-     order by coalesce(c.ultima_mensagem_em, c.criada_em), c.id
+     order by ${INACTIVITY_REF}, c.id
      limit ${limite}
   `);
   return rows.map((l) => ({ tenantId: l.tenant_id, conversationId: l.id }));
@@ -99,7 +111,7 @@ export async function alertConversation(
 ): Promise<boolean> {
   const texto = await noTenant(c.tenantId, async (tx) => {
     const { rows } = await tx.execute<LinhaAlerta>(sql`
-      select c.id, c.estado as state, c.ultima_mensagem_em as "lastMessageAt", c.criada_em as "criadaEm",
+      select c.id, c.estado as state, ${INACTIVITY_REF} as "lastMessageAt", c.criada_em as "criadaEm",
              c.ultima_mensagem_de as "lastMessageOf", c.primeira_resposta_em as "firstResponseAt",
              c.alerta_inatividade_em as "alertAt", f.encerramento_automatico as config
         from conversa c

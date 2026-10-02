@@ -170,6 +170,26 @@ describe('varredura de encerramento automático', () => {
     expect((await estado(a, aos130)).estado).toBe('encerrada');
   });
 
+  it('Modo de Espera pausa o encerramento e a contagem recomeça na retomada', async () => {
+    await setConfig(a, config());
+    const emEspera = await conversa(a, { ultima: depois(-300), estado: 'em_espera' });
+    const retomada = await conversa(a, { ultima: depois(-300) });
+    const semRetomada = await conversa(a, { ultima: depois(-300) });
+    await a.dono.execute(sql`
+      insert into evento_atendimento (tenant_id, conversa_id, tipo, em)
+      values (${a.tenantId}::uuid, ${retomada}::uuid, 'espera_encerrada', ${depois(-10)})
+    `);
+    expect(isDueForAutoClose(config() as Parameters<typeof isDueForAutoClose>[0], { state: 'em_espera', lastMessageAt: depois(-300), lastMessageOf: 'atendente', firstResponseAt: T0 }, depois(0))).toBe(false);
+    await tick(depois(0));
+    expect((await estado(a, emEspera)).estado).toBe('em_espera');
+    expect((await estado(a, retomada)).estado).toBe('em_atendimento');
+    expect((await estado(a, semRetomada)).estado).toBe('encerrada');
+    // 30 minutos depois da retomada (-10 + 30), vence.
+    await tick(depois(21));
+    expect((await estado(a, retomada)).estado).toBe('encerrada');
+    expect((await estado(a, emEspera)).estado).toBe('em_espera');
+  });
+
   it('aplica as tags de encerramento que existem no tenant e ignora as demais', async () => {
     await a.dono.execute(sql`insert into etiqueta (tenant_id, nome, escopo) values (${a.tenantId}::uuid, 'Inativo', 'conversa')`);
     await setConfig(a, config({ tags: { ativo: true, tags: ['Inativo', 'NaoExiste'] } }));
