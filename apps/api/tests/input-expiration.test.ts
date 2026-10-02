@@ -77,7 +77,7 @@ beforeAll(async () => {
   cenario = await montarCenario(`expira-${randomUUID().slice(0, 8)}`);
   api = await upApi(0);
   await cenario.dono.execute(
-    sql`update status_atendente set estado = 'offline' where usuario_id = ${cenario.agentId}::uuid`,
+    sql`update status_atendente set estado = 'Offline' where usuario_id = ${cenario.agentId}::uuid`,
   );
   const r = await noTenant(cenario.tenantId, (tx) =>
     importFlowOfBlip(tx, { tenantId: cenario.tenantId, name: 'Expiração', channelId: cenario.channelId, json: desenho(), publicar: true }),
@@ -217,7 +217,7 @@ describe('input expiration in production (P8)', () => {
     // A person owns the conversation: a ticket exists and has an agent.
     const { rows: tk } = await cenario.dono.execute<{ id: string }>(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado)
-      select e.tenant_id, ${cenario.inboxId}::uuid, e.contato_id, ${cenario.queueId}::uuid, ${cenario.agentId}::uuid, 'atribuida'
+      select e.tenant_id, ${cenario.inboxId}::uuid, e.contato_id, ${cenario.queueId}::uuid, ${cenario.agentId}::uuid, 'Assigned'
         from execucao_fluxo e where e.id = ${armada.id}::uuid returning id
     `);
     await cenario.dono.execute(sql`update execucao_fluxo set conversa_id = ${tk[0]!.id}::uuid where id = ${armada.id}::uuid`);

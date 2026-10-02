@@ -257,7 +257,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     await noTenant(cenario.tenantId, async (tx) => {
       await emitir(tx, cenario.tenantId, 'conversa.criada', {
         conversa_id: randomUUID(),
-        estado: 'na_fila',
+        estado: 'Waiting',
         origem: 'gerar-fixtures-jsonb',
       });
     });

@@ -273,7 +273,7 @@ describe('jsonb-compat: outbox', () => {
     `);
     const { rows: conversaRows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into conversa (id, tenant_id, inbox_id, contato_id, estado)
-      values (${conversaId}::uuid, ${cenario.tenantId}::uuid, ${cenario.inboxId}::uuid, ${contatoId}::uuid, 'em_atendimento')
+      values (${conversaId}::uuid, ${cenario.tenantId}::uuid, ${cenario.inboxId}::uuid, ${contatoId}::uuid, 'Open')
       returning id
     `);
     expect(conversaRows[0]?.id).toBe(conversaId);

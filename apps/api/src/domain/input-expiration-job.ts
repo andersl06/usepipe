@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import { SQL_STATES_CLOSED } from '@pipe/core';
 import { databaseOwner, noTenant } from '../database.js';
 import { registerDelayedJob } from '../delayed-jobs.js';
 import { enfileirarProcessHttp, enqueueDelivery } from '../queues.js';
@@ -56,7 +57,7 @@ export async function fireInputExpiration(tenantId: string, executionId: string)
       select e.conversa_id as "conversationId", coalesce(e.contato_id, c.contato_id) as "contactId",
              f.canal_id as "channelId", i.id as "inboxId",
              c.fila_id as "queueId", c.atendente_id as "agentId", i.fila_padrao_id as "queueDefaultId",
-             coalesce(c.estado = 'encerrada', false) as closed
+             coalesce(c.estado in ${sql.raw(SQL_STATES_CLOSED)}, false) as closed
         from execucao_fluxo e
         left join conversa c on c.id = e.conversa_id
         join fluxo_versao v on v.id = e.fluxo_versao_id

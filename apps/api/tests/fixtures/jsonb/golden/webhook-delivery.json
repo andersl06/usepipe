@@ -1,7 +1,7 @@
 {
   "body": {
     "data": {
-      "estado": "na_fila",
+      "estado": "Waiting",
       "origem": "gerar-fixtures-jsonb",
       "conversa_id": "a2415adc-fa01-4693-b4d4-6eab69b01d98"
     },

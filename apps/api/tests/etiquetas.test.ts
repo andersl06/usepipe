@@ -106,7 +106,7 @@ async function createContact(): Promise<string> {
 
 async function createConversation(
   dono: string | null,
-  state: 'atribuida' | 'em_atendimento' | 'encerrada' = 'atribuida',
+  state: 'Assigned' | 'Open' | 'ClosedAttendant' = 'Assigned',
 ): Promise<{ conversationId: string; contactId: string }> {
   const contactId = await createContact();
   const { rows } = await a.dono.execute<{ id: string }>(sql`
@@ -192,7 +192,7 @@ describe('POST/DELETE /v1/conversations/:id/labels — a conversa aberta', () =>
     const { rows } = await a.dono.execute<{ state: string }>(
       sql`select estado as "state" from conversa where id = ${conversationId}::uuid`,
     );
-    expect(rows[0]?.state).toBe('atribuida');
+    expect(rows[0]?.state).toBe('Assigned');
 
     const deNovo = await chamar(
       'POST',
@@ -284,7 +284,7 @@ describe('POST/DELETE /v1/conversations/:id/labels — a conversa aberta', () =>
     expect(deOutro.status).toBe(403);
     expect((deOutro.body['error'] as { code: string }).code).toBe('conversation_of_other_agent');
 
-    const { conversationId: encerrada } = await createConversation(agentId, 'encerrada');
+    const { conversationId: encerrada } = await createConversation(agentId, 'ClosedAttendant');
     const fechada = await chamar(
       'POST',
       `/v1/conversations/${encerrada}/labels`,

@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import { SQL_STATES_ACTIVE } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant, resolveChannel } from '../database.js';
 import { registerDelayedJob } from '../delayed-jobs.js';
@@ -76,10 +77,10 @@ async function deliverToContact(tenantId: string, contactId: string, schedule: C
   const template = templateOfMessage(schedule.type, schedule.content);
   const target = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ conversationId: string; channelId: string; open: boolean }>(sql`
-      select c.id as "conversationId", ib.canal_id as "channelId", c.estado <> 'encerrada' as open
+      select c.id as "conversationId", ib.canal_id as "channelId", c.estado in ${sql.raw(SQL_STATES_ACTIVE)} as open
         from conversa c join inbox ib on ib.id = c.inbox_id
        where c.contato_id = ${contactId}::uuid
-       order by (c.estado <> 'encerrada') desc, c.criada_em desc
+       order by (c.estado in ${sql.raw(SQL_STATES_ACTIVE)}) desc, c.criada_em desc
        limit 1
     `);
     const conversation = rows[0];

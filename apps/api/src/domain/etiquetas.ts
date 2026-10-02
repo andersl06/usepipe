@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
+import { isClosedState } from '@pipe/core';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { requirePermission } from '../session.js';
@@ -91,7 +92,7 @@ async function loadConversationOpen(
   );
   const conversation = rows[0];
   if (!conversation) throw PipeError.naoEncontrado('Conversa');
-  if (conversation.state === 'encerrada') {
+  if (isClosedState(conversation.state)) {
     throw PipeError.conflito(
       'conversation_closed',
       'A conversa está encerrada: a etiqueta de encerramento já foi dada.',
