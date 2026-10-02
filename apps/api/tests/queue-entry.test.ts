@@ -116,7 +116,7 @@ async function agenteNoFinanceiro(): Promise<string> {
     insert into fila_atendente (tenant_id, fila_id, usuario_id) values (${cenario.tenantId}, ${financeiroId}, ${id})
   `);
   await cenario.dono.execute(sql`
-    insert into status_atendente (usuario_id, tenant_id, estado, desde, conectado_em) values (${id}, ${cenario.tenantId}, 'online', now(), now())
+    insert into status_atendente (usuario_id, tenant_id, estado, desde, conectado_em) values (${id}, ${cenario.tenantId}, 'Online', now(), now())
   `);
   return id;
 }
@@ -154,7 +154,7 @@ describe('one entry path for inbound and Desk transfer', () => {
     const fabio = await agenteNoFinanceiro();
     await falar('5511944440005', 'boleto atrasado');
     const conversa = await conversaDe('5511944440005');
-    expect(conversa).toMatchObject({ fila_id: financeiroId, atendente_id: fabio, estado: 'atribuida' });
+    expect(conversa).toMatchObject({ fila_id: financeiroId, atendente_id: fabio, estado: 'Assigned' });
     expect((await eventos(conversa.id)).map((e) => e.tipo)).toEqual(expect.arrayContaining(['criada', 'enfileirada', 'atribuida']));
   });
 
@@ -165,7 +165,7 @@ describe('one entry path for inbound and Desk transfer', () => {
     `);
     const { rows: conversa } = await cenario.dono.execute<{ id: string }>(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, atribuida_em)
-      values (${cenario.tenantId}, ${cenario.inboxId}, ${contato[0]!.id}, ${cenario.queueId}, ${cenario.agentId}, 'em_atendimento', now())
+      values (${cenario.tenantId}, ${cenario.inboxId}, ${contato[0]!.id}, ${cenario.queueId}, ${cenario.agentId}, 'Open', now())
       returning id
     `);
 
@@ -174,7 +174,7 @@ describe('one entry path for inbound and Desk transfer', () => {
       { conversationId: conversa[0]!.id, forQueueId: financeiroId },
     );
 
-    expect(feito.state).toBe('atribuida');
+    expect(feito.state).toBe('Assigned');
     const { rows: nova } = await cenario.dono.execute<{ fila_id: string; atendente_id: string }>(sql`
       select fila_id, atendente_id from conversa where id = ${feito.forConversationId}::uuid
     `);
@@ -197,22 +197,22 @@ describe('who closed', () => {
     // D-15: o ticket nasce no encaminhamento; só então há o que encerrar
     await publicar([
       { type: 'ForwardToDesk', settings: {} },
-      { type: 'SendCommand', settings: { uri: '/tickets/atual/status', resource: { status: 'encerrada' } } },
+      { type: 'SendCommand', settings: { uri: '/tickets/atual/status', resource: { status: 'ClosedClient' } } },
     ]);
     await falar('5511944440007', 'tchau');
     const conversa = await conversaDe('5511944440007');
-    expect(conversa.estado).toBe('encerrada');
+    expect(conversa.estado).toBe('ClosedClient');
     expect(await statusDoTicket(conversa.id)).toBe('ClosedClient');
   });
 
   it('a bot closure for inactivity is ClosedClientInactivity', async () => {
     await publicar([
       { type: 'ForwardToDesk', settings: {} },
-      { type: 'SendCommand', settings: { uri: '/tickets/atual/status', resource: { status: 'encerrada', closedBy: 'inatividade' } } },
+      { type: 'SendCommand', settings: { uri: '/tickets/atual/status', resource: { status: 'ClosedClientInactivity', closedBy: 'inatividade' } } },
     ]);
     await falar('5511944440008', 'oi');
     const conversa = await conversaDe('5511944440008');
-    expect(conversa.estado).toBe('encerrada');
+    expect(conversa.estado).toBe('ClosedClientInactivity');
     expect(await statusDoTicket(conversa.id)).toBe('ClosedClientInactivity');
   });
 });

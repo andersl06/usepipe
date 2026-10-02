@@ -44,6 +44,8 @@ export interface EnterQueueInput {
   eventData?: Record<string, unknown>;
   /** Caller writes that must precede the assignment (its own webhooks, the bot's note), given the chosen queue. */
   beforeDistribution?: (queueId: string | null) => Promise<void>;
+  /** Contact extras that win over `contato.atributos` when choosing the queue (an isolated sub-bot's own extras). */
+  extrasOverlay?: Record<string, unknown> | null;
 }
 
 export interface QueueEntry {
@@ -202,25 +204,29 @@ async function contactOfConversation(tx: TransactionPipe, tenantId: string, conv
   return row;
 }
 
+function withOverlay<T extends { extras: Record<string, unknown> | null }>(row: T, overlay?: Record<string, unknown> | null): T {
+  return overlay ? { ...row, extras: { ...(row.extras ?? {}), ...overlay } } : row;
+}
+
 /** `chooseQueue` for an existing conversation, reading its contact. */
 export async function chooseQueueOfConversation(
   tx: TransactionPipe,
-  input: Pick<EnterQueueInput, 'tenantId' | 'conversationId' | 'flowId' | 'queueId' | 'defaultQueueId' | 'message'>,
+  input: Pick<EnterQueueInput, 'tenantId' | 'conversationId' | 'flowId' | 'queueId' | 'defaultQueueId' | 'message' | 'extrasOverlay'>,
 ): Promise<QueueChoice> {
-  const contact = await contactOfConversation(tx, input.tenantId, input.conversationId);
+  const contact = withOverlay(await contactOfConversation(tx, input.tenantId, input.conversationId), input.extrasOverlay);
   return chooseQueue(tx, input.tenantId, { ...input, contact });
 }
 
 /** `chooseQueue` before any ticket exists (the bot still holds the contact), reading the contact. */
 export async function chooseQueueOfContact(
   tx: TransactionPipe,
-  input: Pick<EnterQueueInput, 'tenantId' | 'flowId' | 'queueId' | 'defaultQueueId' | 'message'> & { contactId: string },
+  input: Pick<EnterQueueInput, 'tenantId' | 'flowId' | 'queueId' | 'defaultQueueId' | 'message' | 'extrasOverlay'> & { contactId: string },
 ): Promise<QueueChoice> {
   const { rows } = await tx.execute<Omit<ContactRow, 'priority'>>(sql`
     select nome as name, email, telefone_e164 as phone, atributos as extras
       from contato where id = ${input.contactId}::uuid and tenant_id = ${input.tenantId}::uuid limit 1
   `);
-  return chooseQueue(tx, input.tenantId, { ...input, contact: rows[0] ?? null });
+  return chooseQueue(tx, input.tenantId, { ...input, contact: rows[0] ? withOverlay(rows[0], input.extrasOverlay) : null });
 }
 
 /**
@@ -288,14 +294,14 @@ export async function scheduleOfQueue(tx: TransactionPipe, tenantId: string, que
 
 export async function enterQueue(tx: TransactionPipe, input: EnterQueueInput): Promise<QueueEntry> {
   const row = await contactOfConversation(tx, input.tenantId, input.conversationId);
-  const { queueId, ruleId } = await chooseQueue(tx, input.tenantId, { ...input, contact: row });
+  const { queueId, ruleId } = await chooseQueue(tx, input.tenantId, { ...input, contact: withOverlay(row, input.extrasOverlay) });
   if (!queueId && input.requireQueue) {
     throw new Error('Nenhuma regra de atendimento casou e a inbox do canal não tem fila padrão: não há para onde transferir.');
   }
 
   // `fila_id is null`: the entry happens once; a second handoff of the same conversation is a no-op.
   const { rows: updated } = await tx.execute<{ id: string }>(sql`
-    update conversa set fila_id = ${queueId}, estado = 'na_fila', atualizado_em = now()
+    update conversa set fila_id = ${queueId}, estado = 'Waiting', atualizado_em = now()
      where id = ${input.conversationId}::uuid and atendente_id is null and fila_id is null
     returning id
   `);

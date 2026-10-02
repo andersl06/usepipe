@@ -500,7 +500,7 @@ describe('Route conversations through services', () => {
       select c.id, c.fila_id as "queueId", c.atendente_id as "agentId"
         from conversa c join contato ct on ct.id = c.contato_id
        where c.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
-         and c.estado <> 'encerrada'
+         and c.estado in ('Waiting', 'Assigned', 'Open')
        order by c.criada_em desc limit 1
     `);
     expect(rows[0]).toBeDefined();
@@ -794,6 +794,33 @@ describe('Route conversations through services', () => {
     const contatos = await contatosDe(GIL);
     expect(contatos).toHaveLength(1);
     expect(contatos[0]!.atributos?.['plano']).toBeUndefined();
+  });
+
+  it('D-08(c): an isolated sub-bot hands off to the queue named in its own extras.teams', async () => {
+    const KAI = '5511922220021';
+    const servico = await publishService('Serviço isolado com fila', {
+      states: [
+        { id: 'inicio', root: true, input: {}, outputs: [{ stateId: 'desk' }] },
+        {
+          id: 'desk',
+          inputActions: [{ type: 'MergeContact', settings: { extras: { teams: 'Suporte' } } }, { type: 'ForwardToDesk', settings: {} }],
+          input: { conditions: [{ source: 'context', variable: 'desk_forwardToDeskState_status', values: ['Success'] }] },
+          outputs: [{ stateId: 'desk' }],
+        },
+      ],
+    });
+    const { rows: fila } = await a.dono.execute<{ id: string }>(sql`
+      insert into fila (tenant_id, fluxo_id, nome) values (${a.tenantId}, ${servico}, 'Suporte') returning id
+    `);
+    await a.dono.execute(sql`
+      insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal, persistente, expiracao_min)
+      values (${a.tenantId}, ${routerId}, ${servico}, 'IsoFila', false, true, null)
+    `);
+    await falar(KAI, 'oi');
+    await irPara(KAI, 'IsoFila');
+    await falar(KAI, 'quero atendimento');
+    expect((await conversationOpen(KAI)).queueId).toBe(fila[0]!.id);
+    expect((await contatosDe(KAI))[0]!.atributos?.['teams']).toBeUndefined();
   });
 
   it('D-13 ensaio 5: share contact attributes across services when the router context is on', async () => {
