@@ -49,6 +49,7 @@ export const salvarRespostaPronta = acaoRemota('salvarRespostaPronta');
 export const saveIdentity = acaoRemota('salvarIdentidade');
 export const salvarPesquisa = acaoRemota('salvarPesquisa');
 export const closureSaveTags = acaoRemota('salvarEtiquetasDeEncerramento');
+export const saveGlobalTags = acaoRemota('salvarTagsGlobais');
 
 /** After success, invalidate cached reads, replacing the former `revalidatePath` behavior. */
 export function atualizarLeituras(): void {

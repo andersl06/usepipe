@@ -122,6 +122,7 @@ export interface PesquisaConfigurada {
 export interface ClosureTag {
   id: string;
   name: string;
+  escopo: string;
   obrigatoria: boolean;
   usos: number;
 }

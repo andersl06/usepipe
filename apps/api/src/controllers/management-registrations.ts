@@ -70,6 +70,7 @@ const ACTIONS: Record<string, Acao> = {
   salvarIdentidade: acoesConfiguracoes.saveIdentity,
   salvarPesquisa: acoesConfiguracoes.salvarPesquisa,
   salvarEtiquetasDeEncerramento: acoesConfiguracoes.saveLabelsOfClosure,
+  salvarTagsGlobais: acoesConfiguracoes.saveCatalogLabels,
 };
 
 @Controller('v1/management')

@@ -3,6 +3,7 @@ import type { Campos, Resultado } from './campos.js';
 import { PipeError } from '../../../errors.js';
 import {
   writeLabelsOfClosure,
+  writeCatalogLabels,
   writeIdentity,
   gravarPesquisa,
 } from '../settings.js';
@@ -129,6 +130,24 @@ export async function saveLabelsOfClosure(
 
   try {
     const gravado = await writeLabelsOfClosure(tx, tid, ator, escolhidas);
+    if (!gravado.ok) return falha(gravado.error);
+  } catch (erro) {
+    if (erro instanceof PipeError) return falha(erro.message);
+    throw erro;
+  }
+  return OK;
+}
+
+/** Catálogo global de tags (chips): lista completa, validada no servidor. */
+export async function saveCatalogLabels(
+  tx: TransactionPipe,
+  tid: string,
+  ator: Ator,
+  data: Campos,
+): Promise<Resultado> {
+  const nomes = data.getAll('tag').map((v) => String(v));
+  try {
+    const gravado = await writeCatalogLabels(tx, tid, ator, nomes);
     if (!gravado.ok) return falha(gravado.error);
   } catch (erro) {
     if (erro instanceof PipeError) return falha(erro.message);

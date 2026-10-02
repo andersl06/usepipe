@@ -255,6 +255,7 @@ export interface PesquisaConfigurada {
 export interface LabelOfClosure {
   id: string;
   name: string;
+  escopo: string;
   obrigatoria: boolean;
   usos: number;
 }
@@ -301,12 +302,13 @@ export async function loadGeneral(tx: TransactionPipe): Promise<SettingsGeneral>
       .select({
         id: etiqueta.id,
         name: etiqueta.nome,
+        escopo: etiqueta.escopo,
         obrigatoria: etiqueta.requiredInClosure,
         usos: count(conversationLabel.conversaId),
       })
       .from(etiqueta)
       .leftJoin(conversationLabel, eq(conversationLabel.etiquetaId, etiqueta.id))
-      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.requiredInClosure)
+      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.escopo, etiqueta.requiredInClosure)
       .orderBy(asc(etiqueta.nome));
 
     const first = pesquisas[0];
@@ -528,6 +530,85 @@ export async function writeLabelsOfClosure(
       depois: { obrigatoriasNoEncerramento: depois.map((e) => e.nome) },
     });
 
+    return { ok: true };
+  });
+}
+
+export const CATALOG_TAGS_MAX = 200;
+export const CATALOG_TAG_LENGTH_MAX = 40;
+
+/**
+ * Catálogo global de tags de encerramento (as que o Desk oferece ao finalizar, para todas as filas). A lista recebida substitui o catálogo de tags de conversa: nomes novos são criados, nomes ausentes são removidos SÓ se nenhuma conversa os usa (remover apagaria o vínculo do histórico). Tags de escopo contato não entram aqui.
+ */
+export async function writeCatalogLabels(
+  tx: TransactionPipe,
+  tid: string,
+  ator: Ator,
+  bruto: readonly string[],
+): Promise<Recording> {
+  if (ator.type === 'usuario' && ator.id) {
+    await requirePermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
+  }
+  const nomes: string[] = [];
+  const vistos = new Set<string>();
+  for (const item of bruto) {
+    // eslint-disable-next-line no-control-regex
+    if (/[<>\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(item)) {
+      return { ok: false, error: 'A tag não pode ter HTML nem caracteres de controle.' };
+    }
+    const nome = item.replace(/\s+/g, ' ').trim();
+    if (!nome) continue;
+    if (nome.length > CATALOG_TAG_LENGTH_MAX) {
+      return { ok: false, error: `Cada tag aceita no máximo ${CATALOG_TAG_LENGTH_MAX} caracteres.` };
+    }
+    const chave = nome.toLocaleLowerCase('pt-BR');
+    if (vistos.has(chave)) continue;
+    vistos.add(chave);
+    nomes.push(nome);
+  }
+  if (nomes.length > CATALOG_TAGS_MAX) {
+    return { ok: false, error: `Use no máximo ${CATALOG_TAGS_MAX} tags.` };
+  }
+  return consultar(tx, async (tx) => {
+    const atuais = await tx
+      .select({ id: etiqueta.id, nome: etiqueta.nome, usos: count(conversationLabel.conversaId) })
+      .from(etiqueta)
+      .leftJoin(conversationLabel, eq(conversationLabel.etiquetaId, etiqueta.id))
+      .where(and(eq(etiqueta.tenantId, tid), inArray(etiqueta.escopo, ['conversa', 'ambos'])))
+      .groupBy(etiqueta.id, etiqueta.nome);
+    const existentes = new Set(atuais.map((e) => e.nome.toLocaleLowerCase('pt-BR')));
+    const remover = atuais.filter((e) => !vistos.has(e.nome.toLocaleLowerCase('pt-BR')));
+    const emUso = remover.filter((e) => e.usos > 0);
+    if (emUso.length > 0) {
+      return {
+        ok: false,
+        error: `Não é possível remover ${emUso.map((e) => `"${e.nome}"`).join(', ')}: já há conversas etiquetadas com ela.`,
+      };
+    }
+    // Tag de contato com o mesmo nome já ocupa o nome único do tenant.
+    const outras = await tx
+      .select({ nome: etiqueta.nome })
+      .from(etiqueta)
+      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.escopo, 'contato')));
+    const ocupados = new Set(outras.map((e) => e.nome.toLocaleLowerCase('pt-BR')));
+    const novas = nomes.filter((n) => !existentes.has(n.toLocaleLowerCase('pt-BR')));
+    const conflito = novas.find((n) => ocupados.has(n.toLocaleLowerCase('pt-BR')));
+    if (conflito) return { ok: false, error: `"${conflito}" já existe como tag de contato.` };
+
+    if (remover.length > 0) {
+      await tx.delete(etiqueta).where(and(eq(etiqueta.tenantId, tid), inArray(etiqueta.id, remover.map((e) => e.id))));
+    }
+    if (novas.length > 0) {
+      await tx.insert(etiqueta).values(novas.map((nome) => ({ tenantId: tid, nome, escopo: 'conversa' })));
+    }
+    await registrarAuditoria(tx, tid, {
+      ator,
+      acao: 'alterou',
+      objetoTipo: 'etiqueta',
+      objetoId: tid,
+      antes: { tagsDeEncerramento: atuais.map((e) => e.nome) },
+      depois: { tagsDeEncerramento: nomes },
+    });
     return { ok: true };
   });
 }
