@@ -1,18 +1,25 @@
 -- D-15: o ticket nasce no transbordo; desfaz a 0081 da pipe-40, removida do repositorio; idempotente para bancos que a aplicaram ou nao.
--- Conversas que eram so do bot (sem fila, sem atendente, com execucao, sem evento de entrada em fila) deixam de ser conversa e passam a viver na execucao.
+-- Conversas que eram so do bot deixam de ser conversa e passam a viver na execucao.
+-- D-08(a): com_bot ja prova que era so do bot, entao nao exige fila nula nem ausencia de evento (fila legada nao a salva);
+-- na_fila so conta como bot quando nao tem fila nem evento de entrada em fila.
 CREATE TEMP TABLE "bot_only" AS
 SELECT c."id", c."inbox_id",
        (SELECT e."id" FROM "execucao_fluxo" e WHERE e."conversa_id" = c."id" ORDER BY e."iniciada_em" DESC LIMIT 1) AS "execucao_id"
   FROM "conversa" c
- WHERE c."estado" IN ('na_fila', 'com_bot')
-   AND c."fila_id" IS NULL
+ WHERE (
+         c."estado" = 'com_bot'
+         OR (
+           c."estado" = 'na_fila'
+           AND c."fila_id" IS NULL
+           AND NOT EXISTS (
+             SELECT 1 FROM "evento_atendimento" ev
+              WHERE ev."conversa_id" = c."id" AND ev."tipo" IN ('criada', 'enfileirada')
+           )
+         )
+       )
    AND c."atendente_id" IS NULL
    AND c."encerrada_em" IS NULL
-   AND EXISTS (SELECT 1 FROM "execucao_fluxo" e WHERE e."conversa_id" = c."id")
-   AND NOT EXISTS (
-     SELECT 1 FROM "evento_atendimento" ev
-      WHERE ev."conversa_id" = c."id" AND ev."tipo" IN ('criada', 'enfileirada')
-   );--> statement-breakpoint
+   AND EXISTS (SELECT 1 FROM "execucao_fluxo" e WHERE e."conversa_id" = c."id");--> statement-breakpoint
 UPDATE "mensagem" m SET "execucao_id" = b."execucao_id", "conversa_id" = NULL
   FROM "bot_only" b WHERE m."conversa_id" = b."id" AND m."execucao_id" IS NULL;--> statement-breakpoint
 UPDATE "mensagem" m SET "conversa_id" = NULL
