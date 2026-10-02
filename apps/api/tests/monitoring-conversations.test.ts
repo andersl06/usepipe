@@ -69,7 +69,7 @@ async function conversation(cenario = a): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, atribuida_em)
     values (${cenario.tenantId}, ${cenario.inboxId}, ${contacts[0]!.id}, ${cenario.queueId},
-            ${cenario.agentId}, 'em_atendimento', now()) returning id
+            ${cenario.agentId}, 'Open', now()) returning id
   `);
   return rows[0]!.id;
 }
@@ -148,7 +148,7 @@ describe('Monitor conversations across queues and agents', () => {
     const antes = await ler();
     const { rows } = await a.dono.execute<{ id: string }>(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado)
-      values (${a.tenantId}, ${a.inboxId}, ${ct[0]!.id}, ${a.queueId}, 'na_fila') returning id
+      values (${a.tenantId}, ${a.inboxId}, ${ct[0]!.id}, ${a.queueId}, 'Waiting') returning id
     `);
     const depois = await ler();
     expect(depois.filter(id => id === rows[0]!.id)).toHaveLength(1);
@@ -179,7 +179,7 @@ describe('Monitor conversations across queues and agents', () => {
     const finalizada = await conversation();
     const resposta = await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${finalizada}/finalize`, { etiqueta_ids: [await etiqueta()] });
     expect(resposta.status).toBe(201);
-    expect((await resposta.json() as { state: string }).state).toBe('encerrada');
+    expect((await resposta.json() as { state: string }).state).toBe('ClosedAttendant');
     const { rows: log } = await a.dono.execute<{ depois: { acao: string } }>(sql`
       select depois from log_auditoria where objeto_tipo = 'conversa' and objeto_id = ${finalizada}::uuid order by em desc limit 1
     `);

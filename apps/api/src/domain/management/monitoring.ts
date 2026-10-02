@@ -492,9 +492,9 @@ export async function loadMonitoring(
       pausasEstouradas: 0,
     };
     for (const s of status) {
-      if (s.estado === 'online') cardAgents.online += 1;
-      else if (s.estado === 'pausa') cardAgents.pausa += 1;
-      else if (s.estado === 'invisivel') cardAgents.invisivel += 1;
+      if (s.estado === 'Online') cardAgents.online += 1;
+      else if (s.estado === 'Pause') cardAgents.pausa += 1;
+      else if (s.estado === 'Invisible') cardAgents.invisivel += 1;
       else cardAgents.offline += 1;
     }
 
@@ -564,7 +564,7 @@ export async function loadMonitoring(
     }
 
     const carga: WorkloadAgent[] = status
-      .filter((s) => s.estado !== 'offline')
+      .filter((s) => s.estado !== 'Offline')
       .map((s) => {
         const minhas = abertas.filter((c) => c.agentId === s.usuarioId);
         const aguardando = minhas.filter((c) => c.aguardandoAtendente).length;
@@ -608,7 +608,7 @@ export async function loadMonitoring(
       .orderBy(asc(queue.order));
 
     const onlineByQueue = new Map<string, number>();
-    const idsOnline = new Set(status.filter((s) => s.estado === 'online').map((s) => s.usuarioId));
+    const idsOnline = new Set(status.filter((s) => s.estado === 'Online').map((s) => s.usuarioId));
     for (const c of capacitys) {
       if (!idsOnline.has(c.usuarioId)) continue;
       onlineByQueue.set(c.filaId, (onlineByQueue.get(c.filaId) ?? 0) + 1);

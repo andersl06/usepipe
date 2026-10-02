@@ -90,7 +90,7 @@ beforeAll(async () => {
 
   const conversation = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, estado, criada_em)
-    values (${cenario.tenantId}, ${cenario.inboxId}, ${contactId}, 'em_atendimento', ${`${DIA_1}T15:00:00Z`})
+    values (${cenario.tenantId}, ${cenario.inboxId}, ${contactId}, 'Open', ${`${DIA_1}T15:00:00Z`})
     returning id
   `);
   conversationId = conversation.rows[0]!.id;

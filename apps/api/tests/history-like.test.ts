@@ -18,7 +18,7 @@ async function encerrada(nome: string) {
     insert into contato (tenant_id, nome) values (${c.tenantId}, ${nome}) returning id`);
   await c.dono.execute(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, encerrada_em)
-    values (${c.tenantId}, ${c.inboxId}, ${rows[0]!.id}, ${c.queueId}, 'encerrada', now())`);
+    values (${c.tenantId}, ${c.inboxId}, ${rows[0]!.id}, ${c.queueId}, 'ClosedAttendant', now())`);
 }
 
 beforeAll(async () => {
