@@ -65,7 +65,8 @@ afterAll(async () => {
 
 async function newConversation(
   agentId: string | null = cenario.agentId,
-  state = 'em_atendimento',
+  state = 'Open',
+  standby = false,
 ): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (
@@ -77,7 +78,7 @@ async function newConversation(
       ${agentId}, ${state}, 'alta',
       now() + interval '20 hours', now() - interval '5 minutes', 'contato',
       now() - interval '10 minutes', now() - interval '8 minutes',
-      ${state === 'em_espera' ? sql`now() - interval '30 seconds'` : null}
+      ${standby ? sql`now() - interval '30 seconds'` : null}
     ) returning id
   `);
   return rows[0]!.id;
@@ -94,6 +95,8 @@ function transferir(conversationId: string, corpo: Record<string, unknown>): Pro
 async function conversation(id: string) {
   const { rows } = await cenario.dono.execute<{
     state: string;
+    parentId: string | null;
+    sequentialNumber: string;
     queueId: string | null;
     agentId: string | null;
     priority: string;
@@ -103,7 +106,7 @@ async function conversation(id: string) {
     firstResponseAt: Date | null;
     lastMessageOf: string | null;
   }>(sql`
-    select estado as "state", fila_id as "queueId", atendente_id as "agentId",
+    select estado as "state", conversa_pai_id as "parentId", numero_sequencial as "sequentialNumber", fila_id as "queueId", atendente_id as "agentId",
            prioridade as "priority", encerrada_em, motivo_encerramento as "reasonClosure",
            janela_expira_em as "windowExpiresAt", primeira_resposta_em as "firstResponseAt",
            ultima_mensagem_de as "lastMessageOf"
@@ -128,11 +131,13 @@ describe('Transfer a conversation to a queue', () => {
     expect(resposta.status).toBe(201);
     const corpo = (await resposta.json()) as { ofConversationId: string; forConversationId: string; state: string };
     expect(corpo.ofConversationId).toBe(antiga);
-    expect(corpo.state).toBe('na_fila');
+    expect(corpo.state).toBe('Waiting');
 
-    expect((await conversation(antiga)).state).toBe('encerrada');
+    expect((await conversation(antiga)).state).toBe('Transferred');
     const nova = await conversation(corpo.forConversationId);
-    expect(nova.state).toBe('na_fila');
+    expect(nova.state).toBe('Waiting');
+    expect(nova.parentId).toBe(antiga);
+    expect(Number(nova.sequentialNumber)).toBeGreaterThan(Number((await conversation(antiga)).sequentialNumber));
     expect(nova.queueId).toBe(otherQueueId);
     expect(nova.agentId).toBeNull();
   });
@@ -219,14 +224,14 @@ describe('Transfer a conversation to an agent', () => {
     const r = await transferir(antiga, { forAgentId: otherAgentId });
     const corpo = (await r.json()) as { forConversationId: string; state: string };
 
-    expect(corpo.state).toBe('atribuida');
+    expect(corpo.state).toBe('Assigned');
     const nova = await conversation(corpo.forConversationId);
     expect(nova.agentId).toBe(otherAgentId);
     expect(await eventosDe(corpo.forConversationId)).toContain('atribuida');
   });
 
   it('fecha a espera em aberto antes de transferir', async () => {
-    const antiga = await newConversation(cenario.agentId, 'em_espera');
+    const antiga = await newConversation(cenario.agentId, 'Open', true);
 
     await transferir(antiga, { forAgentId: otherAgentId });
 
@@ -272,7 +277,7 @@ describe('recusas', () => {
     const deOutro = await newConversation(otherAgentId);
     const resposta = await transferir(deOutro, { forQueueId: otherQueueId });
     expect(resposta.status).toBe(403);
-    expect((await conversation(deOutro)).state).toBe('em_atendimento');
+    expect((await conversation(deOutro)).state).toBe('Open');
   });
 
   it('Allow a permitted supervisor to transfer another agent\'s conversation', async () => {
@@ -296,7 +301,7 @@ describe('recusas', () => {
     const resposta = await transferir(deOutro, { forQueueId: otherQueueId });
 
     expect(resposta.status).toBe(201);
-    expect((await conversation(deOutro)).state).toBe('encerrada');
+    expect((await conversation(deOutro)).state).toBe('Transferred');
   });
 });
 
@@ -314,6 +319,6 @@ describe('fila de outro fluxo', () => {
     const resposta = await transferir(antiga, { forQueueId: fi[0]!.id });
     expect(resposta.status).toBe(400);
     expect(await resposta.json()).toMatchObject({ error: { code: 'fila_de_outro_fluxo' } });
-    expect((await conversation(antiga)).state).toBe('em_atendimento');
+    expect((await conversation(antiga)).state).toBe('Open');
   });
 });

@@ -33,7 +33,7 @@ async function statusFor(dados: Record<string, unknown>): Promise<string | null>
   const fim = new Date(T0.getTime() - MIN);
   const { rows } = await c.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em, encerrada_em)
-    values (${c.tenantId}::uuid, ${c.inboxId}::uuid, ${ct[0]!.id}::uuid, ${c.queueId}::uuid, 'encerrada', ${new Date(T0.getTime() - 10 * MIN)}, ${fim})
+    values (${c.tenantId}::uuid, ${c.inboxId}::uuid, ${ct[0]!.id}::uuid, ${c.queueId}::uuid, 'ClosedAttendant', ${new Date(T0.getTime() - 10 * MIN)}, ${fim})
     returning id
   `);
   const id = rows[0]!.id;

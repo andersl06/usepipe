@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { TransitionInvalidError, transitar } from '@pipe/core';
-import type { ClosedBy, StateConversation } from '@pipe/core';
+import { TransitionInvalidError, closedStateOf, isClosedState, transitar } from '@pipe/core';
+import type { ClosedBy, ClosedState, StateConversation } from '@pipe/core';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
@@ -78,7 +78,8 @@ export async function closeInTransaction(
   closedBy: ClosedBy = agentId ? 'atendente' : 'transferencia',
   extraEventData: Record<string, unknown> = {},
 ): Promise<string> {
-  requireTransition(conversa.state, 'encerrada');
+  const closedState = closedStateOf(closedBy);
+  requireTransition(conversa.state, closedState);
   for (const etiqueta of etiquetas) {
     await tx.execute(sql`
       insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, por_usuario_id)
@@ -90,14 +91,14 @@ export async function closeInTransaction(
 
   // Close an open waiting interval before closing its conversation; otherwise the
   // paused interval remains open and disappears from effort reporting.
-  const pausaEmAberto = conversa.state === 'em_espera' && conversa.em_espera_desde !== null;
+  const pausaEmAberto = conversa.em_espera_desde !== null;
   const pausadoSeg = pausaEmAberto
     ? Math.round((agora.getTime() - comoData(conversa.em_espera_desde)!.getTime()) / 1000)
     : 0;
 
   await tx.execute(sql`
     update conversa
-       set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${agentId},
+       set estado = ${closedState}, encerrada_em = ${agora}, encerrada_por = ${agentId},
            motivo_encerramento = ${motivo || null}, em_espera_desde = null,
            pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
      where id = ${conversa.id}
@@ -164,12 +165,13 @@ export interface RequestOfClosure {
 export async function closeConversation(
   ator: ActorOfConversation,
   pedido: RequestOfClosure,
-): Promise<{ state: 'encerrada'; reason: string }> {
+): Promise<{ state: ClosedState; reason: string }> {
   const agora = new Date();
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
     const conversa = await carregar(tx, pedido.conversationId, ator, 'conversa.encerrar');
-    requireTransition(conversa.state, 'encerrada');
+    const closedBy: ClosedBy = ator.agentId ? 'atendente' : 'transferencia';
+    requireTransition(conversa.state, closedStateOf(closedBy));
 
     const etiquetaIds = [...new Set(pedido.etiquetaIds ?? (pedido.etiquetaIds ? [pedido.etiquetaIds] : []))];
     const { rows: etiquetas } = etiquetaIds.length
@@ -196,11 +198,12 @@ export async function closeConversation(
   // Depois do commit. A conversa mudou e saiu da fila do atendente.
   await publicar(ator.tenantId, evento('conversation', pedido.conversationId));
   await publicar(ator.tenantId, evento('queue'));
-  return { state: 'encerrada', reason: resultado.motivo };
+  return { state: closedStateOf(ator.agentId ? 'atendente' : 'transferencia'), reason: resultado.motivo };
 }
 
 export interface EsperaAlternada {
-  state: 'em_espera' | 'em_atendimento';
+  state: 'Open';
+  emStandby: boolean;
   /** Segundos somados ao acumulado nesta virada. Zero ao entrar em espera. */
   pausadoSeg: number;
 }
@@ -216,15 +219,17 @@ export async function alternarEspera(
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
     const conversation = await carregar(tx, conversationId, ator);
-    const destination: StateConversation = conversation.state === 'em_espera' ? 'em_atendimento' : 'em_espera';
-    requireTransition(conversation.state, destination);
+    // Standby is a flag on an Open ticket; the state never changes.
+    if (conversation.state !== 'Open') {
+      throw PipeError.conflito('transition_invalid', 'O Modo de Espera só vale para tickets em atendimento.');
+    }
 
-    if (destination === 'em_espera') {
+    if (conversation.em_espera_desde === null) {
       if (!(await lerConfigAtendimento(tx, ator.tenantId)).modoEspera.ativo) {
         throw PipeError.conflito('hold_mode_disabled', 'O Modo de Espera está desabilitado nas Configurações gerais.');
       }
       await tx.execute(sql`
-        update conversa set estado = 'em_espera', em_espera_desde = ${agora},
+        update conversa set em_espera_desde = ${agora},
                             atualizado_em = ${agora}
          where id = ${conversation.id}
       `);
@@ -238,15 +243,16 @@ export async function alternarEspera(
       });
       await emitir(tx, ator.tenantId, 'conversa.estado_alterado', {
         conversa_id: conversation.id,
-        estado: 'em_espera',
+        estado: 'Open',
+        em_standby: true,
       });
-      return { state: destination, pausadoSeg: 0 };
+      return { state: 'Open' as const, emStandby: true, pausadoSeg: 0 };
     }
 
     const inicio = comoData(conversation.em_espera_desde);
     const pausadoSeg = inicio ? Math.round((agora.getTime() - inicio.getTime()) / 1000) : 0;
     await tx.execute(sql`
-      update conversa set estado = 'em_atendimento', em_espera_desde = null,
+      update conversa set em_espera_desde = null,
                           pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
        where id = ${conversation.id}
     `);
@@ -261,9 +267,10 @@ export async function alternarEspera(
     });
     await emitir(tx, ator.tenantId, 'conversa.estado_alterado', {
       conversa_id: conversation.id,
-      estado: 'em_atendimento',
+      estado: 'Open',
+      em_standby: false,
     });
-    return { state: destination, pausadoSeg };
+    return { state: 'Open' as const, emStandby: false, pausadoSeg };
   });
 
   // Publish after commit, as for every domain action. See `tempo-real.ts`.
@@ -284,7 +291,7 @@ export interface Transferida {
   ofConversationId: string;
   /** A conversa NOVA, no destino. */
   forConversationId: string;
-  state: 'na_fila' | 'atribuida';
+  state: 'Waiting' | 'Assigned';
 }
 
 /**
@@ -324,7 +331,7 @@ export async function transferConversation(
     `);
     const conversa = rows[0];
     if (!conversa) throw PipeError.naoEncontrado('Conversa');
-    if (conversa.state === 'encerrada') {
+    if (isClosedState(conversa.state)) {
       throw PipeError.conflito('conversation_closed', 'A conversa já está encerrada.');
     }
 
@@ -376,10 +383,10 @@ export async function transferConversation(
         const { rows: online } = await tx.execute<{ ok: number }>(
           forAgent
             ? sql`select 1 as ok from usuario u left join status_atendente s on s.usuario_id = u.id
-                  where u.id = ${forAgent}::uuid and ${PRESENCE_STATE_SQL} = 'online'`
+                  where u.id = ${forAgent}::uuid and ${PRESENCE_STATE_SQL} = 'Online'`
             : sql`select 1 as ok from fila_atendente fa join usuario u on u.id = fa.usuario_id and u.ativo
                   left join status_atendente s on s.usuario_id = u.id
-                  where fa.fila_id = ${forQueue}::uuid and ${PRESENCE_STATE_SQL} = 'online' limit 1`,
+                  where fa.fila_id = ${forQueue}::uuid and ${PRESENCE_STATE_SQL} = 'Online' limit 1`,
         );
         if (!online[0]) {
           throw PipeError.conflito(
@@ -392,7 +399,7 @@ export async function transferConversation(
 
     // Close any open waiting period BEFORE closing the conversation, or the paused
     // interval remains open and disappears from effort reporting.
-    const pausaEmAberto = conversa.state === 'em_espera' && conversa.em_espera_desde !== null;
+    const pausaEmAberto = conversa.em_espera_desde !== null;
     const pausadoSeg = pausaEmAberto
       ? Math.round((agora.getTime() - comoData(conversa.em_espera_desde)!.getTime()) / 1000)
       : 0;
@@ -410,7 +417,7 @@ export async function transferConversation(
 
     await tx.execute(sql`
       update conversa
-         set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${ator.agentId},
+         set estado = ${closedStateOf('transferencia')}, encerrada_em = ${agora}, encerrada_por = ${ator.agentId},
              motivo_encerramento = 'Transferida', em_espera_desde = null,
              pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
        where id = ${conversa.id}
@@ -434,12 +441,12 @@ export async function transferConversation(
     // distribution. An agent destination starts assigned.
     const { rows: nova } = await tx.execute<{ id: string }>(sql`
       insert into conversa (
-        tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, prioridade,
+        tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, prioridade, conversa_pai_id,
         criada_em, atribuida_em, janela_expira_em, janela_aberta_por_mensagem_id,
         ultima_mensagem_em, ultima_mensagem_de
       ) values (
         ${ator.tenantId}, ${conversa.inbox_id}, ${conversa.contactId}, ${forAgent ? queueDestination : null},
-        ${forAgent}, ${forAgent ? 'atribuida' : 'na_fila'}, ${conversa.priority},
+        ${forAgent}, ${forAgent ? 'Assigned' : 'Waiting'}, ${conversa.priority}, ${conversa.id},
         ${agora}, ${forAgent ? agora : null},
         ${conversa.windowExpiresAt}, ${conversa.windowOpenByMessageId},
         ${conversa.lastMessageAt}, ${conversa.lastMessageOf}
@@ -479,7 +486,7 @@ export async function transferConversation(
       await registrarEvento(tx, { ...base, type: 'criada', userId: ator.agentId });
       await registrarEvento(tx, { ...base, type: 'atribuida', userId: forAgent, data: { de_conversa_id: conversa.id } });
       await linkAndNotify();
-      return { ofConversationId: conversa.id, forConversationId: novaId, state: 'atribuida' as const };
+      return { ofConversationId: conversa.id, forConversationId: novaId, state: 'Assigned' as const };
     }
 
     const entry = await enterQueue(tx, {
@@ -496,7 +503,7 @@ export async function transferConversation(
       eventData: { de_conversa_id: conversa.id },
       beforeDistribution: linkAndNotify,
     });
-    const state: 'na_fila' | 'atribuida' = entry.agentId ? 'atribuida' : 'na_fila';
+    const state: 'Waiting' | 'Assigned' = entry.agentId ? 'Assigned' : 'Waiting';
     return { ofConversationId: conversa.id, forConversationId: novaId, state };
   });
 
