@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Campo } from '@pipe/ui';
 import { Select } from '@pipe/ui/select';
 import { ChipsInput } from '@pipe/ui/chips-input';
@@ -15,6 +15,8 @@ import {
   type TipoDePesquisa,
 } from '../../lib/pesquisa';
 import { CardConfig } from '../../components/card-config';
+import { CAMINHO_CONFIG_ATENDIMENTO, type ConfigAtendimento } from '../../lib/atendimento-config';
+import { cartoesDeAtendimento } from './settings-general-atendimento';
 import { closureSaveTags, saveGlobalTags, saveIdentity, salvarPesquisa } from '../../lib/actions';
 
 const AVISO_EM_BREVE = 'Este recurso será liberado em breve para este fluxo.';
@@ -164,7 +166,9 @@ function CampoDeTags({ iniciais, sujar }: { iniciais: string[]; sujar: () => voi
  */
 export function PageSettingsGeneral() {
   const read = useRead<SettingsGeneral>('/v1/management/settings/general');
-  if (!read.data) return null;
+  const atendimento = useRead<ConfigAtendimento>(CAMINHO_CONFIG_ATENDIMENTO);
+  if (!read.data || !atendimento.data) return null;
+  const vivos = cartoesDeAtendimento(atendimento.data);
   const { identity, pesquisa, outrasPesquisas, etiquetas } = read.data;
 
   const tipoGravado = pesquisa?.type ?? '';
@@ -227,7 +231,7 @@ export function PageSettingsGeneral() {
       </CardConfig>
 
       {SECOES_EM_BREVE.map((s) => (
-        <CartaoEmBreve key={s.titulo} secao={s} />
+        <Fragment key={s.titulo}>{vivos[s.titulo] ?? <CartaoEmBreve secao={s} />}</Fragment>
       ))}
 
       <CardConfig

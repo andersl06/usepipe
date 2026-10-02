@@ -83,3 +83,7 @@ Tela: `apps/management-vite/src/pages/registrations/settings-general.tsx`. Rota 
 ## Não medido
 
 Nenhum clique, nenhuma gravação e nenhum estado de erro da Blip. Nenhuma linha acima foi vista no navegador.
+
+## Atualização D-M04 (migração 0090)
+
+Cartões habilitados e gravando: histórico, distribuição, mensagens ativas (interruptor e limite por disparo), transferência, áudios, emojis, arquivos, esconder aguardando, Modo de Espera, encerramento automático global. Cada um tem Salvar próprio e usa o Select global. Os cartões habilitados aparecem na posição da Blip; Pipe Calls, disponibilidade por fila, Atendente inativo e Tempo máximo de resposta do cliente seguem desabilitados com o aviso padrão. Sub-opções da Blip sem consumidor foram retiradas do cartão. NEEDS VALIDATION (render, nenhum estado visto no navegador).
