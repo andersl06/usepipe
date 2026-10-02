@@ -73,3 +73,22 @@
 | L-52 | Pausas: lista com pausas, colunas reais, ordenação e confirmação de exclusão da Blip não capturadas (o bot não tem pausas; criar uma gravaria) | personalizedbreaks.md | Capturar quando houver pausa de teste | |
 | L-53 | Regras, SLA, Horários e Pausas: geometria, tipografia, tema escuro e larguras medidas (Regras 300/298/684/1302; SLA cartão 1402, campo 671, unidade 155) sem render no Pipe; cartão `#f6f6f6` da Blip x token de cartão do Pipe | rules.md, sla-policy.md, attendance-hours.md, personalizedbreaks.md | Medir por CDP com dados de teste; token só se divergir além de 1px | |
 | L-54 | Integração com o Builder: tela de CRUD de etiquetas; seletores de fila e etiqueta no Builder; futuro do painel de filas do Builder; mensagem de encerramento no encerramento automático | 03.2-16-CORRECOES-C5-SUMMARY.md, INTEGRACAO-BUILDER.md | Decidir cada um | |
+
+# Lacunas da Onda 3 (Respostas, Modelos, Canais, Configurações gerais)
+
+**Origem:** `ref/verificacao/replies.md`, `message-template.md`, `channels.md` e `general-settings.md`, os itens "Decisões do dono pendentes" de `03.2-20-SUMMARY.md` e "Itens pendentes do dono" de `03.2-21-SUMMARY.md`. Consolidadas em `VERIFICACAO-VISUAL.md` (`## Onda 3`, com as perguntas ao dono). A coluna "Aprovada pelo dono" fica vazia até o portão da Onda 3 (Tarefa 2 do plano 03.2-22).
+
+| ID | Lacuna | Origem | Proposta | Aprovada pelo dono |
+|---|---|---|---|---|
+| L-55 | Modelos: "Fluxo de retorno" (coluna e filtro) e Status (interruptor) desabilitados; `template_mensagem` não tem `fluxo_retorno_bloco_id` nem `ativo` (migração não autorizada); impacto no Builder: listar blocos do fluxo do canal, validar fluxo e tenant, avisar bloco removido | message-template.md, 03.2-20 | Autorizar a migração (a) e implementar | |
+| L-56 | Respostas: sem tabela de categoria (a nova e vazia só vive na tela até a primeira resposta); 13 dos 14 tipos de resposta desabilitados (sem modelo de conteúdo estruturado) | replies.md, 03.2-20 | Autorizar tabela de categoria e modelo de conteúdo | |
+| L-57 | Ilustração do modal "Criar nova categoria" (arte própria) | replies.md, 03.2-20 | Desenhar arte própria, se o dono quiser | |
+| L-58 | Modelos: formulário de criar modelo (cria na Meta) mantido abaixo da lista; a Blip cria modelos em Conteúdos | message-template.md, 03.2-20 | Manter ou mover | |
+| L-59 | Respostas: atalho `#` na tela x `/` do compositor do Desk; interruptor Ativa e campo de atalho existem só no Pipe | replies.md, 03.2-20 | Decidir o atalho | |
+| L-60 | Modelos: rodapé e botões do WhatsApp não aparecem na prévia (bug da 03.1) | message-template.md, DEPENDENCIAS-03.1.md | Corrigir na 03.1 | |
+| L-61 | Canais: Salesforce, Salesforce MIAW e Canal Personalizado sem integração (botões desabilitados); "Pipe Desk" sem desconectar; fluxo de conexão da Blip não medido | channels.md, 03.2-21 | Decidir se o Pipe Desk desconecta; integrações ficam fora | |
+| L-62 | Configurações gerais: 12 preferências globais, encerramento automático global e interruptor do Modo de Espera desabilitados; sem onde gravar (`tenant.configuracao_atendimento jsonb`, migração não autorizada); precedência prevista: a fila vence a global | general-settings.md, 03.2-21 | Autorizar a migração (b) e implementar leitura no motor, no Desk e no worker | |
+| L-63 | Configurações gerais: lista de tags da fila (`fila.etiquetas`) à parte do catálogo global; obrigatoriedade global ("pelo menos uma tag") da Blip x tags obrigatórias específicas do Pipe | general-settings.md, 03.2-21 | Unificar e adotar a regra da Blip, ou manter | |
+| L-64 | `etiqueta.exclusiva_por_fila` sem edição na tela; renomear tag é remover e criar (só sem conversa etiquetada) | general-settings.md, 03.2-21 | Decidir | |
+| L-65 | Respostas, Modelos, Canais e Configurações gerais: geometria, tipografia, tema escuro e larguras medidas (cartão 1401,9 x 86; canais 343 x 270; interruptor 56 x 32 da Blip x 38 x 22 do Pipe; cartão `#f6f6f6` x fundo branco do Pipe) sem render no Pipe | replies.md, channels.md, general-settings.md | Medir por CDP com dados de teste; token só se divergir além de 1px | |
+| L-66 | Configurações gerais: textos de cartões não capturados na íntegra (por exemplo Envio de áudios, Emojis) escritos de forma neutra; vazio, carregando e erro das quatro telas sem captura da Blip | general-settings.md, 03.2-21 | Conferir na Blip | |

@@ -242,3 +242,86 @@ Fonte: `03.2-16-CORRECOES-C5-SUMMARY.md` e `ref/INTEGRACAO-BUILDER.md`. Verifica
 ### Estado do portão da Onda 2
 
 Pendente do dono: percorrer `rules`, `sla-policy`, `attendance-hours` e `personalizedbreaks` ao lado da Blip, criar, editar e excluir um item em cada tela, responder "aprovada" ou "corrigir" para cada lacuna L-35 a L-54 de `LACUNAS-APROVADAS.md` e às perguntas acima, começando pela migração de Horários. Ver `03.2-19-SUMMARY.md` (status partial). Contagem desta onda: 0 VISUALLY VERIFIED, 90 linhas de tabela NEEDS VALIDATION nos quatro arquivos de origem (25 + 21 + 22 + 22), 4 linhas verificadas só por código ou teste nas telas (mais as da integração), 11 linhas de lacuna ou divergência nas telas, 20 lacunas novas (L-35 a L-54).
+
+## Onda 3
+
+**Fonte das linhas:** `ref/verificacao/replies.md`, `message-template.md`, `channels.md` e `general-settings.md` (cada uma com `Base:` e as medidas completas). A medição da Blip é a captura ao vivo de 2026-10-01, somente leitura (`ref/verificacao/replies-blip.md`, `message-template-blip.md`, `channels-blip.md`, `general-settings-blip.md`; [M] medido, [A] estimado). Do lado do Pipe, só leitura de CSS e TSX, tipos e testes automáticos (servidor com banco real, relógio falso no encerramento automático); nenhuma sessão foi forjada e o navegador não foi usado. Por isso nenhuma linha visual está VISUALLY VERIFIED: tudo que depende de aparência é NEEDS VALIDATION. As contagens de cada resumo são linhas de tabela do arquivo de origem que citam o status, sem a frase do cabeçalho.
+
+### Perguntas ao dono
+
+Cada item vem, sem acréscimo, dos "Decisões do dono pendentes" de `03.2-20-SUMMARY.md` (itens M) e dos "Itens pendentes do dono" de `03.2-21-SUMMARY.md` (itens G); as lacunas correspondentes estão em `LACUNAS-APROVADAS.md` (L-55 a L-66). As duas migrações vêm primeiro; nenhuma foi aplicada.
+
+1. Migração pendente (a), `template_mensagem`: `fluxo_retorno_bloco_id uuid null references bloco(id) on delete set null` e `ativo boolean not null default true`. Destrava a coluna e o filtro "Fluxo de retorno" e o interruptor de Status dos Modelos. Impacto no Builder: listar os blocos da versão publicada ou rascunho do fluxo do canal do modelo, gravar o bloco escolhido, validar no servidor que pertence ao mesmo fluxo e tenant e avisar quando o bloco for removido do Builder (hoje nenhum bloco referencia modelo, resposta ou categoria; não há 409 a implementar). Autorizar? (M1; L-55)
+2. Migração pendente (b), `tenant.configuracao_atendimento`: `alter table tenant add column configuracao_atendimento jsonb not null default '{}'::jsonb check (jsonb_typeof(configuracao_atendimento) = 'object')` (RLS do `tenant` já cobre), com entrada no journal e schema Drizzle em `identity.ts`. Destrava as preferências globais (histórico, ligações, disponibilidade por fila, distribuição, mensagens ativas, transferência, áudio, emoji, arquivos, número de aguardando, atendente inativo, tempo máximo de resposta), o encerramento automático global e o interruptor do Modo de Espera. Impacto no motor e no Desk: leitura e validação no servidor, motor de distribuição, Desk (transferência, áudio, emoji, arquivos, número de aguardando) e worker de encerramento (regra global; precedência prevista: a fila vence a global). O efeito do Modo de Espera (pausar o encerramento por inatividade) já vale sem migração. Autorizar esta migração (ou outro desenho)? (G1; L-62)
+3. Respostas: autorizar tabela de categoria de resposta e o modelo de conteúdo estruturado para os 13 tipos restantes. (M2; L-56)
+4. Respostas: ilustração própria do modal "Criar nova categoria". (M3; L-57)
+5. Modelos: o formulário de criar modelo (cria na Meta) deve continuar nesta tela, já que a Blip cria modelos em Conteúdos? (M4; L-58)
+6. Respostas: atalho `/` x `#` do compositor do Desk. (M5; L-59)
+7. Configurações gerais: unificar `fila.etiquetas` com o catálogo global de tags? (G2; L-63)
+8. Configurações gerais: adotar a obrigatoriedade global da Blip ("pelo menos uma tag") em vez de tags específicas obrigatórias? (G3; L-63)
+9. Canais: o cartão "Pipe Desk" deve permitir desconectar? (G4; L-61)
+10. Configurações gerais: `etiqueta.exclusiva_por_fila` (desk-requisitos linha 59) deve ter edição nesta tela? (G5; L-64)
+
+### Respostas prontas (`ref/verificacao/replies.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Lista: título "Respostas prontas", "+ Criar categoria", cartão de categoria | 1401,9 x 86, raio 16, padding 20, passo 96; rótulo "Categoria", lápis e lixeira [M] | tokens `--p-atend-resposta-cartao-*` (altura 86, padding 20); fundo branco do cartão do Pipe em vez de `#f6f6f6` | fundo do cartão; sem medida renderizada | NEEDS VALIDATION |
+| Lista: paginação | 5 por página, opções 5 a 500, "1-5 de 13" [M] | `Pagination` global, início 5; divisão na tela | n/a | NEEDS VALIDATION |
+| Entidade de categoria | existe sem respostas | só existe enquanto tiver resposta; a nova e vazia vive na tela | sem tabela de categoria | lacuna L-56 |
+| Vazio, carregando, erro | texto só pela ficha; sem captura | textos da ficha; `Carregando`; "Não foi possível carregar as respostas prontas." | n/a | NEEDS VALIDATION |
+| Modal "Criar nova categoria" | campo 343,2 x 40; Salvar começa desabilitado; Esc fecha [M] | mesmo texto e botões; Enter salva; abre o detalhe | sem ilustração | NEEDS VALIDATION; lacuna L-57 |
+| Detalhe: cabeçalho, renomear, menu de tipos | URL não muda; 14 tipos [M] | igual; só Texto habilitado, 13 com "Este recurso será liberado em breve para este fluxo." | 13 tipos sem conteúdo estruturado | NEEDS VALIDATION; lacuna L-56 |
+| Detalhe: gravação, cartão de resposta, excluir | grava na hora, "Categoria salva com sucesso!" [M] | grava ao sair do campo quando válida e alterada; interruptor Ativa e atalho a mais | extras do Pipe; atalho `#` | NEEDS VALIDATION; lacuna L-59 |
+| Resumo | 15 linhas de tabela NEEDS VALIDATION, 0 VISUALLY VERIFIED, 2 divergências ou lacunas registradas | | | |
+
+### Modelos de mensagens (`ref/verificacao/message-template.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Lista: título, painel, filtros, busca 868,7 x 42 | [M] | mesmo texto e ordem; `Select` do produto; Status e busca filtram no servidor | "Fluxo de retorno" desabilitado | NEEDS VALIDATION; lacuna L-55 |
+| Lista: colunas Nome, Idioma, Mensagem, Fluxo de retorno, Status | interruptor de Status local [M] | Fluxo de retorno "—" desabilitado; Status mostra o estado na Meta | não existe campo no modelo | NEEDS VALIDATION; lacuna L-55 |
+| Quantidade | sem paginação, cerca de 1.490 linhas [M] | paginado no servidor (padrão 25) | decisão do dono (Q2) | divergência decidida |
+| Vazio, carregando, erro | sem captura; ficha traz o texto do vazio | esse texto; `Carregando`; "Não foi possível carregar os modelos de mensagem." | n/a | NEEDS VALIDATION |
+| Modal "abrir" | título `Modelo "{nome}"`, `{{1}}` em azul, só leitura [M] | mesmo; variáveis na cor da marca; texto React sem HTML | rodapé e botões do WhatsApp não aparecem (03.1) | NEEDS VALIDATION; lacuna L-60 |
+| Criar modelo | não existe nesta tela | formulário do Pipe abaixo da lista (cria na Meta) | extra do Pipe | divergência; lacuna L-58 |
+| Resumo | 7 linhas de tabela NEEDS VALIDATION, 0 VISUALLY VERIFIED, 4 divergências ou lacunas | | | |
+
+### Canais (`ref/verificacao/channels.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Lista: título e grade | 4 cartões 343,4 x 270, passo 359 [M] | tokens `--p-atend-canal-cartao-largura` 343, `-altura` 270, `-espaco` 16 | sem medida renderizada | NEEDS VALIDATION |
+| Cartão (raio, sombra, logo, título, subtítulo, botão no pé) | raio 16, sombra `0 2px 8px -2px` [M] | tokens de cartão do Pipe | tipografia dos títulos [A] | NEEDS VALIDATION |
+| Pipe Desk "Conectado" | botão de contorno | desabilitado (desconectar o Desk próprio não existe) | pergunta ao dono | NEEDS VALIDATION; lacuna L-61 |
+| Salesforce, Salesforce MIAW, Canal Personalizado | "Conectar >" | desabilitados com o aviso padrão | sem as integrações | NEEDS VALIDATION; lacuna L-61 |
+| Ícones | logos da Blip e da Salesforce | símbolo do Pipe e ícones do produto (D-05) | divergência registrada | NEEDS VALIDATION |
+| Vazio, carregando, erro, Conectar aberto | não medidos | catálogo fixo; a tela não lê a API | n/a | NEEDS VALIDATION |
+| Resumo | 11 linhas de tabela NEEDS VALIDATION, 0 VISUALLY VERIFIED, 1 divergência registrada | | | |
+
+### Configurações gerais (`ref/verificacao/general-settings.md`)
+
+| Tela/estado | Medidas Blip | Medidas Pipe | Diferenças | Status |
+|---|---|---|---|---|
+| Estrutura (uma página, um cartão por seção, Salvar próprio) | [M] | igual | n/a | NEEDS VALIDATION |
+| Gerenciar tags | chips separados por vírgula, Salvar | grava o catálogo global (`etiqueta`); remove só tag sem conversa etiquetada (4 testes de API) | n/a | NEEDS VALIDATION |
+| Obrigatoriedade de tags no encerramento manual | caixa única | interruptor mais escolha de tags obrigatórias | modelo do Pipe | divergência; lacuna L-63 |
+| 12 cartões de preferência (Histórico a Tempo máximo de resposta) | interruptor, caixas e campos [M] | mesma ordem, desabilitados com o aviso padrão, sem Salvar | sem onde gravar (migração (b)) | NEEDS VALIDATION; lacuna L-62 |
+| Modo de Espera | interruptor e texto [M] | cartão desabilitado com o mesmo texto; o efeito já vale (teste com relógio falso) | interruptor depende da migração (b) | NEEDS VALIDATION; lacuna L-62 |
+| Encerramento automático (global) | interruptor [M] | desabilitado; a regra continua por fila | precedência prevista: a fila vence | NEEDS VALIDATION; lacuna L-62 |
+| Identidade da operação e Pesquisa de satisfação | não existem na Blip | mantidas no fim (D-06); `Select` global | extras do Pipe | divergência registrada |
+| Largura, fundo, raio, sombra, interruptor | 1401,9; `#f6f6f6`; 16; interruptor 56 x 32 [M] | tokens de cartão do Pipe; interruptor 38 x 22 | fundo e interruptor | NEEDS VALIDATION; lacuna L-65 |
+| Vazio, carregando, erro, salvando | não medidos | textos do servidor; sem esqueleto; "Salvando…" | n/a | NEEDS VALIDATION |
+| Resumo | 10 linhas de tabela NEEDS VALIDATION, 0 VISUALLY VERIFIED, 3 divergências registradas | | | |
+
+### Estado do portão da Onda 3
+
+Pendente do dono: percorrer `replies`, `message-template`, `channels` e `general-settings` ao lado da Blip, criar, editar e excluir uma categoria e uma resposta, salvar uma configuração, responder "aprovada" ou "corrigir" para cada lacuna L-55 a L-66 de `LACUNAS-APROVADAS.md` e às perguntas acima, começando pelas duas migrações. Ver `03.2-22-SUMMARY.md` (status partial). Contagem desta onda: 0 VISUALLY VERIFIED, 43 linhas de tabela NEEDS VALIDATION nos quatro arquivos de origem (15 + 7 + 11 + 10), 10 linhas de divergência ou lacuna (2 + 4 + 1 + 3), 12 lacunas novas (L-55 a L-66). Capturas vivas de 2026-10-01 (somente leitura) de Respostas, Modelos, Canais e Configurações gerais estão em `ref/verificacao/*-blip.md`; vazio, carregando e erro seguem sem captura.
+
+### Pendências do portão final (Ondas 1 e 2, ainda abertas)
+
+Nada abaixo foi respondido pelo dono; tudo continua valendo para o portão final.
+
+- Onda 0: lacunas L-01 a L-05 já aprovadas; ficam NEEDS VALIDATION a cor da barra do Portal, os cinzas das barras, o item ativo (borda e hover), o grupo Comunicação (captura pendente), a paginação da grade sem render e as linhas de tabela com dados.
+- Onda 1: as 14 perguntas ao dono (L-11 a L-34), as capturas C-08, C-12, C-13, C-14 e C-15 (parcial) que o dono envia depois, a geometria sem render de Monitoramento, Histórico, Filas e Atendentes (L-34) e o vazio, carregando e erro (C-17 a C-57, opcionais).
+- Onda 2: as 13 perguntas ao dono (L-35 a L-54), com a migração de Horários já resolvida (D-H01) e restando o relógio de SLA; a integração com o Builder (CRUD de etiquetas, seletores de fila e etiqueta, painel de filas, mensagem de encerramento automático); 90 linhas NEEDS VALIDATION; capturas da lista de SLA com regras e da lista e exclusão de Pausas.
