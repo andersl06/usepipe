@@ -89,6 +89,19 @@ function validarIntervalo(de: string, ate: string): void {
   }
 }
 
+/** Relatórios: mesmo teto de 90 dias do Histórico (regra do dono; o limite da Blip nos relatórios aguarda captura ao vivo). */
+async function periodReport(
+  tx: TransactionPipe,
+  fuso: string,
+  de: string | undefined,
+  ate: string | undefined,
+  dias: number,
+): ReturnType<typeof period> {
+  const p = await period(tx, fuso, de, ate, dias);
+  validarIntervalo(p.de, p.ate);
+  return p;
+}
+
 /** Only History counts 30 civil dates, including across timezone or DST changes. */
 async function periodHistory(
   tx: TransactionPipe,
@@ -355,8 +368,9 @@ export class ManagementOperationsController {
   ): Promise<ResponseOfReportOfAttendance> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
+      await requirePermission(tx, sessao.userId, 'relatorio.ver');
       const fuso = await fusoDoTenant(tx);
-      const p = await period(tx, fuso, dataOuNada(de), dataOuNada(ate), 7);
+      const p = await periodReport(tx, fuso, dataOuNada(de), dataOuNada(ate), 7);
       const catalogos = await carregarCatalogos(tx);
       const report = await loadAttendance(tx, p.window, {
         queueId: uuidOuNada(fila),
@@ -375,8 +389,9 @@ export class ManagementOperationsController {
   ): Promise<ResponseOfReport<ReportEffort>> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
+      await requirePermission(tx, sessao.userId, 'relatorio.ver');
       const fuso = await fusoDoTenant(tx);
-      const p = await period(tx, fuso, dataOuNada(de), dataOuNada(ate), 7);
+      const p = await periodReport(tx, fuso, dataOuNada(de), dataOuNada(ate), 7);
       return { fuso, de: p.de, ate: p.ate, relatorio: await loadEffort(tx, p.window) };
     });
   }
@@ -390,9 +405,10 @@ export class ManagementOperationsController {
   ): Promise<ResponseOfReport<ReportSatisfaction>> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
+      await requirePermission(tx, sessao.userId, 'relatorio.ver');
       const fuso = await fusoDoTenant(tx);
       /* Satisfaction defaults to 30 days because completed surveys are rarer than conversations. */
-      const p = await period(tx, fuso, dataOuNada(de), dataOuNada(ate), 30);
+      const p = await periodReport(tx, fuso, dataOuNada(de), dataOuNada(ate), 30);
       return { fuso, de: p.de, ate: p.ate, relatorio: await loadSatisfaction(tx, p.window) };
     });
   }
