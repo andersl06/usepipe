@@ -172,7 +172,7 @@ async function aDestination(
   } catch (error) {
     // A rejected or missing template fails the entire batch because it is a send configuration error, not a contact error. Keep other failures on their individual contacts.
     if (error instanceof PipeError && error.status === 404) throw error;
-    if (error instanceof PipeError && error.codigo === 'template_nao_aprovado') throw error;
+    if (error instanceof PipeError && (error.codigo === 'template_nao_aprovado' || error.codigo === 'template_inativo')) throw error;
     return {
       phone: telefone,
       contatoId: preparo.contactId,

@@ -1,5 +1,5 @@
 import { and, asc, count, eq, ilike, ne } from 'drizzle-orm';
-import { channel, flow, respostaPronta, templateMessage } from '@pipe/db/schema';
+import { block, channel, flow, respostaPronta, templateMessage } from '@pipe/db/schema';
 import type { CATEGORIAS_TEMPLATE } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
@@ -152,6 +152,9 @@ export interface FiltroDeModelos {
 /** Escapa `%`, `_` e a barra invertida para a busca por nome tratar o texto digitado como literal. */
 const literalDeBusca = (texto: string): string => texto.replace(/[\\%_]/g, (c) => `\\${c}`);
 
+/** Modelo da lista: inclui o interruptor ativo e o código do bloco de retorno gravado (resolvido pelo chamador). */
+export type ModeloDaPagina = TemplateListed & { ativo: boolean; codigoGravado: string | null };
+
 /**
  * Página de modelos com busca por nome e filtro de status, feitos no banco: um bot chega a ~1.490
  * modelos e a tela não desenha todos de uma vez.
@@ -159,7 +162,7 @@ const literalDeBusca = (texto: string): string => texto.replace(/[\\%_]/g, (c) =
 export async function carregarPaginaDeModelos(
   tx: TransactionPipe,
   filtro: FiltroDeModelos,
-): Promise<{ modelos: TemplateListed[]; total: number }> {
+): Promise<{ modelos: ModeloDaPagina[]; total: number }> {
   const status = filtro.status?.trim();
   if (status && !(status in ROTULO_STATUS_META)) {
     throw PipeError.request('status_invalid', 'status não é um estado de modelo conhecido.');
@@ -182,9 +185,12 @@ export async function carregarPaginaDeModelos(
       headerType: templateMessage.cabecalhoTipo,
       variaveis: templateMessage.variables,
       channelName: channel.nome,
+      ativo: templateMessage.ativo,
+      codigoGravado: block.codigo,
     })
     .from(templateMessage)
     .innerJoin(channel, eq(channel.id, templateMessage.canalId))
+    .leftJoin(block, eq(block.id, templateMessage.fluxoRetornoBlocoId))
     .where(onde)
     .orderBy(asc(templateMessage.nome), asc(templateMessage.idioma), asc(templateMessage.id))
     .limit(filtro.limit)

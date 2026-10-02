@@ -86,6 +86,7 @@ type LinhaTemplate = {
   status_meta: string;
   cabecalho_tipo: string;
   variables: unknown;
+  ativo: boolean;
 };
 
 export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued> {
@@ -130,13 +131,19 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     if (pedido.templateId) {
       const { rows: linhas } = await tx.execute<LinhaTemplate>(sql`
         select id, nome as name, categoria as category, corpo as body, status_meta,
-               cabecalho_tipo, variaveis as variables
+               cabecalho_tipo, variaveis as variables, ativo
           from template_mensagem
          where id = ${pedido.templateId} and canal_id = ${conversation.channelId}
          limit 1
       `);
       template = linhas[0] ?? null;
       if (!template) throw PipeError.naoEncontrado('Template');
+      if (!template.ativo) {
+        throw PipeError.conflito(
+          'template_inativo',
+          `O modelo "${template.name}" está desativado em Modelos de mensagens.`,
+        );
+      }
       if (template.status_meta !== 'aprovado') {
         throw PipeError.conflito(
           'template_nao_aprovado',

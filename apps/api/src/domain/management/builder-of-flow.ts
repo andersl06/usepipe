@@ -424,6 +424,13 @@ async function gravarBlocos(
   versaoId: string,
   compilado: Compilado,
 ): Promise<void> {
+  // O id do bloco muda a cada gravação; os modelos de mensagem vinculados a ele (fluxo de retorno)
+  // são religados pelo código do bloco, e os cujo bloco saiu do desenho ficam sem vínculo.
+  const { rows: vinculados } = await tx.execute<{ id: string; codigo: string }>(sql`
+    select t.id, b.codigo
+      from template_mensagem t join bloco b on b.id = t.fluxo_retorno_bloco_id
+     where b.versao_id = ${versaoId}
+  `);
   await tx.execute(sql`delete from bloco where versao_id = ${versaoId}`);
 
   const blockByCode = new Map<string, string>();
@@ -445,6 +452,15 @@ async function gravarBlocos(
       returning id
     `);
     blockByCode.set(codigo, rows[0]!.id);
+  }
+
+  for (const v of vinculados) {
+    const novo = blockByCode.get(v.codigo);
+    if (novo) {
+      await tx.execute(
+        sql`update template_mensagem set fluxo_retorno_bloco_id = ${novo}::uuid where id = ${v.id}::uuid`,
+      );
+    }
   }
 
   for (const estado of compilado.flow.states) {

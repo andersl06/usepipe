@@ -22,6 +22,7 @@ import { uuidOuNada } from '../domain/management/format.js';
 import * as cadastros from '../domain/management/registrations.js';
 import * as autoEncerramento from '../domain/management/queue-auto-close.js';
 import * as comunicacao from '../domain/management/communication.js';
+import * as retornoDoModelo from '../domain/management/modelo-fluxo-retorno.js';
 import * as configuracoes from '../domain/management/settings.js';
 import * as palavrasProibidas from '../domain/management/palavras-proibidas.js';
 import * as horarios from '../domain/management/horarios.js';
@@ -136,8 +137,41 @@ export class ManagementRegistrationsController {
         limit: porPagina,
         offset,
       });
-      return { modelos, total, pagina, porPagina, channels: await comunicacao.loadChannelsWhatsapp(tx) };
+      const retornos = await retornoDoModelo.resolverRetornos(
+        tx,
+        sessao.tenantId,
+        modelos.map((m) => ({ canalId: m.channelId, codigoGravado: m.codigoGravado })),
+      );
+      return {
+        modelos: modelos.map(({ codigoGravado: _codigo, ...m }, i) => ({ ...m, fluxoRetorno: retornos[i] })),
+        total,
+        pagina,
+        porPagina,
+        channels: await comunicacao.loadChannelsWhatsapp(tx),
+      };
     });
+  }
+
+  @Get('communication/templates/:id/blocks')
+  @WithSession()
+  blocosDoModelo(@Req() requisicao: RequestWithSession, @Param('id') id: string) {
+    const sessao = sessionOf(requisicao);
+    idOu404(id, 'modelo de mensagem');
+    return noTenant(sessao.tenantId, (tx) => retornoDoModelo.listarBlocosDoModelo(tx, sessao.tenantId, id));
+  }
+
+  @Patch('communication/templates/:id')
+  @WithSession()
+  editarModelo(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Body() corpo: retornoDoModelo.PedidoDeModelo,
+  ) {
+    const sessao = sessionOf(requisicao);
+    idOu404(id, 'modelo de mensagem');
+    return noTenant(sessao.tenantId, (tx) =>
+      retornoDoModelo.editarModelo(tx, sessao.tenantId, sessao.userId, id, corpo),
+    );
   }
 
   @Get('communication/responses-ready')

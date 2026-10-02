@@ -13,7 +13,7 @@ Tela: `apps/management-vite/src/pages/registrations/communication-templates.tsx`
 |---|---|---|---|
 | Título e painel | "Modelos de mensagens" e um cartão com o título repetido [M] | igual | NEEDS VALIDATION |
 | Filtros | "Filtrar por:", "Fluxo de retorno", "Status" e busca "Pesquise pelo nome do modelo de mensagem" 868,7 x 42 [M] | mesmo texto e ordem; "Fluxo de retorno" desabilitado com "Este recurso será liberado em breve para este fluxo."; "Status" e busca filtram no servidor; selects são o `Select` do produto | NEEDS VALIDATION |
-| Colunas | Nome, Idioma, Mensagem (prévia truncada e "abrir"), Fluxo de retorno, Status (interruptor) [M] | Nome, Idioma, Mensagem (prévia de 2 linhas e "abrir"), Fluxo de retorno ("—", desabilitado), Status (rótulo do estado na Meta) e lixeira | NEEDS VALIDATION |
+| Colunas | Nome, Idioma, Mensagem (prévia truncada e "abrir"), Fluxo de retorno, Status (interruptor) [M] | Nome, Idioma, Mensagem (prévia de 2 linhas e "abrir"), Fluxo de retorno (bloco atual, "Bloco removido" ou "—", e botão que abre o `Select` com os blocos do fluxo do canal), Status (rótulo do estado na Meta), Ativo (interruptor `.interruptor`) e lixeira | NEEDS VALIDATION |
 | Quantidade | sem paginação, ~1.490 linhas de uma vez [M] | paginado no servidor (`pagina`/`porPagina`/`total`, padrão 25) com o componente `Pagination` | divergência decidida pelo dono (Q2) |
 | Status | interruptor local ativo/inativo | não existe campo no modelo; mostra o estado de aprovação na Meta (pendente do dono, ver DEPENDENCIAS-03.1.md) | divergência registrada |
 | Criação | não é feita nesta tela | formulário "Novo modelo de mensagem" mantido abaixo da lista (cria na Meta); selects trocados pelo `Select` do produto | divergência registrada |
@@ -52,7 +52,7 @@ Tela: `apps/management-vite/src/pages/registrations/communication-templates.tsx`
 ## Navegação
 
 - Menu lateral Comunicação > Modelos de mensagens; o modal "abrir" não muda a URL.
-- Fluxo de retorno x Builder: o modelo não tem campo para o bloco do Builder, então a escolha não existe (migração necessária, ver DEPENDENCIAS-03.1.md). Nenhum bloco do Builder referencia modelo por id ou nome; sem campo não há o que recusar na exclusão.
+- Fluxo de retorno x Builder (D-M03, migração 0089): o modelo guarda `fluxo_retorno_bloco_id`; o seletor lista os blocos da versão publicada do fluxo do canal (senão rascunho); o servidor recusa bloco de outro fluxo ou tenant. O vínculo é religado pelo código do bloco quando o Builder regrava o rascunho; bloco que saiu do desenho aparece como "Bloco removido" (vínculo apontando para versão antiga) ou volta a "—" (a chave estrangeira zerou). O motor ainda NÃO lê o vínculo (ver INTEGRACAO-BUILDER.md). Interruptor Ativo: modelo desativado some da lista do Desk e o envio, o disparo de mensagem ativa e o agendamento o recusam; o filtro "Fluxo de retorno" do topo segue desabilitado. NEEDS VALIDATION (render).
 
 ## Não medido
 

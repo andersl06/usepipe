@@ -77,3 +77,17 @@ export async function excluirCategoriaDeRespostas(name: string): Promise<Resulta
     return { ok: false, error: motivoDe(error, 'Não foi possível excluir a categoria.') };
   }
 }
+
+/** Grava o bloco de retorno e/ou o interruptor ativo de um modelo de mensagem. */
+export async function editarModelo(
+  id: string,
+  corpo: { fluxoRetornoBlocoId?: string | null; ativo?: boolean },
+): Promise<Resultado<void>> {
+  try {
+    await api.patch(`/v1/management/communication/templates/${id}`, corpo);
+    atualizarLeituras();
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar o modelo.') };
+  }
+}

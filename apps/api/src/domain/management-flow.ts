@@ -443,7 +443,11 @@ export async function carregarModelos(
     })
     .from(templateMessage)
     .innerJoin(channel, eq(channel.id, templateMessage.canalId))
-    .where(channelId ? eq(templateMessage.canalId, channelId) : undefined)
+    .where(
+      channelId
+        ? and(eq(templateMessage.canalId, channelId), eq(templateMessage.ativo, true))
+        : eq(templateMessage.ativo, true),
+    )
     .orderBy(asc(templateMessage.nome));
 
   return linhas.map(({ variaveis, ...l }) => ({ ...l, variables: readVariables(variaveis) }));

@@ -76,6 +76,24 @@ export interface TemplateListed {
   headerType: string;
   variables: string[];
   channelName: string;
+  /** O modelo pode ser usado no envio (independe da aprovação na Meta). */
+  ativo: boolean;
+  fluxoRetorno: FluxoDeRetorno;
+}
+
+/** Vínculo com o bloco do Builder: `removido` quando o bloco saiu do desenho do fluxo do canal. */
+export interface FluxoDeRetorno {
+  state: 'nenhum' | 'ok' | 'removido';
+  blockId: string | null;
+  code: string | null;
+  label: string | null;
+}
+
+export interface BlocoDeRetorno {
+  id: string;
+  code: string;
+  label: string;
+  type: string;
 }
 
 export interface ChannelWhatsapp {

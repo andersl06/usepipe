@@ -85,14 +85,14 @@ async function deliverToContact(tenantId: string, contactId: string, schedule: C
     const conversation = rows[0];
     if (!conversation || !template) return { conversation, templateId: null };
     const { rows: templates } = await tx.execute<{ id: string }>(sql`
-      select id from template_mensagem where canal_id = ${conversation.channelId}::uuid and nome = ${template.name} limit 1
+      select id from template_mensagem where canal_id = ${conversation.channelId}::uuid and nome = ${template.name} and ativo limit 1
     `);
     return { conversation, templateId: templates[0]?.id ?? null };
   });
   const conversation = target.conversation;
   if (!conversation) return { contactId, sent: false, error: 'O contato não tem conversa em nenhum canal.' };
   if (template && !target.templateId) {
-    return { contactId, sent: false, error: `O template '${template.name}' não existe no canal do contato.` };
+    return { contactId, sent: false, error: `O template '${template.name}' não existe (ou está desativado) no canal do contato.` };
   }
   try {
     if (conversation.open) {

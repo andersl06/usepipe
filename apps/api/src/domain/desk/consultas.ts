@@ -270,6 +270,7 @@ export async function listarTemplatesAprovados(
       from template_mensagem
      where canal_id = ${channelId}
        and status_meta = 'aprovado'
+       and ativo
      order by categoria, nome
   `);
   return rows;

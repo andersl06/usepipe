@@ -345,6 +345,34 @@ describe('GET /v1/management/flows/:id/builder', () => {
 });
 
 describe('PUT /v1/management/flows/:id/builder', () => {
+  it('Keep the template return-flow link across saves by block code, and drop it when the block leaves the drawing', async () => {
+    const id = await criado(`Retorno ${randomUUID().slice(0, 6)}`);
+    await salvar(sessionEditor, id, desenho('Olá!'));
+    const { rows: modelo } = await a.dono.execute<{ id: string }>(sql`
+      insert into template_mensagem (tenant_id, canal_id, nome, categoria, corpo)
+      values (${a.tenantId}, ${a.channelId}, ${`r_${randomUUID().slice(0, 8)}`}, 'utilidade', 'oi') returning id`);
+    const ligar = async (codigo: string) =>
+      a.dono.execute(sql`
+        update template_mensagem set fluxo_retorno_bloco_id = (
+          select b.id from bloco b join fluxo_versao v on v.id = b.versao_id
+           where v.fluxo_id = ${id}::uuid and b.codigo = ${codigo})
+         where id = ${modelo[0]!.id}::uuid`);
+    const codigoLigado = async () =>
+      (await a.dono.execute<{ codigo: string | null }>(sql`
+        select b.codigo from template_mensagem t left join bloco b on b.id = t.fluxo_retorno_bloco_id
+         where t.id = ${modelo[0]!.id}::uuid`)).rows[0]!.codigo;
+
+    await ligar('pergunta');
+    await salvar(sessionEditor, id, desenho('Oi de novo!'));
+    expect(await codigoLigado()).toBe('pergunta');
+
+    const semPergunta = desenho('x');
+    delete semPergunta.flow['pergunta'];
+    (semPergunta.flow['inicio'] as Record<string, unknown>)['$defaultOutput'] = { stateId: 'inicio' };
+    await salvar(sessionEditor, id, semPergunta);
+    expect(await codigoLigado()).toBeNull();
+  });
+
   it('Save draft v1 in place on repeated edits instead of creating a version per keystroke', async () => {
     const id = await criado(`Rascunho ${randomUUID().slice(0, 6)}`);
 

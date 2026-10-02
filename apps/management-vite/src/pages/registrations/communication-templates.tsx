@@ -10,6 +10,7 @@ import { Pagination, type PaginationState } from '@pipe/ui/pagination';
 import { Tabela } from '@pipe/ui';
 import { TemplateForm } from './communication-templates-formulario';
 import { AVISO_EM_BREVE } from './communication-respostas-formulario';
+import { CelulaFluxoDeRetorno, InterruptorDoModelo } from './communication-templates-retorno';
 
 interface RespostaDaLista {
   modelos: TemplateListed[];
@@ -81,8 +82,8 @@ function TextoDoModelo({ texto, className }: { texto: string; className: string 
 
 /**
  * Modelos de mensagens. A lista vem paginada do servidor (um bot chega a ~1.490 modelos), com busca
- * por nome e filtro de status no banco. "Fluxo de retorno" e o interruptor de Status da Blip dependem
- * de campos que o modelo não tem hoje; ficam desabilitados com o aviso padrão.
+ * por nome e filtro de status no banco. O fluxo de retorno aponta para um bloco do Builder e o interruptor
+ * liga ou desliga o uso do modelo no envio; o filtro por fluxo de retorno segue desabilitado.
  */
 export function PageTemplates() {
   const [busca, setBusca] = useState('');
@@ -150,13 +151,10 @@ export function PageTemplates() {
     {
       key: 'fluxo',
       rotulo: 'Fluxo de retorno',
-      celula: () => (
-        <span className="sub" title={AVISO_EM_BREVE}>
-          —
-        </span>
-      ),
+      celula: (m) => <CelulaFluxoDeRetorno modelo={m} />,
     },
     { key: 'status', rotulo: 'Status', celula: (m) => ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta },
+    { key: 'ativo', rotulo: 'Ativo', celula: (m) => <InterruptorDoModelo modelo={m} /> },
     {
       key: 'acoes',
       rotulo: '',
