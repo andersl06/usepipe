@@ -22,6 +22,7 @@ import { uuidOuNada } from '../domain/management/format.js';
 import * as cadastros from '../domain/management/registrations.js';
 import * as autoEncerramento from '../domain/management/queue-auto-close.js';
 import * as comunicacao from '../domain/management/communication.js';
+import * as atendimentoConfig from '../domain/management/atendimento-config.js';
 import * as retornoDoModelo from '../domain/management/modelo-fluxo-retorno.js';
 import * as configuracoes from '../domain/management/settings.js';
 import * as palavrasProibidas from '../domain/management/palavras-proibidas.js';
@@ -200,6 +201,23 @@ export class ManagementRegistrationsController {
   data(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => configuracoes.loadData(tx));
+  }
+
+  /** Preferências globais do atendimento: o documento completo, com os padrões onde nada foi gravado. */
+  @Get('settings/attendance')
+  @WithSession()
+  configuracaoDeAtendimento(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => atendimentoConfig.lerConfigAtendimento(tx, sessao.tenantId));
+  }
+
+  @Put('settings/attendance')
+  @WithSession()
+  gravarConfiguracaoDeAtendimento(@Req() requisicao: RequestWithSession, @Body() corpo: unknown) {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      atendimentoConfig.gravarConfigAtendimento(tx, sessao.tenantId, sessao.userId, corpo),
+    );
   }
 
   @Get('settings/general')

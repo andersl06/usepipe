@@ -3,7 +3,13 @@ import { databaseOwner, noTenant } from '../../database.js';
 import { closeInTransaction } from '../conversation.js';
 import type { LineConversation } from '../conversation.js';
 import { sendMessage } from '../envio.js';
-import { alertConversation, conversationsForAlert, INACTIVITY_REF } from './auto-close-alerta.js';
+import {
+  alertConversation,
+  CONFIG_EFETIVA,
+  conversationsForAlert,
+  FORA_DA_ESPERA,
+  INACTIVITY_REF,
+} from './auto-close-alerta.js';
 import { drenarEmSegundoPlano } from '../../webhooks-saida.js';
 import { evento, publicar } from '../../realtime.js';
 import { autoCloseChecked, toMinutes } from './queue-auto-close.js';
@@ -12,7 +18,7 @@ import type { AutoCloseConfig } from './queue-auto-close.js';
 /**
  * Encerramento automático por inatividade. A varredura descobre candidatas entre os tenants com o banco dono (como `conversationsForCheckSla`) e cada encerramento roda sozinho, numa transação do tenant, pela mesma função de domínio que os atendentes usam (`closeInTransaction`).
  *
- * Conversa em Modo de Espera não é candidata (a espera pausa o encerramento) e a contagem recomeça na retomada (`INACTIVITY_REF`). A inatividade conta a partir da última mensagem da conversa (`ultima_mensagem_em`, de qualquer autor): mensagem do atendente também reinicia a contagem, como na Blip, e como o cliente fala por último ou antes da resposta, a última mensagem do cliente nunca é mais recente que ela. O alerta de inatividade é uma mensagem automática que não toca em `ultima_mensagem_*` (ver `auto-close-alerta.ts`), então nunca reinicia a contagem. O worker roda sempre e só age em filas com `encerramento_automatico.ativo = true`.
+ * Conversa em Modo de Espera não é candidata (a espera pausa o encerramento) e a contagem recomeça na retomada (`INACTIVITY_REF`). A inatividade conta a partir da última mensagem da conversa (`ultima_mensagem_em`, de qualquer autor): mensagem do atendente também reinicia a contagem, como na Blip, e como o cliente fala por último ou antes da resposta, a última mensagem do cliente nunca é mais recente que ela. O alerta de inatividade é uma mensagem automática que não toca em `ultima_mensagem_*` (ver `auto-close-alerta.ts`), então nunca reinicia a contagem. O worker roda sempre e age quando a configuração efetiva está ligada: a da fila (`encerramento_automatico`) vence; fila sem configuração usa a global do tenant (`configuracao_atendimento.encerramentoAutomatico`). O Modo de Espera pausa a contagem por padrão; com o interruptor global desligado a conversa em espera conta inatividade como as outras.
  */
 
 export const AUTO_CLOSE_REASON = 'encerramento_automatico';
@@ -31,8 +37,13 @@ export interface AutoCloseTarget {
 }
 
 /** Regra pura: a conversa já passou do tempo configurado e respeita as duas opções. */
-export function isDueForAutoClose(config: AutoCloseConfig, conversa: AutoCloseTarget, agora: Date): boolean {
-  if (!config.ativo || conversa.state === 'encerrada' || conversa.state === 'em_espera' || !conversa.lastMessageAt) return false;
+export function isDueForAutoClose(
+  config: AutoCloseConfig,
+  conversa: AutoCloseTarget,
+  agora: Date,
+  pausarEmEspera = true,
+): boolean {
+  if (!config.ativo || conversa.state === 'encerrada' || (pausarEmEspera && conversa.state === 'em_espera') || !conversa.lastMessageAt) return false;
   if (config.soSePrimeiroAtendimento && !conversa.firstResponseAt) return false;
   if (config.naoSeAguardandoAtendente && conversa.lastMessageOf === 'contato') return false;
   const limiteMs = toMinutes(config.tempo, config.unidade) * 60_000;
@@ -50,19 +61,21 @@ export async function conversationsForAutoClose(
   const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`
     select c.tenant_id, c.id
       from conversa c
-      join fila f on f.id = c.fila_id and f.tenant_id = c.tenant_id
-     where c.estado not in ('encerrada', 'em_espera')
+      join tenant tn on tn.id = c.tenant_id
+      left join fila f on f.id = c.fila_id and f.tenant_id = c.tenant_id
+      cross join lateral (select ${CONFIG_EFETIVA} as v) cfg
+     where c.estado <> 'encerrada' and ${FORA_DA_ESPERA}
        and (${tenants === undefined} or c.tenant_id = any(${`{${(tenants ?? []).join(',')}}`}::uuid[]))
-       and jsonb_typeof(f.encerramento_automatico) = 'object'
-       and f.encerramento_automatico->>'ativo' = 'true'
-       and (f.encerramento_automatico->>'soSePrimeiroAtendimento' is distinct from 'true'
+       and jsonb_typeof(cfg.v) = 'object'
+       and cfg.v->>'ativo' = 'true'
+       and (cfg.v->>'soSePrimeiroAtendimento' is distinct from 'true'
             or c.primeira_resposta_em is not null)
-       and (f.encerramento_automatico->>'naoSeAguardandoAtendente' is distinct from 'true'
+       and (cfg.v->>'naoSeAguardandoAtendente' is distinct from 'true'
             or c.ultima_mensagem_de is distinct from 'contato')
        and ${INACTIVITY_REF} <= ${agora}::timestamptz - (
-             case when jsonb_typeof(f.encerramento_automatico->'tempo') = 'number'
-                  then (f.encerramento_automatico->>'tempo')::numeric
-                       * (case f.encerramento_automatico->>'unidade' when 'horas' then 60 else 1 end)
+             case when jsonb_typeof(cfg.v->'tempo') = 'number'
+                  then (cfg.v->>'tempo')::numeric
+                       * (case cfg.v->>'unidade' when 'horas' then 60 else 1 end)
                   end
            ) * interval '1 minute'
      order by ${INACTIVITY_REF}, c.id
@@ -100,6 +113,7 @@ type LinhaTrava = {
   lastMessageOf: string | null;
   firstResponseAt: Date | string | null;
   config: unknown;
+  modoEspera: string | null;
 };
 
 const data = (v: Date | string | null): Date | null => (v === null ? null : new Date(v));
@@ -117,9 +131,11 @@ export async function autoCloseConversation(
       select c.id, c.estado as state, c.fila_id as "queueId", c.atendente_id as "agentId",
              c.em_espera_desde, ${INACTIVITY_REF} as "lastMessageAt", c.criada_em as "criadaEm",
              c.ultima_mensagem_de as "lastMessageOf", c.primeira_resposta_em as "firstResponseAt",
-             f.encerramento_automatico as config
+             ${CONFIG_EFETIVA} as config,
+             tn.configuracao_atendimento->'modoEspera'->>'ativo' as "modoEspera"
         from conversa c
-        join fila f on f.id = c.fila_id
+        join tenant tn on tn.id = c.tenant_id
+        left join fila f on f.id = c.fila_id
        where c.id = ${c.conversationId}::uuid
          for update of c
     `);
@@ -138,7 +154,7 @@ export async function autoCloseConversation(
       lastMessageOf: linha.lastMessageOf,
       firstResponseAt: data(linha.firstResponseAt),
     };
-    if (!isDueForAutoClose(config, alvo, agora)) return false;
+    if (!isDueForAutoClose(config, alvo, agora, linha.modoEspera !== 'false')) return false;
 
     const etiquetas =
       config.tags.ativo && config.tags.tags.length > 0

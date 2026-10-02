@@ -4,6 +4,8 @@ import type { ClosedBy, StateConversation } from '@pipe/core';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
+import { PRESENCE_STATE_SQL } from './distribution.js';
+import { lerConfigAtendimento } from './management/atendimento-config.js';
 import { assertQueueOfFlow, enterQueue, flowOfConversation } from './queue-entry.js';
 import { requirePermission } from '../session.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
@@ -218,6 +220,9 @@ export async function alternarEspera(
     requireTransition(conversation.state, destination);
 
     if (destination === 'em_espera') {
+      if (!(await lerConfigAtendimento(tx, ator.tenantId)).modoEspera.ativo) {
+        throw PipeError.conflito('hold_mode_disabled', 'O Modo de Espera está desabilitado nas Configurações gerais.');
+      }
       await tx.execute(sql`
         update conversa set estado = 'em_espera', em_espera_desde = ${agora},
                             atualizado_em = ${agora}
@@ -352,6 +357,36 @@ export async function transferConversation(
       if (!u[0]) throw PipeError.naoEncontrado('Atendente');
       if (forAgent === conversa.agentId) {
         throw PipeError.conflito('same_destination', 'A conversa já está com este atendente.');
+      }
+    }
+
+    // Preferências globais da transferência pelo Desk: valem para a transferência feita no Desk por sessão de atendente (Monitoramento e chave de API não são o Desk).
+    if (ator.requireAssignment && ator.agentId) {
+      const { transferencia } = await lerConfigAtendimento(tx, ator.tenantId);
+      if (!transferencia.habilitada) {
+        throw PipeError.conflito('transfer_disabled', 'A transferência de tickets está desabilitada nas Configurações gerais.');
+      }
+      if (forAgent && !transferencia.atendentesEspecificos) {
+        throw PipeError.conflito(
+          'transfer_to_agent_disabled',
+          'A transferência para atendentes específicos está desabilitada nas Configurações gerais.',
+        );
+      }
+      if (!transferencia.offline) {
+        const { rows: online } = await tx.execute<{ ok: number }>(
+          forAgent
+            ? sql`select 1 as ok from usuario u left join status_atendente s on s.usuario_id = u.id
+                  where u.id = ${forAgent}::uuid and ${PRESENCE_STATE_SQL} = 'online'`
+            : sql`select 1 as ok from fila_atendente fa join usuario u on u.id = fa.usuario_id and u.ativo
+                  left join status_atendente s on s.usuario_id = u.id
+                  where fa.fila_id = ${forQueue}::uuid and ${PRESENCE_STATE_SQL} = 'online' limit 1`,
+        );
+        if (!online[0]) {
+          throw PipeError.conflito(
+            'transfer_offline_disabled',
+            'A transferência para filas e atendentes offline está desabilitada nas Configurações gerais.',
+          );
+        }
       }
     }
 

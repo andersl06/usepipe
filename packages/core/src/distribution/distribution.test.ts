@@ -156,3 +156,19 @@ describe('choice by load', () => {
     expect(chooseAgent([parado, quente], QUEUE).escolhido?.id).toBe('parado');
   });
 });
+
+describe('modo de distribuição', () => {
+  it('mais_tempo_sem_receber prefere quem está há mais tempo parado, mesmo com mais carga', () => {
+    const parado = agent({ id: 'a', ativas: 3, lastAssignmentIn: em('08:00:00') });
+    const folgado = agent({ id: 'b', ativas: 0, lastAssignmentIn: em('11:00:00') });
+    expect(chooseAgent([parado, folgado], QUEUE).escolhido?.id).toBe('b');
+    expect(chooseAgent([parado, folgado], { ...QUEUE, mode: 'menos_ativos' }).escolhido?.id).toBe('b');
+    expect(chooseAgent([parado, folgado], { ...QUEUE, mode: 'mais_tempo_sem_receber' }).escolhido?.id).toBe('a');
+  });
+
+  it('mais_tempo_sem_receber desempata pela menor carga', () => {
+    const cheio = agent({ id: 'a', ativas: 3, lastAssignmentIn: em('08:00:00') });
+    const vazio = agent({ id: 'b', ativas: 1, lastAssignmentIn: em('08:00:00') });
+    expect(chooseAgent([cheio, vazio], { ...QUEUE, mode: 'mais_tempo_sem_receber' }).escolhido?.id).toBe('b');
+  });
+});

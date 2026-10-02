@@ -13,6 +13,7 @@ import { WithSession, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import { flowOfConversation } from '../domain/queue-entry.js';
 import * as consultas from '../domain/desk/consultas.js';
+import { lerConfigAtendimento } from '../domain/management/atendimento-config.js';
 import { loadMetrics } from '../domain/desk/metrics.js';
 import * as acoesDesk from '../domain/desk/actions.js';
 import * as marcacoes from '../domain/desk/taggings.js';
@@ -64,7 +65,9 @@ export class DeskController {
     // parallel queries on it can unset the tenant's `set_config`.
     return noTenant(sessao.tenantId, async (tx) => ({
       conversations: await consultas.listConversations(tx, sessao.userId),
-      aguardando: await consultas.contarAguardando(tx, sessao.userId),
+      aguardando: (await lerConfigAtendimento(tx, sessao.tenantId)).esconderAguardando.ativo
+        ? null
+        : await consultas.contarAguardando(tx, sessao.userId),
       status: await consultas.carregarStatus(tx, sessao.userId),
       motivos: await consultas.listarMotivosDePausa(tx),
       etiquetas: await consultas.listarEtiquetas(tx),
@@ -94,7 +97,9 @@ export class DeskController {
             id: l.id,
             nome: l.name,
           })),
-          history: await consultas.listHistoryOfContact(tx, conversa.contactId, conversa.id),
+          history: (await lerConfigAtendimento(tx, sessao.tenantId)).historico.ativo
+            ? await consultas.listHistoryOfContact(tx, conversa.contactId, conversa.id)
+            : [],
         },
       };
     });
@@ -141,7 +146,8 @@ export class DeskController {
     return noTenant(sessao.tenantId, async (tx) => {
       const contato = await consultas.loadContact(tx, id);
       if (!contato) throw PipeError.naoEncontrado('contato');
-      return { contact: contato, history: await consultas.listHistoryOfContact(tx, id, null) };
+      const consulta = (await lerConfigAtendimento(tx, sessao.tenantId)).historico.ativo;
+      return { contact: contato, history: consulta ? await consultas.listHistoryOfContact(tx, id, null) : [] };
     });
   }
 

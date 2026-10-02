@@ -248,3 +248,74 @@ describe('varredura de encerramento automático', () => {
     expect((await estado(b, doB)).estado).toBe('encerrada');
   });
 });
+
+describe('configuração global e precedência (a fila vence a global)', () => {
+  let g: Cenario;
+  beforeAll(async () => {
+    g = await montarCenario(`ecg-${randomUUID().slice(0, 8)}`);
+  }, 120_000);
+  afterAll(async () => {
+    await g?.encerrar();
+  });
+
+  const tickG = (agora: Date) => runAutoClose(agora, efeitos, 100, [g.tenantId]);
+  const setGlobal = (valor: Corpo) =>
+    g.dono.execute(sql`update tenant set configuracao_atendimento = ${JSON.stringify(valor)}::jsonb where id = ${g.tenantId}::uuid`);
+
+  it('fila sem configuração usa a global: não vence antes do tempo e encerra depois', async () => {
+    await setConfig(g, null);
+    await setGlobal({ encerramentoAutomatico: config({ tempo: 20 }) });
+    const id = await conversa(g, { ultima: depois(-15) });
+    await tickG(depois(0));
+    expect((await estado(g, id)).estado).toBe('em_atendimento');
+    await tickG(depois(5));
+    expect((await estado(g, id)).estado).toBe('encerrada');
+  });
+
+  it('a fila vence: tempo próprio maior que o da global segura o encerramento', async () => {
+    await setConfig(g, config({ tempo: 60 }));
+    await setGlobal({ encerramentoAutomatico: config({ tempo: 10 }) });
+    const id = await conversa(g, { ultima: depois(-30) });
+    await tickG(depois(0));
+    expect((await estado(g, id)).estado).toBe('em_atendimento');
+    await tickG(depois(30));
+    expect((await estado(g, id)).estado).toBe('encerrada');
+  });
+
+  it('a fila desligada de propósito vence a global ligada', async () => {
+    await setConfig(g, config({ ativo: false }));
+    await setGlobal({ encerramentoAutomatico: config({ tempo: 10 }) });
+    const id = await conversa(g, { ultima: depois(-500) });
+    await tickG(depois(0));
+    expect((await estado(g, id)).estado).toBe('em_atendimento');
+  });
+
+  it('global desligada e fila sem configuração: nada encerra', async () => {
+    await setConfig(g, null);
+    await setGlobal({ encerramentoAutomatico: config({ ativo: false }) });
+    const id = await conversa(g, { ultima: depois(-500) });
+    await tickG(depois(0));
+    expect((await estado(g, id)).estado).toBe('em_atendimento');
+  });
+
+  it('Modo de Espera: ligado (padrão) pausa a contagem; desligado, a conversa em espera conta inatividade', async () => {
+    await setConfig(g, config({ tempo: 30 }));
+    await setGlobal({});
+    const id = await conversa(g, { ultima: depois(-300), estado: 'em_espera' });
+    await tickG(depois(0));
+    expect((await estado(g, id)).estado).toBe('em_espera');
+    await setGlobal({ modoEspera: { ativo: true } });
+    await tickG(depois(0));
+    expect((await estado(g, id)).estado).toBe('em_espera');
+    await setGlobal({ modoEspera: { ativo: false } });
+    await tickG(depois(0));
+    expect((await estado(g, id)).estado).toBe('encerrada');
+  });
+
+  it('regra pura: a espera só pausa quando o parâmetro pede', () => {
+    const cfg = config() as Parameters<typeof isDueForAutoClose>[0];
+    const alvo = { state: 'em_espera', lastMessageAt: T0, lastMessageOf: 'atendente', firstResponseAt: T0 };
+    expect(isDueForAutoClose(cfg, alvo, depois(60))).toBe(false);
+    expect(isDueForAutoClose(cfg, alvo, depois(60), false)).toBe(true);
+  });
+});

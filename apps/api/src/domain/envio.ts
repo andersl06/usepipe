@@ -8,6 +8,7 @@ import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
 import { exigirSemPalavrasProibidas } from './management/palavras-proibidas.js';
+import { lerConfigAtendimento } from './management/atendimento-config.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../realtime.js';
 import { enqueueDelivery } from '../queues.js';
@@ -77,6 +78,9 @@ type LineConversation = {
   channelId: string;
   channelType: string;
 };
+
+/** Emoji de verdade (apresentação em figura ou com seletor); dígitos e # não contam. */
+const TEM_EMOJI = /\p{Emoji_Presentation}|\p{Extended_Pictographic}️/u;
 
 type LinhaTemplate = {
   id: string;
@@ -187,6 +191,20 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     // agent-authored free text, including attachment captions; templates and system/bot messages bypass the filter, as in the source.
     if (pedido.agentId && !template && conteudo) {
       await exigirSemPalavrasProibidas(tx, pedido.tenantId, conteudo);
+    }
+
+    // Preferências globais de mídia (Configurações gerais): valem para o que o atendente envia, não para template nem para o sistema.
+    if (pedido.agentId && !template) {
+      const { midia } = await lerConfigAtendimento(tx, pedido.tenantId);
+      if (tipo === 'audio' && !midia.audio) {
+        throw PipeError.conflito('audio_disabled', 'O envio de áudios está desabilitado nas Configurações gerais.');
+      }
+      if (tipo !== 'audio' && (tipo === 'imagem' || tipo === 'video' || tipo === 'documento' || pedido.attachmentId) && !midia.arquivos) {
+        throw PipeError.conflito('files_disabled', 'O envio de arquivos está desabilitado nas Configurações gerais.');
+      }
+      if (conteudo && !midia.emoji && TEM_EMOJI.test(conteudo)) {
+        throw PipeError.conflito('emoji_disabled', 'O uso de emojis está desabilitado nas Configurações gerais.');
+      }
     }
 
     const { rows: criada } = await tx.execute<{ id: string }>(sql`

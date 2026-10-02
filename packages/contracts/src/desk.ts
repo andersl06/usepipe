@@ -75,8 +75,8 @@ export interface RespostaProntaDoDesk {
  */
 export interface QueueOfDesk {
   conversations: ConversationOfList[];
-  /** Waiting customers: queued conversations in this agent's queues. The Answer button takes the oldest. */
-  aguardando: number;
+  /** Waiting customers: queued conversations in this agent's queues. The Answer button takes the oldest. Null when the tenant hides the number (Configurações gerais). */
+  aguardando: number | null;
   status: StatusOfAgent;
   motivos: MotivoDePausa[];
   etiquetas: EtiquetaDoDesk[];

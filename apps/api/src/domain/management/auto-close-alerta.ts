@@ -27,6 +27,17 @@ export const INACTIVITY_REF = sql`greatest(
   )
 )`;
 
+/**
+ * Configuração efetiva de encerramento: a da fila vence; sem configuração na fila (coluna nula) vale a global do tenant. Assume os aliases `f` (fila, `left join`) e `tn` (tenant).
+ */
+export const CONFIG_EFETIVA = sql`coalesce(
+  case when jsonb_typeof(f.encerramento_automatico) = 'object' then f.encerramento_automatico end,
+  tn.configuracao_atendimento->'encerramentoAutomatico'
+)`;
+
+/** Conversa em espera só fica de fora do encerramento enquanto o Modo de Espera estiver ligado (padrão). Assume `c` e `tn`. */
+export const FORA_DA_ESPERA = sql`(c.estado <> 'em_espera' or tn.configuracao_atendimento->'modoEspera'->>'ativo' = 'false')`;
+
 export interface AlertTarget {
   state: string;
   lastMessageAt: Date | null;
@@ -36,9 +47,14 @@ export interface AlertTarget {
 }
 
 /** Regra pura: respeita as opções do encerramento, falta no máximo a antecedência, ainda não venceu e o ciclo atual não foi alertado. */
-export function isDueForAlert(config: AutoCloseConfig, conversa: AlertTarget, agora: Date): boolean {
+export function isDueForAlert(
+  config: AutoCloseConfig,
+  conversa: AlertTarget,
+  agora: Date,
+  pausarEmEspera = true,
+): boolean {
   if (!config.ativo || !config.alerta.ativo || !config.alerta.mensagem) return false;
-  if (conversa.state === 'encerrada' || conversa.state === 'em_espera' || !conversa.lastMessageAt) return false;
+  if (conversa.state === 'encerrada' || (pausarEmEspera && conversa.state === 'em_espera') || !conversa.lastMessageAt) return false;
   if (config.soSePrimeiroAtendimento && !conversa.firstResponseAt) return false;
   if (config.naoSeAguardandoAtendente && conversa.lastMessageOf === 'contato') return false;
   const limite = toMinutes(config.tempo, config.unidade);
@@ -57,24 +73,26 @@ export async function conversationsForAlert(
   const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`
     select c.tenant_id, c.id
       from conversa c
-      join fila f on f.id = c.fila_id and f.tenant_id = c.tenant_id
+      join tenant tn on tn.id = c.tenant_id
+      left join fila f on f.id = c.fila_id and f.tenant_id = c.tenant_id
+      cross join lateral (select ${CONFIG_EFETIVA} as v) cfg
       cross join lateral (select
-        case when jsonb_typeof(f.encerramento_automatico->'tempo') = 'number'
-             then (f.encerramento_automatico->>'tempo')::numeric
-                  * (case f.encerramento_automatico->>'unidade' when 'horas' then 60 else 1 end) end as tempo_min,
-        case when jsonb_typeof(f.encerramento_automatico->'alerta'->'antecedencia') = 'number'
-             then (f.encerramento_automatico->'alerta'->>'antecedencia')::numeric
-                  * (case f.encerramento_automatico->'alerta'->>'unidade' when 'horas' then 60 else 1 end) end as ant_min
+        case when jsonb_typeof(cfg.v->'tempo') = 'number'
+             then (cfg.v->>'tempo')::numeric
+                  * (case cfg.v->>'unidade' when 'horas' then 60 else 1 end) end as tempo_min,
+        case when jsonb_typeof(cfg.v->'alerta'->'antecedencia') = 'number'
+             then (cfg.v->'alerta'->>'antecedencia')::numeric
+                  * (case cfg.v->'alerta'->>'unidade' when 'horas' then 60 else 1 end) end as ant_min
       ) t
-     where c.estado not in ('encerrada', 'em_espera')
+     where c.estado <> 'encerrada' and ${FORA_DA_ESPERA}
        and (${tenants === undefined} or c.tenant_id = any(${`{${(tenants ?? []).join(',')}}`}::uuid[]))
-       and jsonb_typeof(f.encerramento_automatico) = 'object'
-       and f.encerramento_automatico->>'ativo' = 'true'
-       and f.encerramento_automatico->'alerta'->>'ativo' = 'true'
+       and jsonb_typeof(cfg.v) = 'object'
+       and cfg.v->>'ativo' = 'true'
+       and cfg.v->'alerta'->>'ativo' = 'true'
        and t.tempo_min is not null and t.ant_min is not null and t.ant_min < t.tempo_min
-       and (f.encerramento_automatico->>'soSePrimeiroAtendimento' is distinct from 'true'
+       and (cfg.v->>'soSePrimeiroAtendimento' is distinct from 'true'
             or c.primeira_resposta_em is not null)
-       and (f.encerramento_automatico->>'naoSeAguardandoAtendente' is distinct from 'true'
+       and (cfg.v->>'naoSeAguardandoAtendente' is distinct from 'true'
             or c.ultima_mensagem_de is distinct from 'contato')
        and ${INACTIVITY_REF}
              <= ${agora}::timestamptz - (t.tempo_min - t.ant_min) * interval '1 minute'
@@ -97,6 +115,7 @@ type LinhaAlerta = {
   firstResponseAt: Date | string | null;
   alertAt: Date | string | null;
   config: unknown;
+  modoEspera: string | null;
 };
 
 const data = (v: Date | string | null): Date | null => (v === null ? null : new Date(v));
@@ -113,9 +132,11 @@ export async function alertConversation(
     const { rows } = await tx.execute<LinhaAlerta>(sql`
       select c.id, c.estado as state, ${INACTIVITY_REF} as "lastMessageAt", c.criada_em as "criadaEm",
              c.ultima_mensagem_de as "lastMessageOf", c.primeira_resposta_em as "firstResponseAt",
-             c.alerta_inatividade_em as "alertAt", f.encerramento_automatico as config
+             c.alerta_inatividade_em as "alertAt", ${CONFIG_EFETIVA} as config,
+             tn.configuracao_atendimento->'modoEspera'->>'ativo' as "modoEspera"
         from conversa c
-        join fila f on f.id = c.fila_id
+        join tenant tn on tn.id = c.tenant_id
+        left join fila f on f.id = c.fila_id
        where c.id = ${c.conversationId}::uuid
          for update of c
     `);
@@ -134,7 +155,7 @@ export async function alertConversation(
       firstResponseAt: data(linha.firstResponseAt),
       alertAt: data(linha.alertAt),
     };
-    if (!isDueForAlert(config, alvo, agora)) return null;
+    if (!isDueForAlert(config, alvo, agora, linha.modoEspera !== 'false')) return null;
     await tx.execute(sql`update conversa set alerta_inatividade_em = ${agora} where id = ${linha.id}::uuid`);
     return config.alerta.mensagem;
   });

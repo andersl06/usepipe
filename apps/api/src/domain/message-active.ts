@@ -6,6 +6,7 @@ import { PipeError } from '../errors.js';
 import { registrarEvento } from './eventos.js';
 import { chooseQueueOfConversation, flowOfConversation } from './queue-entry.js';
 import { sendMessage } from './envio.js';
+import { lerConfigAtendimento } from './management/atendimento-config.js';
 import { emitir } from '../webhooks-saida.js';
 
 /**
@@ -84,12 +85,22 @@ export async function triggerMessageActive(
   if (pedido.destinos.length === 0) {
     throw PipeError.request('without_destination', 'Escolha ao menos um contato.');
   }
-  if (pedido.destinos.length > MAX_CONTACTS_BY_TRIGGER) {
-    throw PipeError.request(
-      'limit_of_contacts',
-      `O limite é de ${MAX_CONTACTS_BY_TRIGGER} contatos por disparo.`,
-      { limite: MAX_CONTACTS_BY_TRIGGER, enviados: pedido.destinos.length },
+  // Preferências globais (Configurações gerais): interruptor do envio e limite por disparo, que só reduz o teto.
+  const { mensagensAtivas } = await noTenant(pedido.tenantId, (tx) =>
+    lerConfigAtendimento(tx, pedido.tenantId),
+  );
+  if (!mensagensAtivas.ativo) {
+    throw PipeError.conflito(
+      'active_messages_disabled',
+      'O envio de mensagens ativas está desabilitado nas Configurações gerais.',
     );
+  }
+  const limite = Math.min(MAX_CONTACTS_BY_TRIGGER, mensagensAtivas.limitePorDisparo);
+  if (pedido.destinos.length > limite) {
+    throw PipeError.request('limit_of_contacts', `O limite é de ${limite} contatos por disparo.`, {
+      limite,
+      enviados: pedido.destinos.length,
+    });
   }
 
   const resultados: ResultOfDestination[] = [];

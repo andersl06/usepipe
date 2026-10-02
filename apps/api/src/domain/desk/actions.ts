@@ -8,6 +8,7 @@ import type { Campos, Resultado } from '../management/actions/campos.js';
 import { registrarEvento } from '../eventos.js';
 import { transferConversation } from '../conversation.js';
 import { queuesOfAgent, ceilingWithoutFirstResponse } from '../distribution.js';
+import { lerConfigAtendimento } from '../management/atendimento-config.js';
 
 /** The transaction already has its tenant fixed; `consultar` only names the block, as in Desk. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -144,6 +145,9 @@ export async function atender(
   _dados: Campos,
 ): Promise<Resultado & { conversationId?: string }> {
   return consultar(tx, async (tx) => {
+    if ((await lerConfigAtendimento(tx, tenantId)).distribuicao.bloquearSolicitacaoManual) {
+      return falha('A solicitação manual de tickets está desabilitada nas Configurações gerais.');
+    }
     // `for update` serializes claims per agent as described above. Online agents
     // always have this row; it records that they are online.
     const { rows: status } = await tx.execute<{ state: string }>(

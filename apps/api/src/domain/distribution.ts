@@ -4,6 +4,7 @@ import type { AgentAvailable, ChoiceDistribution, StateAgent } from '@pipe/core'
 import type { TransactionPipe } from '@pipe/db';
 import { emitir } from '../webhooks-saida.js';
 import { registrarEvento } from './eventos.js';
+import { lerConfigAtendimento } from './management/atendimento-config.js';
 
 /**
  * Status the distribution trusts: an agent without a presence signal in the last 3 minutes counts as offline (without "Continuar online", Blip drops an agent whose tab closed). The signal is `status_atendente.conectado_em`, stamped by the Desk (`infinity` with "Continuar online").
@@ -121,14 +122,24 @@ export function ceilingWithoutFirstResponse(): number | null {
   return bruto ? Number(bruto) : null;
 }
 
+/**
+ * Escolhe o atendente da fila segundo a configuração global do tenant: o modo de distribuição e o
+ * limite de atendimentos por atendente (0 desliga; vale o menor entre ele e a capacidade da fila).
+ */
 export async function chooseForQueue(
   tx: TransactionPipe,
+  tenantId: string,
   queueId: string,
 ): Promise<ChoiceDistribution> {
-  const candidatos = await candidatesOfQueue(tx, queueId);
+  const { distribuicao } = await lerConfigAtendimento(tx, tenantId);
+  const limiteGlobal = distribuicao.atendimentosPorAtendente;
+  const candidatos = (await candidatesOfQueue(tx, queueId)).map((c) =>
+    limiteGlobal > 0 ? { ...c, limiteSimultaneo: Math.min(c.limiteSimultaneo, limiteGlobal) } : c,
+  );
   return chooseAgent(candidatos, {
     queueId,
     ceilingWithoutFirstResponse: ceilingWithoutFirstResponse(),
+    mode: distribuicao.modo,
   });
 }
 
@@ -142,7 +153,7 @@ export async function distributeConversation(
   filaId: string,
   em: Date,
 ): Promise<string | null> {
-  const escolha = await chooseForQueue(tx, filaId);
+  const escolha = await chooseForQueue(tx, tenantId, filaId);
   if (!escolha.escolhido) return null;
 
   const agentId = escolha.escolhido.id;

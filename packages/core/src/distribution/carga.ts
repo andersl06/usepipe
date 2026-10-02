@@ -38,6 +38,10 @@ export interface OptionsDistribution {
   weightWaitingAgent?: number;
   /** Weight for a conversation awaiting the customer, default 1. */
   pesoAguardandoCliente?: number;
+  /**
+   * `menos_ativos` (padrão): menor carga ponderada primeiro, desempate pelo mais tempo sem receber. `mais_tempo_sem_receber`: o mais tempo sem receber primeiro, desempate pela menor carga.
+   */
+  mode?: 'menos_ativos' | 'mais_tempo_sem_receber';
 }
 
 export interface DiscardDistribution {
@@ -103,10 +107,14 @@ export function compararPreferencia(
 ): number {
   const cargaA = cargaPonderada(a, options);
   const cargaB = cargaPonderada(b, options);
-  if (cargaA !== cargaB) return cargaA - cargaB;
-
   const ociosoA = a.lastAssignmentIn === null ? -Infinity : a.lastAssignmentIn.getTime();
   const ociosoB = b.lastAssignmentIn === null ? -Infinity : b.lastAssignmentIn.getTime();
+  if (options.mode === 'mais_tempo_sem_receber') {
+    if (ociosoA !== ociosoB) return ociosoA - ociosoB;
+    if (cargaA !== cargaB) return cargaA - cargaB;
+    return compararIdentificador(a.id, b.id);
+  }
+  if (cargaA !== cargaB) return cargaA - cargaB;
   if (ociosoA !== ociosoB) return ociosoA - ociosoB;
 
   return compararIdentificador(a.id, b.id);

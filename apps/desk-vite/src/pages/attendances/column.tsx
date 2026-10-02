@@ -265,7 +265,7 @@ function AgentState({
   motivo: string | null;
   desde: string;
   agora: Date;
-  aguardando: number;
+  aguardando: number | null;
   atendendo: boolean;
   aoAtender: () => void;
   aoFicarOnline: () => void;
@@ -273,10 +273,12 @@ function AgentState({
   if (state === 'online') {
     return (
       <div className="dk-status-core">
-        <div className="dk-aguardando" id="waiting-tickets" tabIndex={0}>
-          <b id="waiting-tickets-count">{aguardando}</b>
-          <span>{aguardando === 1 ? 'Cliente' : 'Clientes'} aguardando</span>
-        </div>
+        {aguardando === null ? null : (
+          <div className="dk-aguardando" id="waiting-tickets" tabIndex={0}>
+            <b id="waiting-tickets-count">{aguardando}</b>
+            <span>{aguardando === 1 ? 'Cliente' : 'Clientes'} aguardando</span>
+          </div>
+        )}
         <div className="dk-status-buttons">
           <button
             type="button"
