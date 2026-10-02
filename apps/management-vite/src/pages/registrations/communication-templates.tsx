@@ -1,38 +1,27 @@
-import { useState } from 'react';
-import { BotaoDeIcone, Botao, Etiqueta } from '@pipe/ui';
+import { useEffect, useState, type ComponentProps } from 'react';
+import { BotaoDeIcone, Botao, Campo, Carregando, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import type { ChannelWhatsapp, TemplateListed } from '../../lib/communication';
-import {
-  ROTULO_CABECALHO,
-  ROTULO_CATEGORIA_TEMPLATE,
-  ROTULO_STATUS_META,
-  headerHasMedia,
-  headerOffset,
-  type CabecalhoTemplate,
-  type CategoriaTemplate,
-} from '../../lib/communication';
+import { ROTULO_STATUS_META, trechosDoModelo } from '../../lib/communication';
 import { channelDeleteTemplate, channelSyncTemplates } from '../../lib/channels-gravar';
-import { ListaRegras, type RulesSection } from '../../components/lista-regras';
 import { Select } from '@pipe/ui/select';
-import { ConfirmModal } from '@pipe/ui/modal';
+import { Modal, ConfirmModal } from '@pipe/ui/modal';
+import { Pagination, type PaginationState } from '@pipe/ui/pagination';
+import { Tabela } from '@pipe/ui';
 import { TemplateForm } from './communication-templates-formulario';
+import { AVISO_EM_BREVE } from './communication-respostas-formulario';
 
-/**
- * "Status" filter options — `FICHA-message-template.md` §3 documents "Habilitado"/"Desabilitado" at the source, but that's THEIR LOCAL on/off toggle; our `statusMeta` is something else (the template's Meta approval status, `ROTULO_STATUS_META`) — there's no "habilitado" here to translate. The filter uses the options the screen already shows on each card (§4 "Status na Meta"), in the same documented POSITION ("Filtrar por:", before the search).
- */
-const OPTIONS_STATUS = Object.keys(ROTULO_STATUS_META);
-
-/**
- * Real trigger positions, readable directly on the card: without a media header it's `{{1}}, {{2}}…`; with media, each one shifts by +1 and the card already shows the shifted number — it's the rule from the task's §"modelos" section, visible on the registration screen, not just in the sending code (`apps/workers/src/whatsapp/template.ts`).
- */
-function triggerPositions(cabecalho: string, quantity: number): string {
-  if (quantity === 0) return 'nenhuma';
-  const offset = headerOffset(cabecalho);
-  const positions = Array.from({ length: quantity }, (_, i) => i + 1 + offset);
-  return positions.map((p) => `{{${p}}}`).join(', ');
+interface RespostaDaLista {
+  modelos: TemplateListed[];
+  channels: ChannelWhatsapp[];
+  total: number;
+  pagina: number;
+  porPagina: number;
 }
 
-/** "Sincronizar com a Meta" — one button per channel, `POST .../modelos/sincronizar`. */
+const OPTIONS_STATUS = Object.keys(ROTULO_STATUS_META);
+
+/** "Sincronizar com a Meta": um botão por canal, `POST .../modelos/sincronizar`. */
 function SyncBar({ channels }: { channels: ChannelWhatsapp[] }) {
   const [sincronizando, setSincronizando] = useState<string | null>(null);
   const [resultado, setResultado] = useState<{ channel: string; texto: string; error?: boolean } | null>(null);
@@ -59,12 +48,7 @@ function SyncBar({ channels }: { channels: ChannelWhatsapp[] }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-e-2)' }}>
       <div style={{ display: 'flex', gap: 'var(--p-e-2)', flexWrap: 'wrap' }}>
         {channels.map((c) => (
-          <Botao
-            key={c.id}
-            type="button"
-            disabled={sincronizando === c.id}
-            onClick={() => void sincronizar(c)}
-          >
+          <Botao key={c.id} type="button" disabled={sincronizando === c.id} onClick={() => void sincronizar(c)}>
             {sincronizando === c.id ? 'Sincronizando…' : `Sincronizar "${c.name}" com a Meta`}
           </Botao>
         ))}
@@ -78,17 +62,62 @@ function SyncBar({ channels }: { channels: ChannelWhatsapp[] }) {
   );
 }
 
-export function PageTemplates() {
-  const read = useRead<{ modelos: TemplateListed[]; channels: ChannelWhatsapp[] }>(
-    '/v1/management/communication/templates',
+/** O texto do modelo como texto React; `{{n}}` ganha destaque, nunca vira HTML. */
+function TextoDoModelo({ texto, className }: { texto: string; className: string }) {
+  return (
+    <span className={className}>
+      {trechosDoModelo(texto).map((t, i) =>
+        t.variavel ? (
+          <span key={i} className="modelo-variavel">
+            {t.texto}
+          </span>
+        ) : (
+          t.texto
+        ),
+      )}
+    </span>
   );
+}
+
+/**
+ * Modelos de mensagens. A lista vem paginada do servidor (um bot chega a ~1.490 modelos), com busca
+ * por nome e filtro de status no banco. "Fluxo de retorno" e o interruptor de Status da Blip dependem
+ * de campos que o modelo não tem hoje; ficam desabilitados com o aviso padrão.
+ */
+export function PageTemplates() {
+  const [busca, setBusca] = useState('');
+  const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
+  const [pg, setPg] = useState({ page: 1, byPage: 25 });
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setQ(busca.trim());
+      setPg((p) => ({ ...p, page: 1 }));
+    }, 300);
+    return () => clearTimeout(t);
+  }, [busca]);
+
+  const consulta = new URLSearchParams({ pagina: String(pg.page), porPagina: String(pg.byPage) });
+  if (q) consulta.set('q', q);
+  if (status) consulta.set('status', status);
+  const read = useRead<RespostaDaLista>(`/v1/management/communication/templates?${consulta}`, {
+    placeholderData: (anterior) => anterior,
+  });
+  const [aberto, setAberto] = useState<TemplateListed | null>(null);
   const [paraExcluir, setParaExcluir] = useState<TemplateListed | null>(null);
   const [excluindo, setExcluindo] = useState(false);
   const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
-  if (!read.data) return null;
-  const { modelos: todosOsModelos, channels } = read.data;
-  const modelos = status ? todosOsModelos.filter((m) => m.statusMeta === status) : todosOsModelos;
+  if (read.isError) return <Etiqueta tom="erro">Não foi possível carregar os modelos de mensagem.</Etiqueta>;
+  if (!read.data) return <Carregando />;
+  const { modelos, channels, total } = read.data;
+
+  const estado: PaginationState = {
+    page: pg.page,
+    byPage: pg.byPage,
+    total,
+    setPage: (page) => setPg((p) => ({ ...p, page })),
+    setByPage: (byPage) => setPg({ page: 1, byPage }),
+  };
 
   async function excluir() {
     if (!paraExcluir) return;
@@ -103,87 +132,98 @@ export function PageTemplates() {
     setParaExcluir(null);
   }
 
-  const sections: RulesSection[] = [
+  const colunas: ComponentProps<typeof Tabela<TemplateListed>>['colunas'] = [
+    { key: 'nome', rotulo: 'Nome', celula: (m) => m.name },
+    { key: 'idioma', rotulo: 'Idioma', celula: (m) => m.idioma },
     {
-      titulo: 'Modelos de mensagem',
-      /*
-       * Their empty-state literal text (`FICHA-message-template.md` §6), pointing to where the template gets registered — here, the form right below the list.
-       */
-      empty: 'Ainda não foram cadastrados modelos de mensagem válidos para este chatbot!',
-      emptyDescription: 'Crie novos modelos no formulário abaixo, ou sincronize com a Meta.',
-      cards: modelos.map((m) => ({
-        id: m.id,
-        campos: [
-          { rotulo: 'Nome', value: m.name },
-          { rotulo: 'Idioma', value: m.idioma },
-          {
-            rotulo: 'Categoria',
-            value: ROTULO_CATEGORIA_TEMPLATE[m.category as CategoriaTemplate] ?? m.category,
-          },
-          { rotulo: 'Canal', value: m.channelName },
-          {
-            rotulo: 'Cabeçalho',
-            value: ROTULO_CABECALHO[m.headerType as CabecalhoTemplate] ?? m.headerType,
-          },
-          {
-            rotulo: headerHasMedia(m.headerType)
-              ? 'Variáveis (cabeçalho desloca +1)'
-              : 'Variáveis',
-            value: triggerPositions(m.headerType, m.variables.length),
-          },
-          { rotulo: 'Status na Meta', value: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta },
-        ],
-        situation: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta,
-        active: m.statusMeta === 'aprovado',
-        procura: `${m.name} ${m.idioma} ${m.category} ${m.channelName}`.toLowerCase(),
-        acao: (
-          <BotaoDeIcone nome="x" rotulo={`Excluir o modelo ${m.name}`} onClick={() => setParaExcluir(m)} />
-        ),
-      })),
+      key: 'mensagem',
+      rotulo: 'Mensagem',
+      celula: (m) => (
+        <>
+          <TextoDoModelo texto={m.body} className="modelo-previa" />{' '}
+          <button type="button" className="modelo-abrir" onClick={() => setAberto(m)}>
+            abrir
+          </button>
+        </>
+      ),
+    },
+    {
+      key: 'fluxo',
+      rotulo: 'Fluxo de retorno',
+      celula: () => (
+        <span className="sub" title={AVISO_EM_BREVE}>
+          —
+        </span>
+      ),
+    },
+    { key: 'status', rotulo: 'Status', celula: (m) => ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta },
+    {
+      key: 'acoes',
+      rotulo: '',
+      celula: (m) => <BotaoDeIcone nome="lixeira" rotulo="Excluir" onClick={() => setParaExcluir(m)} />,
     },
   ];
 
+  const filtrando = Boolean(q || status);
+
   return (
     <>
-      {/*
- * `FICHA-message-template.md` §2.1: header WITHOUT a button — the area to the right of the title stays empty in Blip, because there the template is registered under "Conteúdos > Modelo de mensagem" (§5), a screen that doesn't exist in Pipe today. Since there's nowhere to send that creation, the form stays here — it just moved below the list, so the top of the page matches theirs before reaching the part that's ours alone.
- */}
       <div className="board-head">
         <h2>Modelos de mensagens</h2>
       </div>
 
       <SyncBar channels={channels} />
 
-      {/*
- * §2.2/§2.3: inside the content panel, the title repeats and the "Filtrar por:" line comes BEFORE the search. "Fluxo de retorno" (§3) is left out — the source captured that filter with `options="[]"` (even they had nothing there), and Pipe has no such concept. "Status" also isn't the same field (theirs is a local enabled/disabled toggle; ours is the Meta approval status), but it occupies the same position with the real data the screen already shows on each card.
- */}
       <div className="panel-templates">
         <h3>Modelos de mensagens</h3>
+        <div className="filtros-modelos" style={{ display: 'flex', gap: 'var(--p-e-2)', alignItems: 'center' }}>
+          <span className="filtrar-rotulo">Filtrar por:</span>
+          <Select value="" disabled aria-label="Fluxo de retorno" title={AVISO_EM_BREVE} onChange={() => {}}>
+            <option value="">Fluxo de retorno</option>
+          </Select>
+          <Select
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setPg((p) => ({ ...p, page: 1 }));
+            }}
+            aria-label="Status"
+          >
+            <option value="">Status</option>
+            {OPTIONS_STATUS.map((s) => (
+              <option key={s} value={s}>
+                {ROTULO_STATUS_META[s]}
+              </option>
+            ))}
+          </Select>
+          <Campo
+            type="search"
+            aria-label="Pesquise pelo nome do modelo de mensagem"
+            placeholder="Pesquise pelo nome do modelo de mensagem"
+            value={busca}
+            maxLength={100}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+        </div>
 
-        {/*
- * Their row: "Filtrar por:", the selectors, and the search on the right taking up 69% — with the literal placeholder "Pesquise pelo nome do modelo de mensagem" (§3).
- */}
-        <ListaRegras
-          sections={sections}
-          placeholder="Pesquise pelo nome do modelo de mensagem"
-          sectionHideHeader
-          filters={
-            <>
-              <span className="filtrar-rotulo">Filtrar por:</span>
-              <Select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
-                <option value="">Status</option>
-                {OPTIONS_STATUS.map((s) => (
-                  <option key={s} value={s}>
-                    {ROTULO_STATUS_META[s]}
-                  </option>
-                ))}
-              </Select>
-            </>
+        <Tabela
+          colunas={colunas}
+          linhas={modelos}
+          rowKey={(m) => m.id}
+          empty={
+            filtrando
+              ? 'Nenhum modelo de mensagem encontrado para esse filtro.'
+              : 'Ainda não foram cadastrados modelos de mensagem válidos para este chatbot! Crie novos modelos no formulário abaixo, ou sincronize com a Meta.'
           }
         />
+        <Pagination layout="grade" state={estado} afastado />
       </div>
 
       <TemplateForm channels={channels} />
+
+      <Modal aberto={aberto !== null} titulo={`Modelo "${aberto?.name ?? ''}"`} onFechar={() => setAberto(null)}>
+        {aberto ? <TextoDoModelo texto={aberto.body} className="modelo-texto" /> : null}
+      </Modal>
 
       <ConfirmModal
         aberto={paraExcluir !== null}

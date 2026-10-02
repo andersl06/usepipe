@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
+import { Botao, Campo, Etiqueta } from '@pipe/ui';
+import { Select } from '@pipe/ui/select';
 import { createTemplateInChannel } from '../../lib/channels-gravar';
 
 /**
@@ -115,7 +116,7 @@ export function TemplateForm({ channels }: { channels: { id: string; name: strin
         <form onSubmit={(e) => { e.preventDefault(); void enviar(); }} style={column}>
           <label style={rotulo}>
             <span className="sub">Canal</span>
-            <Seletor value={channelId} onChange={(e) => setChannelId(e.target.value)} required disabled={enviando}>
+            <Select value={channelId} onChange={(e) => setChannelId(e.target.value)} required disabled={enviando}>
               <option value="" disabled>
                 Escolha o canal
               </option>
@@ -124,7 +125,7 @@ export function TemplateForm({ channels }: { channels: { id: string; name: strin
                   {c.name}
                 </option>
               ))}
-            </Seletor>
+            </Select>
           </label>
 
           <label style={rotulo}>
@@ -145,7 +146,7 @@ export function TemplateForm({ channels }: { channels: { id: string; name: strin
 
           <label style={rotulo}>
             <span className="sub">Categoria (é da Meta, muda o custo — não é campo livre)</span>
-            <Seletor
+            <Select
               value={categoria}
               onChange={(e) => setCategoria(e.target.value as (typeof CATEGORIAS)[number])}
               required
@@ -159,12 +160,12 @@ export function TemplateForm({ channels }: { channels: { id: string; name: strin
                   {ROTULO_CATEGORIA[c]}
                 </option>
               ))}
-            </Seletor>
+            </Select>
           </label>
 
           <label style={rotulo}>
             <span className="sub">Cabeçalho</span>
-            <Seletor
+            <Select
               value={cabecalhoTipo}
               onChange={(e) => setCabecalhoTipo(e.target.value as Cabecalho)}
               disabled={enviando}
@@ -174,7 +175,7 @@ export function TemplateForm({ channels }: { channels: { id: string; name: strin
                   {ROTULO_CABECALHO[c]}
                 </option>
               ))}
-            </Seletor>
+            </Select>
           </label>
 
           {cabecalhoTipo === 'texto' ? (
