@@ -13,6 +13,7 @@ import {
   nameError,
   listState,
   idiomasRepetidos,
+  actionIncomplete,
   templateValid,
   blockShowChoice,
   mostrarVoltar,
@@ -680,11 +681,13 @@ function TextCard({
                 <span>{botao}</span>
               </div>
             ))}
-            {translation.acoes.map((acao, i) => (
-              <div className="ct-card-reply" key={`a${i}`}>
-                <span>{acao.texto}</span>
-              </div>
-            ))}
+            {translation.acoes
+              .filter((acao) => acao.texto.trim() || acao.valor.trim())
+              .map((acao, i) => (
+                <div className="ct-card-reply" key={`a${i}`}>
+                  <span>{acao.texto}</span>
+                </div>
+              ))}
           </div>
         ) : null}
       </section>
@@ -834,11 +837,12 @@ function TemplateButtons({
             />
             {acao.texto.length > 20 ? <span className="ct-error">Máximo de 20 caracteres</span> : null}
             <input
-              className="ct-card-input"
+              className={actionIncomplete(acao) ? 'ct-card-input ct-card-input--invalid' : 'ct-card-input'}
               placeholder={acao.tipo === 'url' ? 'https://exemplo.com' : '+5531999999999'}
               value={acao.valor}
               onChange={(evento) => muda(i, { valor: evento.target.value })}
             />
+            {actionIncomplete(acao) ? <span className="ct-error">Preencha o texto e a URL/telefone</span> : null}
           </div>
         ))}
         {acoes.length < 3 ? (

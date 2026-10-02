@@ -5,6 +5,7 @@ import {
   headerHasMedia,
   headerOffset,
 } from '../src/lib/communication.ts';
+import { actionIncomplete, translationsValid } from '../src/pages/flow/contents/regras.ts';
 import { templatePayload } from '../src/lib/template-payload.ts';
 
 /**
@@ -72,6 +73,20 @@ test('templatePayload sends footer, quick replies and action buttons, and drops 
       { tipo: 'url', texto: 'Site', url: 'https://pipe.exemplo' },
       { tipo: 'telefone', texto: 'Ligar', telefone: '+5531999999999' },
     ],
+  );
+});
+
+test('ação de template incompleta invalida o envio e não é descartada em silêncio', () => {
+  assert.equal(actionIncomplete({ texto: 'Site', valor: '' }), true);
+  assert.equal(actionIncomplete({ texto: '', valor: 'https://x' }), true);
+  assert.equal(actionIncomplete({ texto: '', valor: '' }), false);
+  assert.equal(actionIncomplete({ texto: 'Site', valor: 'https://x' }), false);
+  const t = (valor: string) => [{ idioma: 'pt_BR', texto: 'oi', acoes: [{ texto: 'Site', valor }] }];
+  assert.equal(translationsValid('texto', 'utilidade', t('')), false);
+  assert.equal(translationsValid('texto', 'utilidade', t('https://x')), true);
+  assert.throws(
+    () => templatePayload(base, { ...traducao, acoes: [{ tipo: 'url', texto: 'Site', valor: '' }] }),
+    /sem texto ou sem URL/,
   );
 });
 

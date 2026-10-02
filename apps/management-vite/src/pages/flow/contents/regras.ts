@@ -85,6 +85,12 @@ export function nameError(
 export interface Translation {
   idioma: string;
   texto: string;
+  acoes?: readonly { texto: string; valor: string }[];
+}
+
+/** Ação com só um dos dois campos preenchidos; a totalmente vazia é ignorada no envio. */
+export function actionIncomplete(a: { texto: string; valor: string }): boolean {
+  return Boolean(a.texto.trim()) !== Boolean(a.valor.trim());
 }
 
 /** `areTranslationsValid` for the types Pipe models (text and media require language + text). */
@@ -93,6 +99,7 @@ export function translationsValid(
   categoria: Categoria | '',
   translations: readonly Translation[],
 ) {
+  if (translations.some((t) => t.acoes?.some(actionIncomplete))) return false;
   if (categoria === 'autenticacao') return translations.every((t) => t.idioma);
   if (tipo === 'default') return false;
   return translations.every((t) => t.idioma && t.texto);

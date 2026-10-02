@@ -24,15 +24,17 @@ export function templatePayload(
   t: TranslationToSend,
 ): TemplateRequest {
   const rodape = t.rodape.trim();
+  const acoes = t.acoes.filter((a) => a.texto.trim() || a.valor.trim());
+  if (acoes.some((a) => !a.texto.trim() || !a.valor.trim())) {
+    throw new Error('Ação do template sem texto ou sem URL/telefone.');
+  }
   const botoes: NonNullable<TemplateRequest['botoes']> = [
     ...t.buttons.filter((b) => b.trim()).map((b) => ({ tipo: 'resposta' as const, texto: b.trim() })),
-    ...t.acoes
-      .filter((a) => a.texto.trim() && a.valor.trim())
-      .map((a) =>
-        a.tipo === 'url'
-          ? { tipo: 'url' as const, texto: a.texto.trim(), url: a.valor.trim() }
-          : { tipo: 'telefone' as const, texto: a.texto.trim(), telefone: a.valor.trim() },
-      ),
+    ...acoes.map((a) =>
+      a.tipo === 'url'
+        ? { tipo: 'url' as const, texto: a.texto.trim(), url: a.valor.trim() }
+        : { tipo: 'telefone' as const, texto: a.texto.trim(), telefone: a.valor.trim() },
+    ),
   ];
   return {
     name: tela.nome,
