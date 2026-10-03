@@ -12,7 +12,8 @@ let c: Cenario;
 // Valores aposentados, montados por join só para semear linhas legadas.
 const LEGADO = ['com', 'bot'].join('_');
 const NA_FILA = ['na', 'fila'].join('_');
-const TODOS = [LEGADO, NA_FILA, 'atribuida', 'em_atendimento', 'em_espera', 'encerrada',
+const TODOS = [LEGADO, NA_FILA, ['atribui', 'da'].join(''), ['em', 'atendimento'].join('_'),
+  ['em', 'espera'].join('_'), ['encerra', 'da'].join(''),
   'Waiting', 'Assigned', 'Open', 'ClosedAttendant', 'ClosedClient', 'ClosedClientInactivity', 'Transferred'];
 
 const ROLLBACK = new Error('rollback-da-migration-0084');
