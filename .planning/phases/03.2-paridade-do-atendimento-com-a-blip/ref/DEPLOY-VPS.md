@@ -56,3 +56,18 @@ Não testado: conversa real pelo Builder até o Desk, login Google pela tela, en
 - Cadastrar o callback do Google no console (herdado: `https://pipe.144-217-164-204.sslip.io/v1/auth/google/callback`) se o login ainda não funciona.
 - Testar de ponta a ponta com um bot real; aprovar (ou não) os portões das Ondas 2 a 4 da 03.2.
 - `git push origin limpeza` (o GitHub não tem os commits desta branch; o deploy usou o pacote local).
+
+## Correção do login (2026-10-03): 404 em `login.144-217-164-204.sslip.io`
+
+**Sintoma:** abrir `https://pipe.144-217-164-204.sslip.io/` sem sessão levava a `https://login.144-217-164-204.sslip.io/?returnTo=...`, que responde "404 page not found" (página padrão do Traefik: nenhum roteador atende esse host).
+
+**Causa:** o front calculava o domínio base pelo endereço do navegador, tirando o primeiro rótulo (`deriveBaseDomain`). Com a base real do servidor tendo um rótulo a mais (`PIPE_DOMINIO_CONTAS=pipe.144-217-164-204.sslip.io`), o apex era lido como o inquilino `pipe` de `144-217-164-204.sslip.io`, e o login central saía em `login.144-217-164-204.sslip.io`. O servidor e o Traefik usam `login.pipe.144-217-164-204.sslip.io`. O erro veio com a funcionalidade de subdomínio por inquilino (spec de 2026-09-29), já presente na imagem `048612e3`.
+
+**Correção** (commit `5789a7bb`): `deriveBaseDomain(hostname, configuredBase?)`. O front recebe `VITE_PIPE_DOMINIO_CONTAS` em tempo de build (mesmo valor de `PIPE_DOMINIO_CONTAS`). O próprio domínio base passa a ser o apex (sem inquilino, modo comum do front, com o login da página `/login`); hosts sob a base resolvem para ela. Teste novo em `packages/contracts/tests/tenant-host.test.ts`.
+
+**Publicação:** só management e desk foram reconstruídos, com `--build-arg VITE_PIPE_DOMINIO_CONTAS=pipe.144-217-164-204.sslip.io` e a tag `e29ac54c-login`; api e workers ficaram em `e29ac54c`. Compose anterior guardado em `~/pipe/docker-compose.yml.antes-login-*`. Para voltar: trocar as duas tags para `e29ac54c` (as imagens continuam no disco).
+
+**Verificado sem navegador:** a base está embutida nos bundles novos (e ausente no antigo); o cálculo devolve `null` para o apex e a base para `login.*` e `<slug>.*`; `GET /v1/auth/google/start` no apex responde 302 para `login.pipe.144-217-164-204.sslip.io`; esse host responde 200.
+**Não verificado:** o redirecionamento no navegador (a extensão do Chrome não estava conectada) e o login Google completo.
+
+**Pendência do dono:** `GOOGLE_URL_RETORNO` aponta para `https://login.pipe.144-217-164-204.sslip.io/v1/auth/google/callback`. Esse endereço (com `login.pipe.`) precisa estar cadastrado no console do Google; o cadastro herdado do handoff era `pipe.144-217-164-204.sslip.io/v1/auth/google/callback`, sem `login.`. Sem isso o Google responde `redirect_uri_mismatch`.
