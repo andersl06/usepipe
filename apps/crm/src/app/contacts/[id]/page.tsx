@@ -26,11 +26,13 @@ export const dynamic = 'force-dynamic';
  */
 
 const LABEL_STATE: Record<string, string> = {
-  na_fila: 'Na fila',
-  atribuida: 'Atribuída',
-  em_atendimento: 'Em atendimento',
-  em_espera: 'Em espera',
-  encerrada: 'Encerrada',
+  Waiting: 'Na fila',
+  Assigned: 'Atribuída',
+  Open: 'Em atendimento',
+  ClosedAttendant: 'Encerrada pelo atendente',
+  ClosedClient: 'Encerrada pelo cliente',
+  ClosedClientInactivity: 'Encerrada por inatividade',
+  Transferred: 'Transferida',
 };
 
 const ABAS = [
@@ -159,12 +161,12 @@ export default async function PageContact({
                       <span className="quando">{dataHora(c.criadaEm, fuso)}</span>
                       <span>
                         <span className="t">
-                          {c.categoria ?? LABEL_STATE[c.state] ?? c.state}
+                          {c.categoria ?? (c.standby ? 'Em espera' : (LABEL_STATE[c.state] ?? c.state))}
                         </span>
                         {c.queue ? <span className="quem"> · {c.queue}</span> : null}
                         {c.agent ? <span className="quem"> · {c.agent}</span> : null}
                         {c.encerradaEm ? null : (
-                          <span className="quem"> · {LABEL_STATE[c.state] ?? c.state}</span>
+                          <span className="quem"> · {c.standby ? 'Em espera' : (LABEL_STATE[c.state] ?? c.state)}</span>
                         )}
                       </span>
                       {c.resumo ? <div className="resumo">{c.resumo}</div> : null}

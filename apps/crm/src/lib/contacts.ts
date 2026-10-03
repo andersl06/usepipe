@@ -102,6 +102,7 @@ export interface ContactConversation {
   queue: string | null;
   agent: string | null;
   state: string;
+  standby: boolean;
   categoria: string | null;
   resumo: string | null;
   criadaEm: Date | null;
@@ -165,6 +166,7 @@ export async function loadContact(id: string): Promise<ContactRecord | null> {
         queue: queue.nome,
         agent: user.nome,
         state: conversation.state,
+        emEsperaDesde: conversation.emEsperaDesde,
         categoria: classificationConversation.categoria,
         resumo: classificationConversation.resumo,
         criadaEm: conversation.criadaEm,
@@ -183,7 +185,8 @@ export async function loadContact(id: string): Promise<ContactRecord | null> {
       nome: cabeca.nome ?? 'Contato sem nome',
       criadoEm: paraData(cabeca.criadoEm),
       atributos: (cabeca.atributos ?? {}) as Record<string, unknown>,
-      conversations: conversations.map((c) => ({
+      conversations: conversations.map(({ emEsperaDesde, ...c }) => ({
+        standby: c.state === 'Open' && emEsperaDesde !== null,
         ...c,
         criadaEm: paraData(c.criadaEm),
         encerradaEm: paraData(c.encerradaEm),
