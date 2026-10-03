@@ -6,6 +6,7 @@ import { useSession } from '../context/session';
 import { executar } from '../lib/actions';
 import { IconeDesk, type NomeDeIconeDesk } from './icones-desk';
 import { Avatar } from './avatar';
+import { AGENT_STATUS_LABELS } from '../lib/situation';
 
 /**
  * Reference vertical rail (`~/desk-clone/templates/navbar.html`, `navbar-menu-item.html`, `navbar-avatar.html`): brand at the top; five destinations; help, preferences, and presence avatar at the bottom. Order and icons follow the clone README (`message-talk`, `paperplane`, `monitoring`, `contact`, `ticket`; `question`, `settings-general`), and tooltips use its `$t(name)` labels. Clicking the avatar opens `profile-side-menu` beside the rail at 300px, pushing the columns as measured in `desk2/blip-menu-status.png`.
@@ -19,12 +20,6 @@ const DESTINOS: { para: string; icone: NomeDeIconeDesk; rotulo: string }[] = [
 ];
 
 
-export const ROTULOS_DE_STATUS: Record<StateAgent, string> = {
-  online: 'Online',
-  pausa: 'Em pausa',
-  invisivel: 'Invisível',
-  offline: 'Offline',
-};
 
 export function Rail({
   aberto,
@@ -35,7 +30,7 @@ export function Rail({
 }) {
   const { eu } = useSession();
   const queue = useRead<QueueOfDesk>('/v1/desk/queue');
-  const state: StateAgent = queue.data?.status.estado ?? 'offline';
+  const state: StateAgent = queue.data?.status.estado ?? 'Offline';
   const { pathname } = useLocation();
 
   return (
@@ -83,13 +78,13 @@ export function Rail({
             <button
               type="button"
               className="dk-rail-avatar"
-              title={`Seu status é: ${ROTULOS_DE_STATUS[state]}`}
-              aria-label={`Opções de status. Seu status é: ${ROTULOS_DE_STATUS[state]}`}
+              title={`Seu status é: ${AGENT_STATUS_LABELS[state]}`}
+              aria-label={`Opções de status. Seu status é: ${AGENT_STATUS_LABELS[state]}`}
               aria-expanded={aberto}
               onClick={() => aoAbrir(!aberto)}
             >
               <Avatar nome={eu?.user.nome} tamanho={32} />
-              <span className="dk-presenca" data-status={state} />
+              <span className="dk-presenca" data-status={state.toLowerCase()} />
             </button>
           </li>
         </ul>
@@ -136,7 +131,7 @@ function StatusPanel({
     else aoFechar();
   }
 
-  const options: StateAgent[] = ['online', 'pausa', 'invisivel'];
+  const options: StateAgent[] = ['Online', 'Pause', 'Invisible'];
 
   return (
     <aside className="dk-status-panel" aria-label="Seu status">
@@ -177,13 +172,13 @@ function StatusPanel({
                   <button
                     type="button"
                     role="menuitemradio"
-                    aria-checked={state === 'pausa' && motivoAtual === m.nome}
+                    aria-checked={state === 'Pause' && motivoAtual === m.nome}
                     className="dk-status-option"
-                    onClick={() => void mudar('pausa', m.id)}
+                    onClick={() => void mudar('Pause', m.id)}
                   >
                     <span className="dk-status-ponto" data-status="paused" />
                     <span className="dk-status-rotulo">{m.nome}</span>
-                    {state === 'pausa' && motivoAtual === m.nome ? (
+                    {state === 'Pause' && motivoAtual === m.nome ? (
                       <IconeDesk nome="check" />
                     ) : null}
                   </button>
@@ -203,12 +198,12 @@ function StatusPanel({
                   role="menuitemradio"
                   aria-checked={state === o}
                   className="dk-status-option"
-                  onClick={() => (o === 'pausa' ? setEscolhendoPausa(true) : void mudar(o))}
+                  onClick={() => (o === 'Pause' ? setEscolhendoPausa(true) : void mudar(o))}
                 >
-                  <span className="dk-status-ponto" data-status={o} />
+                  <span className="dk-status-ponto" data-status={o.toLowerCase()} />
                   <span className="dk-status-rotulo">
-                    {ROTULOS_DE_STATUS[o]}
-                    {o === 'pausa' && state === 'pausa' && motivoAtual ? ` · ${motivoAtual}` : ''}
+                    {AGENT_STATUS_LABELS[o]}
+                    {o === 'Pause' && state === 'Pause' && motivoAtual ? ` · ${motivoAtual}` : ''}
                   </span>
                   {state === o ? <IconeDesk nome="check" /> : null}
                 </button>

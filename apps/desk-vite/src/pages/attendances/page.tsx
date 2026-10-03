@@ -84,7 +84,7 @@ export function PageAttendances() {
             <div className="dk-girando" aria-hidden="true" />
           </div>
         </div>
-      ) : (state === 'invisivel' || state === 'pausa') && queue.data.conversations.length === 0 ? (
+      ) : (state === 'Invisible' || state === 'Pause') && queue.data.conversations.length === 0 ? (
         <div className="dk-conversation">
           <div className="dk-conversation-empty">
             <div className="dk-illustration" aria-hidden="true">
@@ -92,7 +92,7 @@ export function PageAttendances() {
             </div>
             <h1 className="dk-conversa-titulo">Fique online para atender</h1>
             <p>
-              {state === 'pausa'
+              {state === 'Pause'
                 ? 'Você está em pausa.'
                 : 'Você está invisível e não consigo te ver (rimou!)'}
             </p>

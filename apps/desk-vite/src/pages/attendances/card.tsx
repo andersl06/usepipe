@@ -7,6 +7,7 @@ import { executar } from '../../lib/actions';
 import { channelOf, numeroDoTicket } from '../../lib/channel';
 import { cronometro, horarioRelativo } from '../../lib/format';
 import { fixada, naoLida, displayName } from '../../lib/order';
+import { isClosedTicket } from '../../lib/situation';
 
 /**
  * Reference `<article class="chat-list-item">` list card (`~/desk-clone/capturas/parciais/card-lista.html`, `templates/chat-list-item.html`): upper `.ticket-content` has a `small` avatar and channel badge, name and relative time, message preview, and alert line; lower `.ticket-info` has info icon, `#N`, queue name, and ⋮ menu. Name and preview use `bold="bold"` when unread. The source `TicketMenuOptions` (`PIN`/`UNPIN`, `UNREAD`/`READ`, `blip-desk-regras-tecnicas.md` §1.8) pins and marks unread per agent via `POST /v1/desk/acoes/fixar` and `/marcarNaoLida`. `Modo de Espera` stays in the open-conversation menu.
@@ -44,7 +45,7 @@ export function Card({
     const r = await executar(acao, campos);
     if (!r.ok) aoFalhar?.(r.error ?? 'Não foi possível marcar a conversa.');
   }
-  const emEspera = conversation.estado === 'em_espera';
+  const emEspera = conversation.emStandby;
   const segundosEmEspera =
     emEspera && conversation.emEsperaDesde
       ? (agora.getTime() - new Date(conversation.emEsperaDesde).getTime()) / 1000
@@ -78,7 +79,7 @@ export function Card({
             </h1>
             <span className="dk-card-hour">
               {ultima ? horarioRelativo(ultima, agora) : ''}
-              {conversation.estado === 'encerrada' ? (
+              {isClosedTicket(conversation.estado) ? (
                 <span className="dk-card-status" title="Cliente encerrou o atendimento">
                   <IconeDesk nome="encerrado-pelo-cliente" />
                 </span>

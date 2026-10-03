@@ -13,6 +13,7 @@ import { useRead } from '../../lib/query';
 import { atualizarLeituras } from '../../lib/actions';
 import { numeroDoTicket } from '../../lib/channel';
 import { displayName } from '../../lib/order';
+import { isClosedTicket } from '../../lib/situation';
 import { Thread } from './thread';
 import { Composer } from './composer';
 import { CardClosureTicket, avisarTicketFinalizado } from '@pipe/ui';
@@ -196,7 +197,7 @@ export function Conversation({
                     onClick={() => void alternarEspera()}
                   >
                     <IconeDesk nome="pausa" tamanho={20} />
-                    {conversation.state === 'em_espera'
+                    {conversation.emStandby
                       ? 'Remover do Modo de Espera'
                       : 'Modo de Espera'}
                   </button>
@@ -241,7 +242,7 @@ export function Conversation({
           </div>
         </div>
         <div className="dk-divisor" />
-        {conversation.state !== 'encerrada' ? (
+        {!isClosedTicket(conversation.state) ? (
           <>
             <div className="dk-etiquetas">
               <button

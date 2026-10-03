@@ -12,7 +12,7 @@ import {
   ordenar,
   type Filter,
 } from '../../lib/order';
-import { ROTULOS_DE_STATUS } from '../../components/rail';
+import { AGENT_STATUS_LABELS } from '../../lib/situation';
 import { Card } from './card';
 
 /**
@@ -37,7 +37,7 @@ export function Column({
   const [atendendo, setAtendendo] = useState(false);
 
   const state = queue.status.estado;
-  const online = state === 'online';
+  const online = state === 'Online';
   const totals = useMemo(() => contagens(queue.conversations, agora), [queue.conversations, agora]);
   const visiveis = useMemo(
     () => ordenar(buscar(applyFilter(queue.conversations, filter, agora), termo), 'ultima-mensagem'),
@@ -59,7 +59,7 @@ export function Column({
 
   async function ficarOnline() {
     setError(null);
-    const r = await executar('definirStatus', { state: 'online' });
+    const r = await executar('definirStatus', { state: 'Online' });
     if (!r.ok) setError(r.error ?? 'Não foi possível ficar online.');
   }
 
@@ -270,7 +270,7 @@ function AgentState({
   aoAtender: () => void;
   aoFicarOnline: () => void;
 }) {
-  if (state === 'online') {
+  if (state === 'Online') {
     return (
       <div className="dk-status-core">
         {aguardando === null ? null : (
@@ -293,12 +293,12 @@ function AgentState({
       </div>
     );
   }
-  if (state === 'pausa') {
+  if (state === 'Pause') {
     const segundos = (agora.getTime() - new Date(desde).getTime()) / 1000;
     return (
       <div className="dk-status-core">
         <div className="dk-status-texto">
-          Seu status é <b id="agent-status-pause">{motivo ?? ROTULOS_DE_STATUS.pausa}</b>
+          Seu status é <b id="agent-status-pause">{motivo ?? AGENT_STATUS_LABELS.Pause}</b>
         </div>
         <div className="dk-status-texto" id="agent-status-pause-timer">
           {cronometro(segundos)}
@@ -309,7 +309,7 @@ function AgentState({
   return (
     <div className="dk-status-core">
       <div className="dk-status-texto">
-        Seu status é <b id={`agent-status-${state}`}>{ROTULOS_DE_STATUS[state]}</b>
+        Seu status é <b id={`agent-status-${state}`}>{AGENT_STATUS_LABELS[state]}</b>
       </div>
       <div className="dk-status-buttons">
         <button type="button" className="dk-botao" id="set-online-btn" onClick={aoFicarOnline}>

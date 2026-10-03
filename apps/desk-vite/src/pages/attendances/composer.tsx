@@ -6,6 +6,7 @@ import { Modal } from '@pipe/ui/modal';
 import { atualizarLeituras } from '../../lib/actions';
 import { MAX_FILES_BY_SENDING, recusaDoLote } from '../../lib/attachments';
 import { windowOpen } from '../../lib/order';
+import { TICKET_STATUS_LABELS, isClosedTicket } from '../../lib/situation';
 import { TRIGGERS, combinaComTermo, responsesTrigger } from '../../lib/composer-trigger';
 import { numeroDoTicket } from '../../lib/channel';
 
@@ -51,7 +52,7 @@ export function Composer({
     el.style.height = `${Math.max(64, Math.min(184, el.scrollHeight))}px`;
   }, [texto]);
 
-  if (conversation.state === 'em_espera') {
+  if (conversation.emStandby) {
     return (
       <Fechado
         titulo="Retire o cliente do Modo de espera clicando no botão abaixo."
@@ -63,10 +64,10 @@ export function Composer({
       />
     );
   }
-  if (conversation.state === 'encerrada') {
+  if (isClosedTicket(conversation.state)) {
     return (
       <Fechado
-        titulo="Conversa encerrada pelo atendente."
+        titulo={`Conversa ${TICKET_STATUS_LABELS[conversation.state].toLowerCase()}.`}
         description="Envie uma nova mensagem para reabrir a conversa."
       />
     );
