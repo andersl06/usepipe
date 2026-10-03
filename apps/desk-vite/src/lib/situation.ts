@@ -1,28 +1,29 @@
-import type { StateConversation } from '@pipe/contracts';
+import type { StateAgent, StateConversation } from '@pipe/contracts';
 
-/** Labels for who ended a conversation (`encerrada` event `encerrada_por`). Unknown or null falls back to "Finalizado". */
-const CLOSED_BY_LABELS: Record<string, string> = {
-  atendente: 'Finalizado pelo atendente',
-  cliente: 'Finalizado pelo cliente',
-  inatividade: 'Finalizado por inatividade',
-  transferencia: 'Transferido',
-  bot: 'Finalizado pelo bot',
+/** Mapa único de rótulos em português, indexado pelos valores Blip. */
+export const TICKET_STATUS_LABELS: Record<StateConversation, string> = {
+  Waiting: 'Aguardando',
+  Assigned: 'Atribuído',
+  Open: 'Aberto',
+  ClosedAttendant: 'Finalizado pelo atendente',
+  ClosedClient: 'Finalizado pelo cliente',
+  ClosedClientInactivity: 'Finalizado por inatividade',
+  Transferred: 'Transferido',
 };
 
-export function closedByLabel(closedBy: string | null | undefined): string {
-  return (closedBy && Object.hasOwn(CLOSED_BY_LABELS, closedBy) ? CLOSED_BY_LABELS[closedBy] : undefined) ?? 'Finalizado';
+export const AGENT_STATUS_LABELS: Record<StateAgent, string> = {
+  Online: 'Online',
+  Pause: 'Em pausa',
+  Invisible: 'Invisível',
+  Offline: 'Offline',
+};
+
+export function isClosedTicket(state: StateConversation): boolean {
+  return state.startsWith('Closed') || state === 'Transferred';
 }
 
-/** Situation text of a conversation in the contact history. */
+/** Texto de situação da conversa; valor desconhecido cai no texto cru. */
 export function situationLabel(h: { estado: StateConversation; closedBy?: string | null }): string {
-  switch (h.estado) {
-    case 'encerrada':
-      return closedByLabel(h.closedBy);
-    case 'na_fila':
-      return 'Aguardando';
-    case 'atribuida':
-      return 'Atribuído';
-    default:
-      return 'Aberto';
-  }
+  if (isClosedTicket(h.estado) && h.closedBy === 'bot') return 'Finalizado pelo bot';
+  return TICKET_STATUS_LABELS[h.estado] ?? h.estado;
 }

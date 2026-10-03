@@ -16,7 +16,8 @@ const agora = new Date('2026-09-17T12:00:00Z');
 function conversation(parte: Partial<ConversationOfList>): ConversationOfList {
   return {
     id: 'a',
-    estado: 'em_atendimento',
+    estado: 'Open',
+    emStandby: false,
     prioridade: 'media',
     criadaEm: '2026-09-17T10:00:00Z',
     primeiraRespostaEm: null,
@@ -39,7 +40,7 @@ function conversation(parte: Partial<ConversationOfList>): ConversationOfList {
 test('the cards count over the entire list', () => {
   const lista = [
     conversation({ id: '1', lastMessageFrom: 'contato' }),
-    conversation({ id: '2', estado: 'em_espera' }),
+    conversation({ id: '2', emStandby: true }),
     conversation({ id: '3', janelaExpiraEm: '2026-09-16T00:00:00Z' }),
   ];
   assert.deepEqual(contagens(lista, agora), {

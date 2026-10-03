@@ -31,7 +31,7 @@ export function fixada(c: ConversationOfList): boolean {
 }
 
 export function emEspera(c: ConversationOfList): boolean {
-  return c.estado === 'em_espera';
+  return c.emStandby;
 }
 
 /**
