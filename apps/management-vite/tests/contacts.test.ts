@@ -42,8 +42,8 @@ describe('contacts: opening the detail view', () => {
 
   it("stamps the message as day - time and translates the ticket's state", () => {
     assert.equal(messageStamp(new Date(2026, 8, 16, 13, 26)), '16/09/2026 - 13:26');
-    assert.equal(rotuloDoStatus('encerrada'), 'Atendido');
-    assert.equal(rotuloDoStatus('na_fila'), 'Na fila');
+    assert.equal(rotuloDoStatus('ClosedAttendant'), 'Atendido');
+    assert.equal(rotuloDoStatus('Waiting'), 'Na fila');
     assert.equal(rotuloDoStatus('outro'), 'outro');
   });
 });

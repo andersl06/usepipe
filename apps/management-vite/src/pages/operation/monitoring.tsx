@@ -15,6 +15,7 @@ import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-mem
 import { Metrica } from '../../components/metrica';
 import { MonitoringDetailed } from '../../components/monitoring-detailed';
 import { useContact } from '../flow/contact';
+import { AGENT_STATUS_LABELS } from '../../lib/status-labels';
 import { useEu } from '../../context/session';
 import { attendanceBase } from './shell';
 
@@ -52,11 +53,7 @@ interface Search {
   search?: string;
 }
 
-const STATES_OF_AGENT = [
-  { id: 'online', nome: 'Online' },
-  { id: 'pausa', nome: 'Em Pausa' },
-  { id: 'invisivel', nome: 'Invisível' },
-] as const;
+const STATES_OF_AGENT = (['Online', 'Pause', 'Invisible'] as const).map((id) => ({ id, nome: AGENT_STATUS_LABELS[id] }));
 
 /**
  * The page header's "Atualizar tela" icon — `bds-button icon="refresh" variant="secondary"` with the 24 glyph (`dom/monitoring.html`). Invalidates the `api` read and the screen redoes the query.
@@ -602,7 +599,7 @@ export function PageMonitoring() {
                   </option>
                 ))}
               </Select>
-              {statusEscolhido === 'invisivel' ? (
+              {statusEscolhido === 'Invisible' ? (
                 <p className="panel-support" role="status">Este recurso será liberado em breve para este fluxo.</p>
               ) : null}
             </PanelField>

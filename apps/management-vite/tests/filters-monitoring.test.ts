@@ -49,14 +49,14 @@ test('applying multiple values keeps repeats where the query allows it', () => {
 });
 
 test('contact and agent status filter the rows of the detailed list', () => {
-  assert.equal(matchesListFilters({ contactName: 'Ana Souza', agentState: 'online' }, { contact: 'ana', status: 'online' }), true);
-  assert.equal(matchesListFilters({ contactName: 'Bia', agentState: 'online' }, { contact: 'ana' }), false);
-  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'pausa' }, { status: 'online' }), false);
-  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: undefined }, { status: 'online' }), false);
+  assert.equal(matchesListFilters({ contactName: 'Ana Souza', agentState: 'Online' }, { contact: 'ana', status: 'Online' }), true);
+  assert.equal(matchesListFilters({ contactName: 'Bia', agentState: 'Online' }, { contact: 'ana' }), false);
+  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'Pause' }, { status: 'Online' }), false);
+  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: undefined }, { status: 'Online' }), false);
 });
 
 test('empty filters let every row through and invisible matches no one yet', () => {
   assert.equal(matchesListFilters({ contactName: 'Ana', agentState: undefined }, {}), true);
-  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'online' }, { contact: '  ', status: '' }), true);
-  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'online' }, { status: 'invisivel' }), false);
+  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'Online' }, { contact: '  ', status: '' }), true);
+  assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'Online' }, { status: 'Invisible' }), false);
 });
