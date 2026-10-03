@@ -72,3 +72,18 @@ test('local Desk uses its own Vite port and localhost uses host-only sessions', 
   assert.deepEqual(parseTenantHost('alfa.localhost:3110', localhost), { slug: 'alfa', app: 'application' });
   assert.deepEqual(parseTenantHost('alfa.desk.localhost:3210', localhost), { slug: 'alfa', app: 'desk' });
 });
+
+test('a configured base domain with an extra label keeps the apex out of the tenant space', () => {
+  const base = 'pipe.144-217-164-204.sslip.io';
+  // without the configured base the apex is misread as the tenant `pipe` of `144-217-164-204.sslip.io`
+  assert.equal(deriveBaseDomain(base), '144-217-164-204.sslip.io');
+  assert.equal(deriveBaseDomain(base, base), null);
+  assert.equal(deriveBaseDomain(`login.${base}`, base), base);
+  assert.equal(deriveBaseDomain(`alfa.${base}`, base), base);
+  assert.equal(deriveBaseDomain(`alfa.desk.${base}`, base), base);
+  assert.equal(deriveBaseDomain(`ALFA.${base}.`, ` .${base.toUpperCase()}. `), base);
+  // an unrelated host still falls back to the default guess
+  assert.equal(deriveBaseDomain('alfa.exemplo.com.br', base), 'exemplo.com.br');
+  const config = { baseDomain: base, publicPort: '', secure: true };
+  assert.equal(buildLoginUrl(config, `https://${base}/`), `https://login.${base}/?returnTo=${encodeURIComponent(`https://${base}/`)}`);
+});

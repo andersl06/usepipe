@@ -47,6 +47,11 @@ COPY apps/management-vite apps/management-vite
 # Tenant hosts route `/v1` on the same origin; Desk links are computed in the browser.
 ARG VITE_URL_API=
 ENV VITE_URL_API=$VITE_URL_API
+# Account base domain (same value as PIPE_DOMINIO_CONTAS on the server). Without it the
+# browser guesses the base by dropping the first host label, which breaks when the base
+# itself has an extra label (pipe.<ip>.sslip.io).
+ARG VITE_PIPE_DOMINIO_CONTAS=
+ENV VITE_PIPE_DOMINIO_CONTAS=$VITE_PIPE_DOMINIO_CONTAS
 RUN pnpm --filter "@pipe/management-vite..." build
 
 # --- imagem final -----------------------------------------------------------

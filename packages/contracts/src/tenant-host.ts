@@ -78,8 +78,19 @@ export function isLoginHost(host: string, config: TenantHostConfig): boolean {
 }
 
 /** This infers the base from a known tenant/login hostname; callers must not use it for authorization. */
-export function deriveBaseDomain(hostname: string): string | null {
+/**
+ * `configuredBase` is the account base domain the server was started with (`PIPE_DOMINIO_CONTAS`), baked into the browser
+ * bundle at build time. Without it the base is guessed by dropping the first label, which is wrong whenever the base itself
+ * has an extra label (`pipe.<ip>.sslip.io`): the apex would be read as the tenant `pipe`. With it, the base domain itself is
+ * the apex (no tenant, null) and any host under it resolves to that base.
+ */
+export function deriveBaseDomain(hostname: string, configuredBase?: string): string | null {
   const host = hostname.toLowerCase().replace(/\.$/, '');
+  const configured = configuredBase?.trim().toLowerCase().replace(/^\.+|\.+$/g, '');
+  if (configured) {
+    if (host === configured) return null;
+    if (host.endsWith(`.${configured}`)) return configured;
+  }
   if (host === 'localhost' || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(host) || host.includes(':')) return null;
   const labels = host.split('.');
   if (labels.at(-1) === 'localhost' && labels.length >= 2) {

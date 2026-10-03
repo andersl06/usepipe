@@ -23,6 +23,9 @@ ARG VITE_BASE=/
 ARG VITE_URL_API=
 ENV VITE_BASE=$VITE_BASE
 ENV VITE_URL_API=$VITE_URL_API
+# Account base domain (same value as PIPE_DOMINIO_CONTAS on the server); see management-vite/Dockerfile.
+ARG VITE_PIPE_DOMINIO_CONTAS=
+ENV VITE_PIPE_DOMINIO_CONTAS=$VITE_PIPE_DOMINIO_CONTAS
 RUN pnpm --filter "@pipe/desk-vite..." build
 
 FROM nginx:1.27-alpine AS runtime

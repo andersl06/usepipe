@@ -13,6 +13,7 @@ import { IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones-portal';
 const EMAIL_SUPORTE = (import.meta.env['VITE_PIPE_SUPPORT_EMAIL'] as string | undefined) ?? '';
 
 export function BarraDoPortal({ data }: { data: PortalShell }) {
+  const baseDoDominio = deriveBaseDomain(window.location.hostname, import.meta.env['VITE_PIPE_DOMINIO_CONTAS']);
   const accountSwitch = accountUseSwitch();
   const sair = useSair();
   /*
@@ -76,7 +77,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
                   <span>
                     {account.name}
                     {account.personal ? (
-                      <span className="pt-account-type">{account.slug}{deriveBaseDomain(window.location.hostname) ? `.${deriveBaseDomain(window.location.hostname)}` : ''}</span>
+                      <span className="pt-account-type">{account.slug}{baseDoDominio ? `.${baseDoDominio}` : ''}</span>
                     ) : (
                       <span className="pt-account-type">{account.plan}</span>
                     )}
