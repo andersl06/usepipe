@@ -1134,7 +1134,7 @@ describe('desconectar (webhook_teardown_service_spec)', () => {
     `);
     await dono.execute(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, estado)
-      values (${A.tenantId}::uuid, ${caixas[0]!.id}::uuid, ${contacts[0]!.id}::uuid, 'na_fila')
+      values (${A.tenantId}::uuid, ${caixas[0]!.id}::uuid, ${contacts[0]!.id}::uuid, 'Waiting')
     `);
     // // The other channels on this WABA, from earlier tests, leave so this one is the last.
     await dono.execute(sql`

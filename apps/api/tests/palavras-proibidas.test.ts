@@ -123,7 +123,7 @@ async function newConversation(cenario: Cenario, contactId: string): Promise<str
       janela_expira_em, ultima_mensagem_em, ultima_mensagem_de
     ) values (
       ${cenario.tenantId}, ${cenario.inboxId}, ${contactId}, ${cenario.queueId},
-      ${cenario.agentId}, 'atribuida', now() + interval '20 hours', now(), 'contato'
+      ${cenario.agentId}, 'Assigned', now() + interval '20 hours', now(), 'contato'
     )
     returning id
   `);

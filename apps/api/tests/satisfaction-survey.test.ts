@@ -106,7 +106,7 @@ async function contatoDe(cenario: Cenario, nome: string): Promise<string> {
 async function conversaEncerradaDe(cenario: Cenario, contatoId: string): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, encerrada_em)
-    values (${cenario.tenantId}, ${cenario.inboxId}, ${contatoId}, ${cenario.queueId}, ${cenario.agentId}, 'encerrada', now())
+    values (${cenario.tenantId}, ${cenario.inboxId}, ${contatoId}, ${cenario.queueId}, ${cenario.agentId}, 'ClosedAttendant', now())
     returning id
   `);
   return rows[0]!.id;

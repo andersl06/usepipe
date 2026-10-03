@@ -61,7 +61,7 @@ async function newContact(c: Cenario, phone: string, open: boolean): Promise<str
   `);
   await c.dono.execute(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, estado, criada_em, janela_expira_em, ultima_mensagem_em)
-    values (${c.tenantId}, ${c.inboxId}, ${contactId}, ${open ? 'na_fila' : 'encerrada'}, now(),
+    values (${c.tenantId}, ${c.inboxId}, ${contactId}, ${open ? 'Waiting' : 'ClosedAttendant'}, now(),
             ${open ? sql`now() + interval '20 hours'` : sql`null`}, now())
   `);
   return contactId;

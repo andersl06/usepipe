@@ -65,7 +65,7 @@ async function newConversation(agentId: string | null): Promise<string> {
       janela_expira_em, ultima_mensagem_em, ultima_mensagem_de
     ) values (
       ${cenario.tenantId}, ${cenario.inboxId}, ${contactId}, ${cenario.queueId},
-      ${agentId}, ${agentId ? 'atribuida' : 'na_fila'},
+      ${agentId}, ${agentId ? 'Assigned' : 'Waiting'},
       now() + interval '20 hours', now(), 'contato'
     )
     returning id

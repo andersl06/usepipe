@@ -106,7 +106,7 @@ describe('catálogo global de tags', () => {
     `);
     const { rows: cv } = await a.dono.execute<{ id: string }>(sql`
       insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado)
-      values (${a.tenantId}::uuid, ${a.inboxId}::uuid, ${ct[0]!.id}::uuid, ${a.queueId}::uuid, 'em_atendimento') returning id
+      values (${a.tenantId}::uuid, ${a.inboxId}::uuid, ${ct[0]!.id}::uuid, ${a.queueId}::uuid, 'Open') returning id
     `);
     await a.dono.execute(sql`
       insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id)

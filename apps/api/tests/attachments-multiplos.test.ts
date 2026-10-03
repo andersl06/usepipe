@@ -108,7 +108,7 @@ async function createConversation(
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado,
                           atribuida_em, janela_expira_em, ultima_mensagem_em, ultima_mensagem_de)
     values (${cenario.tenantId}, ${cenario.inboxId}::uuid, ${contacts[0]!.id}::uuid,
-            ${cenario.queueId}::uuid, ${agentId}, 'atribuida', now(), ${expira},
+            ${cenario.queueId}::uuid, ${agentId}, 'Assigned', now(), ${expira},
             now() - interval '5 minutes', 'contato')
     returning id
   `);
@@ -177,7 +177,7 @@ describe('POST /v1/conversations/:id/messages/attachments', () => {
     const { rows: conversation } = await cenario.dono.execute<{ state: string }>(
       sql`select estado as "state" from conversa where id = ${conversationId}::uuid`,
     );
-    expect(conversation[0]?.state).toBe('em_atendimento');
+    expect(conversation[0]?.state).toBe('Open');
   });
 
   it('Reject a batch of more than ten files without sending any', async () => {

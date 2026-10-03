@@ -103,7 +103,7 @@ async function conversa(): Promise<{ id: string; contatoId: string }> {
   const { rows } = await cenario.dono.execute<{ id: string; contatoId: string }>(sql`
     select c.id, c.contato_id as "contatoId" from conversa c join contato ct on ct.id = c.contato_id
      where c.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
-       and c.estado <> 'encerrada'
+       and c.estado in ('Waiting', 'Assigned', 'Open')
      order by c.criada_em desc limit 1
   `);
   expect(rows[0]).toBeDefined();
@@ -198,7 +198,7 @@ describe('ticket.* after ForwardToDesk', () => {
     `);
     const linha = await ultimaMensagemDoBot(id);
     // The distributor may assign an online agent right away, so the status follows the real state.
-    const status = rows[0]!.estado === 'atribuida' ? 'Assigned' : 'Waiting';
+    const status = rows[0]!.estado;
     expect(linha.conteudo).toBe(`${status}|${rows[0]!.fila}|${rows[0]!.sequencial}|${contatoId}|false`);
   });
 });

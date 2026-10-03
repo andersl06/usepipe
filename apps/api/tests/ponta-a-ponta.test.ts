@@ -128,7 +128,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
 
     // Load-based distribution: the queue's only online agent received the conversation.
     expect(conversation!.agentId).toBe(cenario.agentId);
-    expect(conversation!.state).toBe('atribuida');
+    expect(conversation!.state).toBe('Assigned');
     expect(conversation!.lastMessageOf).toBe('contato');
 
     // The window opens for 24h starting from the customer's message.
