@@ -2,6 +2,6 @@
 # raiz antes: hoje ele não está lá.
 # Nada de segredo aqui: token de API sai do ambiente, não de arquivo.
 zone_id         = "0000000000000000000000000000"
-domain          = "pipebr.ai"
+domain          = "pipebr.app"
 email_acme      = "infra@pipe.com.br"
 repositorio_git = "git@github.com:pipe/pipe.git"
