@@ -170,8 +170,12 @@
   font-size: 14px;
 }
 
-.gr-select select {
-  appearance: none;
+.gr-select .selection-control {
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-3);
 }
 
 .gr-select > svg,

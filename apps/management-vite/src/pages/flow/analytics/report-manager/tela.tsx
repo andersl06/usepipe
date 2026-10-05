@@ -141,7 +141,6 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                     <option value={bot}>{bot}</option>
                   </Select>
                 </span>
-                <IconePortal nome="baixo" tamanho={18} />
               </span>
             </label>
             {error && !botEscolhido ? <p className="gr-error">Campo obrigatório</p> : null}

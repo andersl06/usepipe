@@ -101,10 +101,17 @@
   font-size: var(--p-t-md);
 }
 
-/* The arrow is drawn by us, so the native `select` arrow goes. */
-.nv-campo-lista select {
-  appearance: none;
-  cursor: pointer;
+/* The shared `Select` draws its own box and arrow: inside the pill it renders bare. */
+.nv-campo-lista .selection {
+  flex: 1;
+}
+
+.nv-campo-lista .selection-control {
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: var(--p-t-md);
 }
 
 .nv-filters .btn {

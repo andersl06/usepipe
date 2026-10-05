@@ -101,7 +101,6 @@ export function ContactsJourney({
                   </option>
                 ))}
               </Select>
-              <IconePortal nome="baixo" tamanho={24} />
             </label>
           </div>
           <div className="jr-period">

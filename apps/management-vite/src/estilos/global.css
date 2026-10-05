@@ -5649,3 +5649,20 @@ tr.grupo th {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/*
+ * Wrappers that already draw the field box (and label) around a shared `Select`: the select renders bare inside them, so there is a single border and a single arrow.
+ */
+.ct-campo .selection-control,
+.account-field .selection-control,
+.cf-campo .selection-control,
+.jr-autocompletar .selection-control {
+  height: 19px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.jr-autocompletar .selection {
+  flex: 1;
+}

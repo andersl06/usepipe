@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarraDoPortal } from '../../components/barra-do-portal';
-import { SearchIcon, IconePortal } from '@pipe/ui/icones-portal';
+import { SearchIcon } from '@pipe/ui/icones-portal';
 import { Select } from '@pipe/ui/select';
 import { portalUseShell } from '../../lib/shell';
 import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';
@@ -111,7 +111,6 @@ export function PageUpdates() {
                   </option>
                 ))}
               </Select>
-              <IconePortal nome="baixo" tamanho={20} />
             </div>
             <button type="submit" className="btn">
               Filtrar
