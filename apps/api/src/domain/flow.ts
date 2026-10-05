@@ -223,6 +223,11 @@ type LineExecution = {
 /** What the bot set for the ticket before the handoff creates it, kept in the execution context. */
 const PENDING_PRIORITY = 'pipe.ticket.prioridade';
 const PENDING_TAGS = 'pipe.ticket.etiquetas';
+/**
+ * Instante (ISO) em que a passagem atual do contato pelo bot começou: a mensagem que o encontrou no bloco raiz ou sem estado salvo.
+ * Só as mensagens desde esse instante vão para o ticket; as passagens anteriores, que terminaram sem pedir atendimento, ficam só na execução.
+ */
+const PASS_START = 'pipe.passagem.inicio';
 
 async function createExecution(
   tx: TransactionPipe,
@@ -406,6 +411,10 @@ export async function runFlowInInbound(
     isolatesContact ? (JSON.parse(variables[CONTACT_EXTRAS] ?? '{}') as Record<string, unknown>) : null,
   );
   const relogio = relogioCrescente();
+  // A customer message that finds the contact with no saved state, waiting at the root block, in a new session or just routed here opens a new pass through the bot.
+  if (!retomada && !e.inputExpiration && (nova || roteador?.reiniciar || startsAtRoot(variables, flow))) {
+    variables[PASS_START] = (await passStartOf(tx, e.message.id)).toISOString();
+  }
   const eventos: Record<string, unknown>[] = [];
   let respostas = 0;
   let transferida = false;
@@ -730,7 +739,8 @@ export async function runFlowInInbound(
           update execucao_fluxo
              set estado = 'aguardando', contexto = ${JSON.stringify(variables)}::jsonb,
                  bloco_atual_id = ${blockOfFlowState(variables, flow, blockByCode, erro.cursor.estadoId)},
-                 bloco_anterior_id = ${blockOfFlowState(variables, flow, blockByCode, variables[`previous-stateId@${flow.id}`])}
+                 bloco_anterior_id = ${blockOfFlowState(variables, flow, blockByCode, variables[`previous-stateId@${flow.id}`])},
+                 bloco_anterior_codigo = ${variables[`previous-stateId@${flow.id}`] ?? null}
            where id = ${executionId}
         `);
         await saveContextOfRouter();
@@ -1102,16 +1112,43 @@ function blockOfFlowState(
   return blockByCode.get(stateId) ?? null;
 }
 
+/** The contact is not inside a subflow and has no saved state, or waits at the root block: its next message starts over. */
+function startsAtRoot(variables: Record<string, string>, flow: FlowBlip): boolean {
+  if (activeFlowSession(variables, flow).subflow) return false;
+  const saved = stateSaved(variables, flow.id);
+  return saved === null || saved === flow.states.find((s) => s.root)?.id;
+}
+
 /**
- * D-06: bloco atual e anterior de uma mensagem do bot, para agrupar por bloco e achar onde a pessoa
+ * Start of a pass: the earlier of the opening message's own time (the channel's clock) and now (ours), so skew between the two never leaves the pass's first bot reply out. Without a stored message (redirect), now.
+ */
+async function passStartOf(tx: TransactionPipe, messageId: string | null): Promise<Date> {
+  const now = new Date();
+  if (!messageId) return now;
+  const { rows } = await tx.execute<{ em: Date }>(sql`select criada_em as em from mensagem where id = ${messageId} limit 1`);
+  const em = rows[0] ? new Date(rows[0].em) : null;
+  return em && em < now ? em : now;
+}
+
+function parsePassStart(value: string | undefined): Date | null {
+  if (!value) return null;
+  const at = new Date(value);
+  return Number.isNaN(at.getTime()) ? null : at;
+}
+
+/**
+ * Bloco atual e anterior de uma mensagem do bot, para agrupar por bloco e achar onde a pessoa
  * travou. A Blip (`stateTrack`) é só régua de comportamento. Em subfluxo não há linha em `bloco`:
  * o id fica nulo e o nome guarda o código do estado.
  */
 interface BlockStamp {
   currentId: string | null;
   currentName: string | null;
+  /** Código (stateId do Builder): estável entre versões publicadas e gravado também dentro de subfluxo. */
+  currentCode: string | null;
   previousId: string | null;
   previousName: string | null;
+  previousCode: string | null;
 }
 
 function blockStamp(
@@ -1127,8 +1164,10 @@ function blockStamp(
   return {
     currentId: blockOfFlowState(variables, flow, blockByCode, current),
     currentName: name(current),
+    currentCode: current ?? null,
     previousId: blockOfFlowState(variables, flow, blockByCode, previous),
     previousName: name(previous),
+    previousCode: previous ?? null,
   };
 }
 
@@ -1148,6 +1187,7 @@ async function saveExecution(
        set contexto = ${JSON.stringify(variables)}::jsonb,
            bloco_atual_id = ${estado ? (blockByCode.get(estado) ?? null) : null},
            bloco_anterior_id = ${(blockByCode.get(variables[`previous-stateId@${flowId}`] ?? '') ?? null)},
+           bloco_anterior_codigo = ${variables[`previous-stateId@${flowId}`] ?? null},
            estado = ${concluida ? 'concluida' : 'aguardando'},
            encerrada_em = ${concluida ? sql`now()` : null}
      where id = ${executionId}
@@ -1238,10 +1278,12 @@ async function transbordar(
     `);
     ticketId = criada[0]!.id;
     await tx.execute(sql`update execucao_fluxo set conversa_id = ${ticketId} where id = ${executionId} and tenant_id = ${e.tenantId}`);
-    // Adopt the bot history: only this session's messages of this tenant that have no ticket yet.
+    // Adopt the bot history: only this pass's messages (since the contact entered at the root block) of this tenant that have no ticket yet. Earlier passes stay on the execution alone.
+    const passStart = parsePassStart(variaveis[PASS_START]);
     await tx.execute(sql`
       update mensagem set conversa_id = ${ticketId}
        where execucao_id = ${executionId} and conversa_id is null and tenant_id = ${e.tenantId}
+         ${passStart ? sql`and criada_em >= ${passStart}` : sql``}
     `);
     for (const name of tags) {
       const { rows } = await tx.execute<{ id: string }>(sql`
@@ -1315,7 +1357,7 @@ async function transbordarSemFalhar(
 /** Variables collected by the bot, excluding engine control keys. */
 export function summaryOfContext(variaveis: Record<string, string>, motivo: string | null): string {
   const linhas = Object.entries(variaveis)
-    .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_') && !k.startsWith('#') && !k.startsWith('pipe.ticket.') && k !== CONTACT_EXTRAS)
+    .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_') && !k.startsWith('#') && !k.startsWith('pipe.ticket.') && k !== PASS_START && k !== CONTACT_EXTRAS)
     .map(([k, v]) => `- ${k}: ${v}`);
   return [
     motivo ? `Transferida pelo bot (${motivo}).` : 'Transferida pelo bot.',
@@ -1347,12 +1389,13 @@ async function gravarRespostaDoBot(
     insert into mensagem (
       tenant_id, conversa_id, execucao_id, direcao, autor_tipo, tipo, conteudo, estado_entrega, criada_em,
       dentro_da_janela, categoria_cobranca, dados,
-      bloco_atual_id, bloco_atual_nome,
-      bloco_anterior_id, bloco_anterior_nome
+      bloco_atual_id, bloco_atual_nome, bloco_atual_codigo,
+      bloco_anterior_id, bloco_anterior_nome, bloco_anterior_codigo
     ) values (
       ${tenantId}, ${where.conversationId}, ${where.executionId}, 'saida', 'bot', ${tipo}, ${texto}, 'pendente', ${em}, true, ${categoria},
       ${data ? JSON.stringify(data) : null}::jsonb,
-      ${stamp?.currentId ?? null}, ${stamp?.currentName ?? null}, ${stamp?.previousId ?? null}, ${stamp?.previousName ?? null}
+      ${stamp?.currentId ?? null}, ${stamp?.currentName ?? null}, ${stamp?.currentCode ?? null},
+      ${stamp?.previousId ?? null}, ${stamp?.previousName ?? null}, ${stamp?.previousCode ?? null}
     )
     returning id
   `);
