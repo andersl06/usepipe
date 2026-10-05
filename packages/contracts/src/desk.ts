@@ -161,6 +161,24 @@ export interface LabelOfConversation {
   nome: string;
 }
 
+/**
+ * A contact's pass through the bot that never became a ticket: its messages have no conversation, only
+ * the bot execution. A pass starts when the customer's message finds the bot at the flow's root block
+ * and ends with the last message before the next pass. `executionId` + `iniciadaEm` + `encerradaEm`
+ * are what `GET /v1/desk/contacts/:id/bot-passages/:executionId?inicio&fim` takes to read its messages.
+ */
+export interface PassagemDoBot {
+  /** Id da primeira mensagem da passagem: chave estável para a lista. */
+  id: string;
+  executionId: string;
+  iniciadaEm: string;
+  encerradaEm: string;
+  mensagens: number;
+  /** Último bloco que falou: código (stateId, estável entre publicações) e nome. */
+  ultimoBlocoCodigo: string | null;
+  ultimoBlocoNome: string | null;
+}
+
 export interface ConversationOfHistory {
   id: string;
   /** Número sequencial do ticket por tenant e o do ticket pai, quando houver. */
@@ -189,6 +207,8 @@ export interface ConversationOfDesk {
    */
   labelsOfContact: LabelOfConversation[];
   history: ConversationOfHistory[];
+  /** Passagens do contato pelo bot sem ticket, mais recentes primeiro; vazio quando o histórico está desligado. */
+  botPassages: PassagemDoBot[];
 }
 
 /**

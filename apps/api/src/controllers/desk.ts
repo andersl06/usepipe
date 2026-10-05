@@ -2,6 +2,8 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestj
 import type { TransactionPipe } from '@pipe/db';
 import type {
   ConversationOfHistory,
+  ItemOfConversation,
+  PassagemDoBot,
   QueueOfDesk,
   ResponseOfConversation,
   ResponseOfMetrics,
@@ -87,6 +89,7 @@ export class DeskController {
     return noTenant(sessao.tenantId, async (tx) => {
       const conversa = await consultas.loadConversation(tx, id, sessao.userId);
       if (!conversa) return { aberta: null };
+      const historico = (await lerConfigAtendimento(tx, sessao.tenantId)).historico.ativo;
       return {
         aberta: {
           conversation: conversa,
@@ -97,8 +100,9 @@ export class DeskController {
             id: l.id,
             nome: l.name,
           })),
-          history: (await lerConfigAtendimento(tx, sessao.tenantId)).historico.ativo
-            ? await consultas.listHistoryOfContact(tx, conversa.contactId, conversa.id)
+          history: historico ? await consultas.listHistoryOfContact(tx, conversa.contactId, conversa.id) : [],
+          botPassages: historico
+            ? await consultas.listBotPassagesOfContact(tx, sessao.tenantId, conversa.contactId, 6)
             : [],
         },
       };
@@ -141,13 +145,44 @@ export class DeskController {
   contact(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<{ contact: consultas.RecordOfContact; history: ConversationOfHistory[] }> {
+  ): Promise<{ contact: consultas.RecordOfContact; history: ConversationOfHistory[]; botPassages: PassagemDoBot[] }> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
       const contato = await consultas.loadContact(tx, id);
       if (!contato) throw PipeError.naoEncontrado('contato');
       const consulta = (await lerConfigAtendimento(tx, sessao.tenantId)).historico.ativo;
-      return { contact: contato, history: consulta ? await consultas.listHistoryOfContact(tx, id, null) : [] };
+      return {
+        contact: contato,
+        history: consulta ? await consultas.listHistoryOfContact(tx, id, null) : [],
+        botPassages: consulta ? await consultas.listBotPassagesOfContact(tx, sessao.tenantId, id, 50) : [],
+      };
+    });
+  }
+
+  /**
+   * The messages of one pass of the contact through the bot that never became a ticket, as listed by
+   * `botPassages` (`executionId`, `iniciadaEm` as `inicio`, `encerradaEm` as `fim`). Follows the history
+   * switch: with the history off it answers an empty list.
+   */
+  @Get('contacts/:id/bot-passages/:executionId')
+  @WithSession()
+  botPassage(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Param('executionId') executionId: string,
+    @Query('inicio') inicioBruto?: string,
+    @Query('fim') fimBruto?: string,
+  ): Promise<{ itens: ItemOfConversation[] }> {
+    const sessao = sessionOf(requisicao);
+    if (!UUID.test(id)) throw PipeError.naoEncontrado('contato');
+    if (!UUID.test(executionId)) throw PipeError.naoEncontrado('passagem');
+    const inicio = dataOuNada(inicioBruto);
+    const fim = dataOuNada(fimBruto);
+    if (!inicio || !fim) throw PipeError.request('period_invalid', 'Informe `inicio` e `fim` da passagem (ISO 8601).');
+    return noTenant(sessao.tenantId, async (tx) => {
+      if (!(await consultas.loadContact(tx, id))) throw PipeError.naoEncontrado('contato');
+      if (!(await lerConfigAtendimento(tx, sessao.tenantId)).historico.ativo) return { itens: [] };
+      return { itens: await consultas.listMessagesOfBotPassage(tx, sessao.tenantId, id, executionId, inicio, fim) };
     });
   }
 
