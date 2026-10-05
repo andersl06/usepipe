@@ -2,14 +2,15 @@ import { createHash } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import {
   StorageInDisk,
-  VALIDITY_LINK_MS,
-  assinar,
   assinaturaValida,
+  baseDoLinkDeAnexo,
   keyOfAttachment,
   keyOfTenant,
+  linkAssinadoDeAnexo,
   maxBytesDoMime,
   mimeAceito,
   mimeParaServir,
+  segredoDeLink,
   serveAsAttachment,
   tipoDoMime,
 } from '@pipe/storage';
@@ -38,10 +39,7 @@ export function useStorage(novo: Storage | null): void {
  * Use the existing keyring that protects Meta tokens to sign links, avoiding another key to rotate and another place a secret could leak.
  */
 function secretOfLink(): string {
-  const keyring = keyringOfEnvironment();
-  const chave = keyring.chaves.get(keyring.atual);
-  if (!chave) throw new Error('chaveiro sem a chave atual: link de anexo não pode ser assinado');
-  return chave.toString('base64');
+  return segredoDeLink(keyringOfEnvironment());
 }
 
 export interface AttachmentSaved {
@@ -120,17 +118,15 @@ export async function saveAttachment(pedido: PedidoDeUpload): Promise<Attachment
 }
 
 /**
- * Create a signed attachment URL valid for 15 minutes. Meta downloads this URL when we send media, and the screen also uses it. It must be absolute because Meta fetches externally. `PIPE_STORAGE_URL_BASE` should point to the public `api` base rather than a nonexistent host.
+ * Create a signed attachment URL valid for 15 minutes. Meta downloads this URL when we send media, and the screen also uses it. It must be absolute because Meta fetches externally, so it is built on the public API base (`PIPE_URL_API`), the host that verifies the signature. The delivery worker builds the same link with the same helper at send time.
  */
 export function linkOfAttachment(attachmentId: string, agora = Date.now()): string {
-  const expira = agora + VALIDITY_LINK_MS;
-  const assinatura = assinar(attachmentId, expira, secretOfLink());
-  const base = (
-    process.env['PIPE_STORAGE_URL_BASE'] ??
-    process.env['PIPE_URL_API'] ??
-    'http://localhost:3000'
-  ).replace(/\/$/, '');
-  return `${base}/v1/attachments/${attachmentId}?expires=${expira}&signature=${assinatura}`;
+  return linkAssinadoDeAnexo({
+    anexoId: attachmentId,
+    segredo: secretOfLink(),
+    base: baseDoLinkDeAnexo(),
+    agora,
+  });
 }
 
 export interface AttachmentForServe {

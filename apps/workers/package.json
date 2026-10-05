@@ -27,6 +27,7 @@
   "dependencies": {
     "@pipe/core": "workspace:*",
     "@pipe/db": "workspace:*",
+    "@pipe/storage": "workspace:*",
     "bullmq": "^5.60.0",
     "drizzle-orm": "^0.44.6",
     "ioredis": "^5.9.0"

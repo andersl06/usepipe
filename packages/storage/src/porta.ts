@@ -1,4 +1,5 @@
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
+import { VALIDITY_LINK_MS } from './limites.js';
 
 /**
  * The storage port follows the S3 shape.
@@ -90,4 +91,44 @@ export function assinaturaValida(
   const recebida = Buffer.from(assinatura);
   if (esperada.length !== recebida.length) return false;
   return timingSafeEqual(esperada, recebida);
+}
+
+/** Keyring shape needed to derive the link secret; structural so this package need not depend on `@pipe/db`. */
+export interface ChaveiroDeLink {
+  atual: string;
+  chaves: Map<string, Buffer>;
+}
+
+/**
+ * Derive the link-signing secret from the keyring that already protects Meta tokens, avoiding another key to rotate. API and worker call this with the same keyring, so a link built by one is verified by the other.
+ */
+export function segredoDeLink(chaveiro: ChaveiroDeLink): string {
+  const chave = chaveiro.chaves.get(chaveiro.atual);
+  if (!chave) throw new Error('chaveiro sem a chave atual: link de anexo não pode ser assinado');
+  return chave.toString('base64');
+}
+
+/**
+ * Public base of the API that serves attachments (`PIPE_URL_API`). It is NOT the storage or site host: Meta downloads the link from outside, and only the API checks signature, expiry and tenant before serving the file.
+ */
+export function baseDoLinkDeAnexo(env: NodeJS.ProcessEnv = process.env): string {
+  return (env['PIPE_URL_API'] || 'http://localhost:3000').replace(/\/$/, '');
+}
+
+export interface PedidoDeLink {
+  anexoId: string;
+  segredo: string;
+  /** Absolute API base, no trailing slash needed. */
+  base: string;
+  agora?: number;
+}
+
+/**
+ * Build the absolute signed URL `<base>/v1/attachments/:id?expires&signature`, valid for 15 minutes. The link expires, so whoever delivers later (outbox retry) must call this again at delivery time.
+ */
+export function linkAssinadoDeAnexo(pedido: PedidoDeLink): string {
+  const expira = (pedido.agora ?? Date.now()) + VALIDITY_LINK_MS;
+  const assinatura = assinar(pedido.anexoId, expira, pedido.segredo);
+  const base = pedido.base.replace(/\/$/, '');
+  return `${base}/v1/attachments/${pedido.anexoId}?expires=${expira}&signature=${assinatura}`;
 }

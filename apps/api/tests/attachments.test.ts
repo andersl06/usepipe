@@ -40,7 +40,7 @@ beforeAll(async () => {
   api = await upApi(0);
   // // The link is absolute because it's Meta that downloads it. In the test the port is ephemeral, so
   // // the public base becomes that of the server that just came up.
-  process.env['PIPE_STORAGE_URL_BASE'] = api.url;
+  process.env['PIPE_URL_API'] = api.url;
 });
 
 afterAll(async () => {
