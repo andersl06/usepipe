@@ -426,14 +426,16 @@ function MonitoringModal({
 function ActionViewConversations({ filter, agentId }: { filter: Filter; agentId: string }) {
   return (
     <td className="acts">
-      <Link
-        className="iconbtn"
-        href={`?${querystring({ ...filter, agent: agentId }, 'atribuido').toString()}`}
-        title="Ver as conversas deste atendente"
-        aria-label="Ver as conversas deste atendente"
-      >
-        <ManagementIcon nome="externo" tamanho={24} />
-      </Link>
+      <div className="mon-actions">
+        <Link
+          className="iconbtn mon-acao"
+          href={`?${querystring({ ...filter, agent: agentId }, 'atribuido').toString()}`}
+          data-tooltip="Ver as conversas deste atendente"
+          aria-label="Ver as conversas deste atendente"
+        >
+          <ManagementIcon nome="externo" tamanho={24} />
+        </Link>
+      </div>
     </td>
   );
 }

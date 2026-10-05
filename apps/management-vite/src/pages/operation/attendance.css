@@ -1228,6 +1228,9 @@
 
 
 
+/* `.tblwrap` clips overflow; the action tooltips must escape the panel. */
+.mon-detalhado { overflow: visible; }
+
 .mon-detalhado .scroll {
 
   margin: 0;
