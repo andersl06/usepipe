@@ -330,6 +330,8 @@ export const executionFlow = pgTable(
       .default(sql`'{}'::jsonb`),
     blockCurrentId: uuid('bloco_atual_id').references(() => block.id, { onDelete: 'set null' }),
     blockPreviousId: uuid('bloco_anterior_id').references(() => block.id, { onDelete: 'set null' }),
+    /** Código (stateId) do bloco anterior; sobrevive a novas publicações, ao contrário do id. */
+    blockPreviousCode: text('bloco_anterior_codigo'),
     iniciadaEm: moment('iniciada_em').notNull().defaultNow(),
     encerradaEm: moment('encerrada_em'),
     /**

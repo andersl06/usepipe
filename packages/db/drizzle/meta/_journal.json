@@ -449,6 +449,13 @@
       "when": 1790270000000,
       "tag": "0091_status_blip_e_ids_do_ticket",
       "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1790280000000,
+      "tag": "0092_codigo_do_bloco_e_historico_de_status",
+      "breakpoints": true
     }
   ]
 }
