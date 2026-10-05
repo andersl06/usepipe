@@ -321,9 +321,11 @@
 .ct-section-test {
   width: 10%;
 }
+/* Sized by its icon: a 5% width with 40px padding was narrower than the 32px target and pushed it past the card edge. */
 .ct-section-open {
-  width: 5%;
-  padding-left: 40px;
+  flex: none;
+  width: auto;
+  padding-left: 16px;
 }
 /* `.newtab-icon`: only appears with the cursor over the card. */
 .ct-nova-aba {
