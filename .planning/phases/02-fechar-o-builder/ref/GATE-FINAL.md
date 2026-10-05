@@ -105,3 +105,19 @@ Ver `ref/VERIFICACAO-VISUAL.md`: 11 telas/estados `VISUALLY VERIFIED`, 3 defeito
 6. Dizer, para as linhas NEEDS VALIDATION de "decisão do dono", se ficam como estão ou entram no plano de lacunas, e o que vai para a Phase 3 (OWNER APPROVED / VALSURF-05).
 
 _Aprovação final: pendente. Depois da resposta, acrescentar aqui a linha do dono com a data (AAAA-MM-DD) e a resposta._
+
+## Rodada F-1..F-6
+
+**Rodado em:** 2026-10-05, checkout principal (branch `limpeza`, HEAD `37c65c78`), Postgres/Redis do docker já de pé (`pipe-postgres`, `pipe-redis`, equivalente a `pnpm db:up`). Comparação de assets desde `c7234632` (commit anterior ao `84d4a79e`, que abriu os planos 02-23..02-35). A árvore tinha arquivos modificados fora desta rodada (Desk/CRM/site), que não tocam o Builder.
+
+| Gate | Comando | Saída | Resultado |
+|---|---|---|---|
+| Typecheck | `pnpm typecheck` | 0 | 25/25 tarefas (turbo em cache: entradas idênticas às já verificadas) |
+| Testes do Builder (front) | `pnpm --filter @pipe/management-vite test` | 0 | 529 passaram, 0 falhas |
+| Editor do core | `pnpm --filter @pipe/core exec vitest run src/flow/editor.test.ts` | 0 | 37/37 |
+| API do Builder | `pnpm --filter @pipe/api exec vitest run tests/builder-by-flow.test.ts` | 0 | 17/17 (inclui versões e restauração) |
+| HTML inseguro | `grep -rn "dangerouslySetInnerHTML" apps/management-vite/src/pages/builder apps/management-vite/src/pages/builder.tsx` | 1 (sem linhas) | vazio |
+| Cor antiga | `grep -rn "#4a5d23\|--bl-verde" apps/management-vite/src/pages/builder apps/management-vite/src/pages/builder.css` | 1 (sem linhas) | vazio. O `builder.css` ainda usa `var(--moss)` (= `#4a5d23`) nas linhas 93, 294, 555 e 617, que o grep literal não pega; é o item já registrado como NEEDS VALIDATION na rodada anterior (zoom), fora do escopo F-1..F-6 |
+| Assets da Blip (D-33) | `git diff --name-only --diff-filter=A c7234632 HEAD` filtrado por `.svg/.png/.woff/.woff2/.jpg/.gif/.webp/.ttf/.otf` e por `referencias-blip` | — | 0 arquivos binários novos; 0 caminhos de `referencias-blip` |
+
+Nenhum gate vermelho; nenhuma correção nesta etapa.
