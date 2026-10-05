@@ -361,3 +361,39 @@ describe('Preserve API-key behavior on the same send route', () => {
     expect(resposta.status).toBe(401);
   });
 });
+
+describe('Send from a ticket in standby', () => {
+  it('leaves standby with an `espera_encerrada` event that carries the paused seconds', async () => {
+    const conversaId = await newConversation(cenario.agentId);
+    await cenario.dono.execute(sql`
+      update conversa set estado = 'Open', em_espera_desde = now() - interval '90 seconds'
+       where id = ${conversaId}::uuid
+    `);
+
+    const resposta = await enviar(conversaId, { texto: 'Voltei' }, { cookie: cookieOfAgent });
+    expect(resposta.status).toBe(201);
+
+    const { rows } = await cenario.dono.execute<{ standby: boolean; pausado: number }>(sql`
+      select em_espera_desde is not null as standby, pausado_seg as pausado from conversa where id = ${conversaId}::uuid
+    `);
+    expect(rows[0]!.standby).toBe(false);
+    expect(rows[0]!.pausado).toBeGreaterThanOrEqual(90);
+    const { rows: eventos } = await cenario.dono.execute<{ tipo: string; data: { pausado_seg: number; motivo: string } }>(sql`
+      select tipo, dados as data from evento_atendimento
+       where conversa_id = ${conversaId}::uuid and tipo = 'espera_encerrada'
+    `);
+    expect(eventos).toHaveLength(1);
+    expect(eventos[0]!.data.pausado_seg).toBe(rows[0]!.pausado);
+    expect(eventos[0]!.data.motivo).toBe('envio');
+  });
+
+  it('does not record the event when the ticket was not in standby', async () => {
+    const conversaId = await newConversation(cenario.agentId);
+    await enviar(conversaId, { texto: 'Oi' }, { cookie: cookieOfAgent });
+    const { rows } = await cenario.dono.execute<{ n: number }>(sql`
+      select count(*)::int as n from evento_atendimento
+       where conversa_id = ${conversaId}::uuid and tipo = 'espera_encerrada'
+    `);
+    expect(rows[0]!.n).toBe(0);
+  });
+});

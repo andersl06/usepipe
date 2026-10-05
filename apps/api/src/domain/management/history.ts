@@ -20,7 +20,7 @@ import {
 } from '@pipe/db/schema';
 import type { TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
-import { ticketDe } from './monitoring.js';
+import { parentSequentialSql, ticketDe } from './monitoring.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -35,7 +35,10 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
 
 export interface LineHistory {
   id: string;
+  /** `#<sequentialId>`: the ticket number the Desk and the bridge show. */
   ticket: string;
+  sequentialId: number;
+  parentSequentialId: number | null;
   contactName: string;
   queueName: string | null;
   agentName: string | null;
@@ -51,7 +54,7 @@ export interface HistoryFilter {
   queueId?: string | undefined;
   agentId?: string | undefined;
   labelId?: string | undefined;
-  /** Ticket ids as typed ("#A1B2C3"); a row matches when its ticket contains any of them. */
+  /** Ticket numbers as typed ("#42"; a legacy "#A1B2C3" still matches the end of the id); a row matches any of them. */
   tickets?: readonly string[] | undefined;
   /** Part of the contact name. */
   contact?: string | undefined;
@@ -115,9 +118,10 @@ export async function loadHistory(
         : undefined,
       termosTicket.length > 0
         ? or(
-            ...termosTicket.map(
-              (t) =>
-                sql`upper(right(replace(${conversation.id}::text, '-', ''), 6)) like ${`%${likeLiteral(t)}%`} escape '!'`,
+            ...termosTicket.map((t) =>
+              /^\d+$/.test(t)
+                ? sql`${conversation.sequentialNumber} = ${Number(t)}`
+                : sql`upper(right(replace(${conversation.id}::text, '-', ''), 6)) like ${`%${likeLiteral(t)}%`} escape '!'`,
             ),
           )
         : undefined,
@@ -127,6 +131,8 @@ export async function loadHistory(
     const base = tx
       .select({
         id: conversation.id,
+        sequentialId: conversation.sequentialNumber,
+        parentSequentialId: parentSequentialSql,
         encerradaEm: conversation.encerradaEm,
         filaNome: queue.nome,
         atendenteNome: user.nome,
@@ -199,7 +205,9 @@ export async function loadHistory(
       const marcos = derivarMarcos(inbound);
       return {
         id: c.id,
-        ticket: ticketDe(c.id),
+        ticket: ticketDe(Number(c.sequentialId)),
+        sequentialId: Number(c.sequentialId),
+        parentSequentialId: c.parentSequentialId === null ? null : Number(c.parentSequentialId),
         contactName: c.contatoNome ?? 'Contato sem nome',
         queueName: c.filaNome,
         agentName: c.atendenteNome,

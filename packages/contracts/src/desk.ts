@@ -24,6 +24,9 @@ export type StateAgent = 'Online' | 'Pause' | 'Invisible' | 'Offline';
 export interface ConversationOfList {
   id: string;
   estado: StateConversation;
+  /** Número sequencial do ticket por tenant (o mesmo da Blip e do bridge) e o do ticket pai, quando houver. */
+  sequentialId: number;
+  parentSequentialId: number | null;
   prioridade: PriorityOfDesk;
   criadaEm: string;
   /** Null means the agent has not answered this conversation yet; shown as the Unanswered card. */
@@ -160,6 +163,9 @@ export interface LabelOfConversation {
 
 export interface ConversationOfHistory {
   id: string;
+  /** Número sequencial do ticket por tenant e o do ticket pai, quando houver. */
+  sequentialId: number;
+  parentSequentialId: number | null;
   criadaEm: string;
   encerradaEm: string | null;
   estado: StateConversation;
@@ -196,6 +202,9 @@ export interface ResponseOfConversation {
 
 export interface TicketAntigo {
   id: string;
+  /** Número sequencial do ticket por tenant e o do ticket pai, quando houver. */
+  sequentialId: number;
+  parentSequentialId: number | null;
   estado: StateConversation;
   prioridade: PriorityOfDesk;
   criadaEm: string;

@@ -56,7 +56,10 @@ function inicioDoHorizonte(agora: Date): Date {
 
 export interface LineConversationOpen {
   id: string;
+  /** `#<sequentialId>`: the ticket number the Desk and the bridge show. */
   ticket: string;
+  sequentialId: number;
+  parentSequentialId: number | null;
   contactName: string;
   queueId: string | null;
   queueName: string | null;
@@ -162,6 +165,8 @@ export interface Monitoring {
 export interface PreviewOfConversationInMonitoring {
   id: string;
   ticket: string;
+  sequentialId: number;
+  parentSequentialId: number | null;
   contactName: string;
   queueName: string | null;
   agentName: string | null;
@@ -177,8 +182,12 @@ export async function loadPreviewOfConversation(
   await requirePermission(tx, userId, 'monitoramento.tempo_real.ver');
   const { rows } = await tx.execute<{
     id: string; contactName: string | null; queueName: string | null; agentName: string | null;
+    sequentialId: number; parentSequentialId: number | null;
   }>(sql`
-    select c.id, ct.nome as "contactName", f.nome as "queueName", u.nome as "agentName"
+    select c.id, ct.nome as "contactName", f.nome as "queueName", u.nome as "agentName",
+           c.numero_sequencial::int as "sequentialId",
+           (select p.numero_sequencial::int from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId"
       from conversa c
       join contato ct on ct.id = c.contato_id
       left join fila f on f.id = c.fila_id
@@ -203,7 +212,9 @@ export async function loadPreviewOfConversation(
   `);
   return {
     id: conversationOpen.id,
-    ticket: ticketDe(conversationOpen.id),
+    ticket: ticketDe(conversationOpen.sequentialId),
+    sequentialId: conversationOpen.sequentialId,
+    parentSequentialId: conversationOpen.parentSequentialId,
     contactName: conversationOpen.contactName ?? 'Contato sem nome',
     queueName: conversationOpen.queueName,
     agentName: conversationOpen.agentName,
@@ -263,10 +274,16 @@ export function normalizeTicketsByHour(linhas: readonly { hour: number; total: n
   return horas;
 }
 
-/** Número de ticket legível a partir do uuid — o modelo não tem sequência própria. */
-export function ticketDe(id: string): string {
-  return `#${id.replace(/-/g, '').slice(-6).toUpperCase()}`;
+/** Número do ticket como aparece nas telas: o sequencial por tenant, o mesmo da Desk e da Blip. */
+export function ticketDe(sequentialId: number): string {
+  return `#${sequentialId}`;
 }
+
+/** Número sequencial do ticket pai (transferência), lido na própria consulta. */
+export const parentSequentialSql = sql<number | null>`(
+  select p.numero_sequencial::int from conversa p
+   where p.id = ${conversation.parentId} and p.tenant_id = ${conversation.tenantId}
+)`;
 
 type LinhaEvento = {
   conversationId: string;
@@ -384,6 +401,8 @@ export async function loadMonitoring(
     const abertasCru = await tx
       .select({
         id: conversation.id,
+        sequentialId: conversation.sequentialNumber,
+        parentSequentialId: parentSequentialSql,
         estado: conversation.state,
         prioridade: conversation.priority,
         filaId: conversation.filaId,
@@ -452,7 +471,9 @@ export async function loadMonitoring(
         : entre(marcos.atribuidaEm, agora);
       return {
         id: c.id,
-        ticket: ticketDe(c.id),
+        ticket: ticketDe(Number(c.sequentialId)),
+        sequentialId: Number(c.sequentialId),
+        parentSequentialId: c.parentSequentialId === null ? null : Number(c.parentSequentialId),
         contactName: c.contatoNome ?? 'Contato sem nome',
         queueId: c.filaId,
         queueName: c.filaNome,

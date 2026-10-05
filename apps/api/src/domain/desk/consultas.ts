@@ -52,6 +52,8 @@ export async function listConversations(
   const { rows } = await tx.execute<{
     id: string;
     state: StateConversation;
+    sequentialId: number;
+    parentSequentialId: number | null;
     priority: Prioridade;
     criada_em: Date | string;
     primeira_resposta_em: Date | string | null;
@@ -70,6 +72,9 @@ export async function listConversations(
     nao_lida_em: Date | string | null;
   }>(sql`
     select c.id, c.estado as state, c.prioridade as priority, c.criada_em, c.primeira_resposta_em,
+           c.numero_sequencial::int as "sequentialId",
+           (select p.numero_sequencial::int from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId",
            c.ultima_mensagem_em, c.ultima_mensagem_de as "lastMessageOf",
            c.janela_expira_em as "windowExpiresAt", c.em_espera_desde,
            (c.estado = 'Open' and c.em_espera_desde is not null) as "emStandby", ct.nome as contato_nome,
@@ -98,6 +103,8 @@ export async function listConversations(
   return rows.map((r) => ({
     id: r.id,
     estado: r.state,
+    sequentialId: r.sequentialId,
+    parentSequentialId: r.parentSequentialId,
     emStandby: r.emStandby,
     prioridade: r.priority,
     criadaEm: iso(r.criada_em),
@@ -381,6 +388,8 @@ export async function listHistoryOfContact(
 ): Promise<ConversationOfHistory[]> {
   const { rows } = await tx.execute<{
     id: string;
+    sequentialId: number;
+    parentSequentialId: number | null;
     criada_em: Date | string;
     encerrada_em: Date | string | null;
     state: StateConversation;
@@ -388,6 +397,9 @@ export async function listHistoryOfContact(
     closed_by: string | null;
   }>(sql`
     select c.id, c.criada_em, c.encerrada_em, c.estado as "state", f.nome as fila_nome,
+           c.numero_sequencial::int as "sequentialId",
+           (select p.numero_sequencial::int from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId",
            ev.dados->>'encerrada_por' as closed_by
       from conversa c
       left join fila f on f.id = c.fila_id
@@ -403,6 +415,8 @@ export async function listHistoryOfContact(
   `);
   return rows.map((r) => ({
     id: r.id,
+    sequentialId: r.sequentialId,
+    parentSequentialId: r.parentSequentialId,
     criadaEm: iso(r.criada_em),
     encerradaEm: isoOuNulo(r.encerrada_em),
     estado: r.state,
@@ -420,6 +434,8 @@ export async function carregarTicketAntigo(
 ): Promise<TicketAntigo | null> {
   const { rows } = await tx.execute<{
     id: string;
+    sequentialId: number;
+    parentSequentialId: number | null;
     state: StateConversation;
     priority: Prioridade;
     criada_em: Date | string;
@@ -438,6 +454,9 @@ export async function carregarTicketAntigo(
     closedByName: string | null;
   }>(sql`
     select c.id, c.estado as "state", c.prioridade as "priority", c.criada_em, c.primeira_resposta_em,
+           c.numero_sequencial::int as "sequentialId",
+           (select p.numero_sequencial::int from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId",
            c.ultima_mensagem_em as "lastMessageAt", c.encerrada_em, c.motivo_encerramento as "reasonClosure", c.pausado_seg as "pausadoSeg",
            f.nome as fila_nome, ca.tipo as "channelType",
            ct.id as "contactId", ct.nome as contato_nome, ct.telefone_e164 as "phoneE164",
@@ -457,6 +476,8 @@ export async function carregarTicketAntigo(
   if (!r) return null;
   return {
     id: r.id,
+    sequentialId: r.sequentialId,
+    parentSequentialId: r.parentSequentialId,
     estado: r.state,
     prioridade: r.priority,
     criadaEm: iso(r.criada_em),

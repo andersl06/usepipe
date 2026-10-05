@@ -17,6 +17,8 @@ function conversation(parte: Partial<ConversationOfList>): ConversationOfList {
   return {
     id: 'a',
     estado: 'Open',
+    sequentialId: 1,
+    parentSequentialId: null,
     emStandby: false,
     prioridade: 'media',
     criadaEm: '2026-09-17T10:00:00Z',
