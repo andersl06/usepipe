@@ -9,6 +9,7 @@ import { registrarEvento } from '../eventos.js';
 import { transferConversation } from '../conversation.js';
 import { queuesOfAgent, ceilingWithoutFirstResponse } from '../distribution.js';
 import { lerConfigAtendimento } from '../management/atendimento-config.js';
+import { registrarHistoricoDeStatus, statusAtual } from '../status-agent.js';
 
 /** The transaction already has its tenant fixed; `consultar` only names the block, as in Desk. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -45,12 +46,14 @@ export async function definirStatus(
   }
 
   await consultar(tx, async (tx) => {
+    const agora = new Date();
+    const anterior = await statusAtual(tx, atendenteId);
     await tx
       .insert(statusAgent)
-      .values({ usuarioId: atendenteId, tenantId, estado: state, desde: new Date() })
+      .values({ usuarioId: atendenteId, tenantId, estado: state, desde: agora })
       .onConflictDoUpdate({
         target: statusAgent.usuarioId,
-        set: { estado: state, desde: new Date() },
+        set: { estado: state, desde: agora },
       });
 
     // Sai da pausa anterior antes de abrir outra: pausa aberta em duplicidade conta
@@ -60,9 +63,14 @@ export async function definirStatus(
       .set({ encerradaEm: new Date() })
       .where(and(eq(pausa.usuarioId, atendenteId), isNull(pausa.encerradaEm)));
 
+    let motivo: string | null = null;
     if (state === 'Pause' && motivoId) {
       await tx.insert(pausa).values({ tenantId, usuarioId: atendenteId, motivoId });
+      const { rows } = await tx.execute<{ nome: string }>(sql`select nome from motivo_pausa where id = ${motivoId}::uuid limit 1`);
+      motivo = rows[0]?.nome ?? null;
     }
+
+    await registrarHistoricoDeStatus(tx, { tenantId, userId: atendenteId, of: anterior, to: state, motivo, at: agora });
   });
 
   return OK;
@@ -79,6 +87,7 @@ export async function failByInactivity(
 ): Promise<Resultado> {
   await consultar(tx, async (tx) => {
     const agora = new Date();
+    const anterior = await statusAtual(tx, agentId);
     await tx
       .insert(statusAgent)
       .values({ usuarioId: agentId, tenantId, estado: 'Offline', desde: agora })
@@ -92,6 +101,8 @@ export async function failByInactivity(
       .update(pausa)
       .set({ encerradaEm: agora })
       .where(and(eq(pausa.usuarioId, agentId), isNull(pausa.encerradaEm)));
+
+    await registrarHistoricoDeStatus(tx, { tenantId, userId: agentId, of: anterior, to: 'Offline', motivo: 'inatividade', at: agora });
   });
 
   return OK;
