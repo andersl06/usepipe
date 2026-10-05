@@ -31,6 +31,7 @@ COPY packages/contracts/package.json packages/contracts/
 COPY packages/core/package.json packages/core/
 COPY packages/db/package.json packages/db/
 COPY packages/mcp/package.json packages/mcp/
+COPY packages/storage/package.json packages/storage/
 COPY packages/ui/package.json packages/ui/
 
 # --- build ------------------------------------------------------------------
