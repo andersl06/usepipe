@@ -127,6 +127,28 @@ describe('Close conversations and record their events', () => {
     expect(rows[0]?.data['etiqueta']).toBe('Resolvido');
   });
 
+  it('Closing with an API key ends the ticket as ClosedAttendant, never as Transferred, and records the origin on the event', async () => {
+    const id = await newConversation('Open');
+
+    const resposta = await fetch(`${api.url}/v1/conversations/${id}/close`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${cenario.token}` },
+      body: JSON.stringify({ etiqueta_id: etiquetaId }),
+    });
+
+    expect(resposta.status).toBe(201);
+    expect(((await resposta.json()) as { state: string }).state).toBe('ClosedAttendant');
+    const { rows } = await cenario.dono.execute<{ estado: string; atendente: string | null }>(sql`
+      select estado, encerrada_por as atendente from conversa where id = ${id}::uuid
+    `);
+    expect(rows[0]).toEqual({ estado: 'ClosedAttendant', atendente: null });
+    const { rows: evento } = await cenario.dono.execute<{ data: Record<string, string> }>(sql`
+      select dados as data from evento_atendimento where conversa_id = ${id}::uuid and tipo = 'encerrada' limit 1
+    `);
+    expect(evento[0]?.data['encerrada_por']).toBe('atendente');
+    expect(evento[0]?.data['origem']).toBe('api');
+  });
+
   it('Record all selected labels and retain the first as the legacy event reason', async () => {
     const id = await newConversation('Open');
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`

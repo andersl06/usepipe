@@ -1711,11 +1711,12 @@ type RecentAttendance = {
   closeDate: Date | null;
   tags: string[];
   sequentialId: number;
+  parentSequentialId: number | null;
 };
 
 /**
  * The contact's last closed attendance session (`RLS` already scopes every row here to the
- * current tenant, including the `sequentialId` count). Shared by `lastAttendance` (the `Ticket`
+ * current tenant). Shared by `lastAttendance` (the `Ticket`
  * fed to the engine, D-12) and `recordSatisfactionAnswer` (which attendance the survey answer
  * evaluates, D-08.5).
  */
@@ -1737,8 +1738,9 @@ async function mostRecentClosedAttendance(
                join etiqueta et on et.id = ce.etiqueta_id where ce.conversa_id = c.id),
              '{}'
            ) as "tags",
-           (select count(*)::int from conversa c2
-             where (c2.criada_em, c2.id) <= (c.criada_em, c.id)) as "sequentialId"
+           c.numero_sequencial::int as "sequentialId",
+           (select p.numero_sequencial::int from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId"
       from conversa c
       left join fila q on q.id = c.fila_id
       left join usuario u on u.id = c.atendente_id
@@ -1750,7 +1752,7 @@ async function mostRecentClosedAttendance(
 }
 
 /** The contact's last closed attendance session, like the `Ticket` Blip sends to the bot. */
-async function lastAttendance(
+export async function lastAttendance(
   tx: TransactionPipe,
   contatoId: string,
   conversationCurrentId: string | null,
@@ -1766,6 +1768,7 @@ async function lastAttendance(
   closeDate: Date | null;
   closedBy: string | null;
   sequentialId: number | null;
+  parentSequentialId: number | null;
 }> {
   const recent = await mostRecentClosedAttendance(tx, contatoId, conversationCurrentId);
   return {
@@ -1779,14 +1782,15 @@ async function lastAttendance(
     closeDate: recent?.closeDate ?? null,
     closedBy: recent?.by ?? null,
     sequentialId: recent?.sequentialId ?? null,
+    parentSequentialId: recent?.parentSequentialId ?? null,
   };
 }
 
 /**
  * The conversation as Blip's `Ticket` document (`blip-api-schemas.md`, Ticket), which the engine
  * exposes as `{{ticket.*}}` after `ForwardToDesk`/`CreateTicket`. Identities are Pipe ids (contact
- * id for the customer, agent e-mail for the agent); `sequentialId` counts the tenant's conversations
- * (explicitly filtered by tenant), the same numbering the closed-ticket input uses.
+ * id for the customer, agent e-mail for the agent); `sequentialId` is the tenant's `numero_sequencial`
+ * (the number the Desk and the bridge show) and `parentSequentialId` the origin ticket of a transfer.
  */
 export async function ticketOfConversation(
   tx: TransactionPipe,
@@ -1795,7 +1799,7 @@ export async function ticketOfConversation(
   const { rows } = await tx.execute<{
     id: string; state: string; contactId: string; team: string | null; agentIdentity: string | null;
     storageDate: string; statusDate: string; openDate: string | null; firstResponseDate: string | null; closeDate: string | null;
-    priority: string; tags: string[]; sequentialId: number;
+    priority: string; tags: string[]; sequentialId: number; parentSequentialId: number | null;
   }>(sql`
     select c.id, c.estado as state, c.contato_id as "contactId", q.nome as team,
            u.email as "agentIdentity",
@@ -1812,9 +1816,9 @@ export async function ticketOfConversation(
                join etiqueta et on et.id = ce.etiqueta_id where ce.conversa_id = c.id),
              '{}'
            ) as tags,
-           (select count(*)::int from conversa c2
-             where c2.tenant_id = c.tenant_id
-               and (c2.criada_em, c2.id) <= (c.criada_em, c.id)) as "sequentialId"
+           c.numero_sequencial::int as "sequentialId",
+           (select p.numero_sequencial::int from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId"
       from conversa c
       left join fila q on q.id = c.fila_id
       left join usuario u on u.id = c.atendente_id
@@ -1826,6 +1830,7 @@ export async function ticketOfConversation(
   return {
     id: t.id,
     sequentialId: t.sequentialId,
+    parentSequentialId: t.parentSequentialId,
     customerIdentity: t.contactId,
     agentIdentity: t.agentIdentity,
     provider: 'Lime',
@@ -1836,7 +1841,7 @@ export async function ticketOfConversation(
     statusDate: t.statusDate,
     firstResponseDate: t.firstResponseDate,
     closeDate: t.closeDate,
-    closed: status.startsWith('Closed'),
+    closed: isClosedState(status),
     priority: t.priority,
     tags: t.tags,
     unreadMessages: 0,

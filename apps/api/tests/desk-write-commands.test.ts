@@ -173,6 +173,33 @@ describe('Desk write commands in a published flow', () => {
     expect(await resposta(conversa.id, 'finalizarResponse')).toMatchObject({ status: 'success', resource: { tags: ['Encerrado pelo Cliente'] } });
   });
 
+  it('a flow that keeps {{ticket.sequentialId}} can address its own ticket by it, even when criada_em disagrees with the ticket number', async () => {
+    // A ticket dated far in the future takes number 1, so a count by criada_em would give the
+    // flow's ticket number 1 while the stored number is 2.
+    const { rows: contato } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into contato (tenant_id, nome, telefone_e164) values (${cenario.tenantId}, 'Outro', '+5511900000099') returning id
+    `);
+    await cenario.dono.execute(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em, encerrada_em, janela_expira_em)
+      values (${cenario.tenantId}, ${cenario.inboxId}, ${contato[0]!.id}, ${cenario.queueId}, 'ClosedAttendant',
+              '2100-01-01T00:00:00Z'::timestamptz, now(), now() + interval '20 hours')
+    `);
+    await publicar([
+      { type: 'ForwardToDesk', settings: {} },
+      { type: 'SetVariable', settings: { value: '{{ticket.sequentialId}}', variable: 'numeroDoMotor' } },
+      deskSet('/tickets/change-status', { id: '{{numeroDoMotor}}', status: 'ClosedClient' }, 'fechou'),
+    ]);
+    await falar('oi');
+    const { rows } = await cenario.dono.execute<Conversa & { numero: number }>(sql`
+      select id, estado, fila_id, encerrada_em, numero_sequencial::int as numero from conversa
+       where tenant_id = ${cenario.tenantId}::uuid and contato_id <> ${contato[0]!.id}::uuid
+    `);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.numero).toBe(2);
+    expect(rows[0]!.estado).toBe('ClosedClient');
+    expect(await resposta(rows[0]!.id, 'fechou')).toMatchObject({ status: 'success', resource: { status: 'ClosedClient', closed: true } });
+  });
+
   it("change-status refuses another ticket and 'Open': LIME failures, the conversation untouched", async () => {
     await publicar([
       { type: 'ProcessCommand', settings: { to: DESK, method: 'set', uri: '/tickets', type: 'text/plain', resource: 'Preciso de ajuda', variable: 'abriu' } },
