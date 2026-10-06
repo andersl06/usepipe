@@ -132,7 +132,7 @@
 }
 
 /* Each block's label is `bds-typo variant="fs-14"`, normal weight. */
-.ct-rotulo,
+.ctr-rotulo,
 .ct-data dt {
   display: block;
   margin-bottom: var(--p-e-2); /* 8px — `::part(bds-typo__text)` do primeiro */
@@ -145,7 +145,7 @@
 /*
  * The contract name is `bds-typo variant="fs-24"` — 24px with 100% line height, the card's largest text.
  */
-.ct-nome {
+.ctr-nome {
   margin: 0;
   font-size: 24px;
   font-weight: var(--p-peso-forte);
@@ -275,7 +275,7 @@
 /*
  * The 24 semi-bold title. What is the GROUP header (the rule, the padding, the 48 gap) lives in the selector below, under `.ct-secao`.
  */
-.ct-titulo {
+.ctr-titulo {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -289,7 +289,7 @@
 /*
  * `rt` + their sheet's `bb-color-surface` class: `padding: 8px 0 16px 0; margin-bottom: 24px` plus `border-bottom: 2px solid var(--color-surface-3)`.
  */
-.ct-section .ct-titulo {
+.ctr-section .ctr-titulo {
   flex-grow: 0;
   gap: 0;
   margin-bottom: var(--p-e-6); /* 24px */
@@ -301,12 +301,12 @@
 /*
  * The header's own `:not(:first-child) { margin-top: 48px }`: from the second group on, it breathes 48 before starting.
  */
-.ct-section:not(:first-child) .ct-titulo {
+.ctr-section:not(:first-child) .ctr-titulo {
   margin-top: calc(var(--p-e-6) * 2); /* 48px; there's no 48 token */
 }
 
 /* `& > bds-typo { margin-right: 8px }` — the gap between the title and the icon. */
-.ct-info {
+.ctr-info {
   display: inline-flex;
   margin-left: var(--p-e-2);
   color: var(--ink-3);
@@ -314,7 +314,7 @@
 }
 
 /* `ct` */
-.ct-cards {
+.ctr-cards {
   display: flex;
   gap: var(--p-e-4); /* 16px */
   flex-wrap: wrap;
@@ -323,7 +323,7 @@
 /*
  * `ce` + `bds-paper`: FIXED width of 312, 16 padding, full row height, and the title underlines on hover.
  */
-.ct-card {
+.ctr-card {
   width: 312px;
   max-width: 100%;
   display: flex;
@@ -341,7 +341,7 @@
 /*
  * `onMouseEnter` swaps the elevation from `static` to `secondary`, and `ce` itself underlines the text.
  */
-a.ct-card:hover {
+a.ctr-card:hover {
   box-shadow: var(--p-sombra-2);
   text-decoration: underline;
 }
@@ -349,7 +349,7 @@ a.ct-card:hover {
 /*
  * The work-in-progress card uses the portal's `.pt-obra` for the muted look and the cursor, but the box stays the card's: without this, the portal menu item's padding (8/12) would beat the card's (16).
  */
-.ct-card.pt-obra {
+.ctr-card.pt-obra {
   display: flex;
   align-items: stretch;
   padding: var(--p-e-4);
@@ -374,7 +374,7 @@ a.ct-card:hover {
 }
 
 /* `le` */
-.ct-card-text {
+.ctr-card-text {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -398,7 +398,7 @@ a.ct-card:hover {
 }
 
 /* The description: `bds-typo fs-14 bold="regular"`. */
-.ct-card-text > span {
+.ctr-card-text > span {
   font-size: var(--p-t-md); /* 14px */
   font-weight: var(--p-peso-normal);
   line-height: 1.5;
@@ -406,7 +406,7 @@ a.ct-card:hover {
 }
 
 /* The label for what would hide the card in the real world. Preview only. */
-.ct-card-text .ct-porque {
+.ctr-card-text .ct-porque {
   font-family: var(--p-fonte-mono);
   font-size: var(--p-t-xs);
   color: var(--ink-3);
@@ -434,7 +434,7 @@ a.ct-card:hover {
 /*
  * The error message that comes back from Server Actions (`?erro=`). It has no counterpart in the source: there the failure becomes a toast (`BlipToastService`), which only exists with JavaScript and disappears on its own.
  */
-.ct-aviso {
+.ctr-aviso {
   margin: 0 0 var(--p-e-4);
   padding: var(--p-e-3) var(--p-e-4);
   border-radius: var(--p-r-md);

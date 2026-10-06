@@ -54,7 +54,7 @@ export function MembersPage() {
           </div>
 
           {parametros.erro ? (
-            <p className="ct-aviso" role="alert">
+            <p className="ctr-aviso" role="alert">
               {parametros.erro}
             </p>
           ) : null}

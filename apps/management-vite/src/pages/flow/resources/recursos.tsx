@@ -294,7 +294,7 @@ export function PageResources() {
         <LateralDeConteudos ativo="resources" />
         <section className="ct-miolo" id="main-content-area">
           <header className="ct-cabecalho" id="resources-header">
-            <div className="ct-header-section">
+            <div className="cnt-header-section">
               <div className="ct-cabecalho-linha">
                 <div className="ct-cabecalho-titulo">
                   <h1 className="rc-title">Recursos</h1>
@@ -309,7 +309,7 @@ export function PageResources() {
                     <IconePortal nome="informacao" tamanho={24} />
                   </button>
                 </div>
-                <div className="ct-header-actions">
+                <div className="cnt-header-actions">
                   <button
                     type="button"
                     className="ct-botao ct-botao--principal"
@@ -324,7 +324,7 @@ export function PageResources() {
             </div>
           </header>
 
-          <div className="ct-container rc-container">
+          <div className="cnt-container rc-container">
             {helpOpen ? (
               <div className="ct-paper rc-help">
                 <p>

@@ -192,12 +192,12 @@ export function TelaDeConteudos({
       <LateralDeConteudos ativo="templates" />
       <section className="ct-miolo" id="main-content-area">
         <header className="ct-cabecalho" id="whatsapp-message-templates-header">
-          <div className="ct-header-section">
+          <div className="cnt-header-section">
             <div className="ct-cabecalho-linha">
               <div className="ct-cabecalho-titulo">
-                <h1 className="ct-titulo">Modelos de Mensagem</h1>
+                <h1 className="cnt-titulo">Modelos de Mensagem</h1>
                 <span
-                  className="ct-info"
+                  className="cnt-info"
                   id="message-template__icon-info"
                   title="São formatos para mensagens reutilizáveis que poderão ser enviadas em massa"
                 >
@@ -205,11 +205,11 @@ export function TelaDeConteudos({
                 </span>
               </div>
               {temWhatsapp ? (
-                <div className="ct-header-actions">
+                <div className="cnt-header-actions">
                   {modelos.length ? (
                     <button
                       type="button"
-                      className="ct-botao-icone"
+                      className="cnt-botao-icone"
                       aria-label="Filtrar por nome do modelo"
                       title="Nome do modelo"
                     >
@@ -235,7 +235,7 @@ export function TelaDeConteudos({
           </div>
         </header>
 
-        <div className="ct-container" id="message-template__main-content-area">
+        <div className="cnt-container" id="message-template__main-content-area">
           {state === 'indisponivel' ? (
             <section className="ct-indisponivel">
               <div>
@@ -514,7 +514,7 @@ function NewTemplateSidebar({
                 {indice === 0 && mostrarVoltar(tipo, categoria, translations.length) ? (
                   <button
                     type="button"
-                    className="ct-voltar"
+                    className="cnt-voltar"
                     onClick={() => {
                       setTipo('default');
                     }}
@@ -560,8 +560,8 @@ function NewTemplateSidebar({
                 ) : null}
 
                 {authentication ? (
-                  <section className="ct-card ct-card--preview">
-                    <span className="ct-card-text">
+                  <section className="cnt-card ct-card--preview">
+                    <span className="cnt-card-text">
                       Seu código de verificação é {'{{1}}'}. Para sua segurança, não o compartilhe.
                     </span>
                     <div className="ct-card-buttons">
@@ -606,7 +606,7 @@ function NewTemplateSidebar({
                   </button>
                 </div>
               ) : null}
-              {indice < translations.length - 1 ? <hr className="ct-divisor" /> : null}
+              {indice < translations.length - 1 ? <hr className="cnt-divisor" /> : null}
             </div>
           ))}
 
@@ -658,7 +658,7 @@ function TextCard({
   if (!translation.editando) {
     return (
       <section
-        className={translation.texto ? 'ct-card ct-card--preview' : 'ct-card'}
+        className={translation.texto ? 'cnt-card ct-card--preview' : 'cnt-card'}
         onDoubleClick={() => aoMudar({ editando: true, rascunho: translation.texto })}
       >
         <button
@@ -670,7 +670,7 @@ function TextCard({
           <IconePortal nome="editar" tamanho={16} />
         </button>
         {translation.texto ? (
-          <span className="ct-card-text">{translation.texto}</span>
+          <span className="cnt-card-text">{translation.texto}</span>
         ) : (
           <span className="ct-card-placeholder">Insira aqui o conteúdo da mensagem</span>
         )}
@@ -694,7 +694,7 @@ function TextCard({
     );
   }
   return (
-    <section className="ct-card ct-card--edit">
+    <section className="cnt-card ct-card--edit">
       <button
         type="button"
         className="ct-card-button ct-card-close"
@@ -910,7 +910,7 @@ function AttachmentCard({
   if (!translation.editando) {
     return (
       <section
-        className="ct-card ct-card--attachment ct-card--attachment-inactive"
+        className="cnt-card ct-card--attachment ct-card--attachment-inactive"
         onClick={() => aoMudar({ editando: true, rascunho: translation.texto })}
         role="button"
         tabIndex={0}
@@ -922,7 +922,7 @@ function AttachmentCard({
           <div className="ct-attachment-title">
             {translation.texto ? (
               <>
-                <p className="ct-card-text">{translation.texto}</p>
+                <p className="cnt-card-text">{translation.texto}</p>
                 <p className="ct-card-footer">{translation.rodape}</p>
               </>
             ) : (
@@ -936,7 +936,7 @@ function AttachmentCard({
     );
   }
   return (
-    <section className="ct-card ct-card--attachment ct-card--edit">
+    <section className="cnt-card ct-card--attachment ct-card--edit">
       <div className="ct-mb3">
         <button
           type="button"

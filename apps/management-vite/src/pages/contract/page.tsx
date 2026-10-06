@@ -59,18 +59,18 @@ export function ContractPage() {
               </p>
             ) : (
               sections.map(({ grupo, cards }) => (
-                <section key={grupo.id} className="ct-section">
-                  <h2 className="ct-titulo">
+                <section key={grupo.id} className="ctr-section">
+                  <h2 className="ctr-titulo">
                     {grupo.titulo}
                     {/*
  * The info icon with tooltip they place next to each group title — `bds-icon name="info" theme="solid"` with no `size`, and the component's default is `medium`, 24. A native `title`: their tooltip doesn't do anything the browser's own doesn't already do.
  */}
-                    <span className="ct-info" title={grupo.tooltip} aria-label={grupo.tooltip}>
+                    <span className="ctr-info" title={grupo.tooltip} aria-label={grupo.tooltip}>
                       <IconePortal nome="informacao" tamanho={24} />
                     </span>
                   </h2>
 
-                  <div className="ct-cards">
+                  <div className="ctr-cards">
                     {cards.map((card) => (
                       <Card
                         key={card.id}
@@ -145,8 +145,8 @@ function SummaryCard({
       <div className="ct-corpo">
         <div className="ct-block">
           {/* The "Nome do contrato" label they place above the name. */}
-          <span className="ct-rotulo">Nome do contrato</span>
-          <h1 className="ct-nome">{resumo.name}</h1>
+          <span className="ctr-rotulo">Nome do contrato</span>
+          <h1 className="ctr-nome">{resumo.name}</h1>
 
           {/*
  * Their `{id}.blip.ai`, bold with a copy button. Our address identifier is the account slug.
@@ -235,7 +235,7 @@ function Card({
       <span className="ct-card-icon">
         <IconePortal nome={card.icone} tamanho={36} />
       </span>
-      <span className="ct-card-text">
+      <span className="ctr-card-text">
         {/*
  * Their `flex row justify-between` row: title on the left, tag flush right.
  */}
@@ -253,11 +253,11 @@ function Card({
    * A card whose route doesn't exist yet stays in place, grayed out and badged — that's what the portal already does with anything under construction (`pt-obra`), and removing it would hide that the product has it.
    */
   if (!card.pronto) {
-    return <div className="ct-card pt-obra">{miolo}</div>;
+    return <div className="ctr-card pt-obra">{miolo}</div>;
   }
 
   return (
-    <Link className="ct-card" href={card.rota}>
+    <Link className="ctr-card" href={card.rota}>
       {miolo}
     </Link>
   );
