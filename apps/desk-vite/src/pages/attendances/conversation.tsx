@@ -343,7 +343,7 @@ export function Conversation({
 
       <Thread
         conversationId={conversation.id}
-        numero={numero}
+        titulo={`Ticket ${numero}`}
         itens={itens}
         agora={agora}
         aoReenviar={(id) => void reenviar(id)}

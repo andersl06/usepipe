@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ticketNumber, type ConversationOfHistory, type TicketDoDesk } from '@pipe/contracts';
+import {
+  ticketNumber,
+  type ConversationOfHistory,
+  type PassagemDoBot,
+  type TicketDoDesk,
+} from '@pipe/contracts';
 import { useRead } from '../../lib/query';
 import { useDeskSelection } from '../../context/desk-selection';
 import { IconeDesk } from '../../components/icones-desk';
@@ -10,7 +15,9 @@ import { dataAbreviada } from '../../lib/format';
 import { displayName } from '../../lib/order';
 import { situationLabel } from '../../lib/situation';
 import { groupContacts, type ListContact, type ContactsOrder } from '../../lib/contacts';
+import { entradasDoHistorico } from '../../lib/historico-contato';
 import { Thread } from '../attendances/thread';
+import { LinhaPassagemDoBot, ModalPassagemDoBot } from '../attendances/passagem-bot';
 
 /**
  * Contacts tab follows reference MFE `desk-contact-history`, measured on the mock in `~/desk-clone/clone/mfe-teste.html` (`desk2/blip-contacts-1200.png`, `blip-contatos-aberto.png`): 300/600/300 columns. Left has 110px heading/search/sort and grouped 62px contact cards. Center shows an empty prompt, then new-conversation card, or ticket transcript. Right has `Histórico` and `Contato` tabs. Read only through `GET /v1/desk/contatos?busca=`, `/contatos/:id`, and `/tickets/:id`, as in the reference.
@@ -22,13 +29,18 @@ export function PageContacts() {
   const [order, setOrder] = useState<ContactsOrder>('alfabetica');
   const [menuOrder, setMenuOrder] = useState(false);
   const [aba, setAba] = useState<'historico' | 'contato'>('historico');
+  const [passagemAberta, setPassagemAberta] = useState<PassagemDoBot | null>(null);
   const id = selectedContact?.contactId ?? null;
   const ticketId = selectedContact?.ticketId ?? null;
 
   const lista = useRead<{ contacts: ListContact[] }>(
     `/v1/desk/contacts${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`,
   );
-  const contact = useRead<{ contact: ContactRecord; history: ConversationOfHistory[] }>(
+  const contact = useRead<{
+    contact: ContactRecord;
+    history: ConversationOfHistory[];
+    botPassages: PassagemDoBot[];
+  }>(
     id ? `/v1/desk/contacts/${id}` : null,
   );
   const ticket = useRead<TicketDoDesk>(ticketId ? `/v1/desk/tickets/${ticketId}` : null);
@@ -150,7 +162,7 @@ export function PageContacts() {
         {ticketId && ticket.data ? (
           <Thread
             conversationId={ticket.data.ticket.id}
-            numero={ticketNumber(ticket.data.ticket.sequentialId)}
+            titulo={`Ticket ${ticketNumber(ticket.data.ticket.sequentialId)}`}
             itens={ticket.data.itens}
             agora={new Date()}
             onlyRead
@@ -212,28 +224,43 @@ export function PageContacts() {
                 <div className="dk-girando dk-girando-pequeno" />
               ) : aba === 'historico' ? (
                 <section className="dk-paper" style={{ flexBasis: '100%' }}>
-                  {contact.data.history.length === 0 ? (
+                  {entradasDoHistorico(contact.data.history, contact.data.botPassages ?? []).length === 0 ? (
                     <div className="dk-comments-empty" style={{ minHeight: 120 }}>
                       Não há mensagens nos últimos 90 dias.
                     </div>
                   ) : (
-                    contact.data.history.map((h) => (
-                      <button
-                        key={h.id}
-                        type="button"
-                        className="dk-history-item dk-history-button"
-                        aria-current={h.id === ticketId ? 'true' : undefined}
-                        onClick={() => id && openContact(id, h.id)}
-                      >
-                        <b>Ticket {ticketNumber(h.sequentialId)}</b>
-                        <span>{h.filaNome ?? 'Transferência direta'}</span>
-                        <small>
-                          {situationLabel(h)}
-                          {h.encerradaEm ? ` · ${dataAbreviada(new Date(h.encerradaEm))}` : ''}
-                        </small>
-                      </button>
-                    ))
+                    entradasDoHistorico(contact.data.history, contact.data.botPassages ?? []).map((e) =>
+                      e.tipo === 'bot' ? (
+                        <LinhaPassagemDoBot
+                          key={e.chave}
+                          passagem={e.passagem}
+                          aoAbrir={() => setPassagemAberta(e.passagem)}
+                        />
+                      ) : (
+                        <button
+                          key={e.chave}
+                          type="button"
+                          className="dk-history-item dk-history-button"
+                          aria-current={e.ticket.id === ticketId ? 'true' : undefined}
+                          onClick={() => id && openContact(id, e.ticket.id)}
+                        >
+                          <b>Ticket {ticketNumber(e.ticket.sequentialId)}</b>
+                          <span>{e.ticket.filaNome ?? 'Transferência direta'}</span>
+                          <small>
+                            {situationLabel(e.ticket)}
+                            {e.ticket.encerradaEm ? ` · ${dataAbreviada(new Date(e.ticket.encerradaEm))}` : ''}
+                          </small>
+                        </button>
+                      ),
+                    )
                   )}
+                  {passagemAberta && id ? (
+                    <ModalPassagemDoBot
+                      contactId={id}
+                      passagem={passagemAberta}
+                      aoFechar={() => setPassagemAberta(null)}
+                    />
+                  ) : null}
                 </section>
               ) : (
                 <section className="dk-paper" style={{ flexBasis: '100%' }}>

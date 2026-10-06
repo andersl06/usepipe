@@ -9,15 +9,15 @@ import { agrupar, deliverySignal, type Message } from '../../lib/groups';
  */
 export function Thread({
   conversationId,
-  numero,
+  titulo,
   itens,
   agora,
   aoReenviar,
   onlyRead = false,
 }: {
   conversationId: string;
-  /** Número do ticket exibido no cabeçalho da conversa (ex.: #42). */
-  numero: string;
+  /** Texto do cabeçalho da conversa (ex.: Ticket #42). */
+  titulo: string;
   itens: ItemOfConversation[];
   agora: Date;
   aoReenviar?: (messageId: string) => void;
@@ -45,7 +45,7 @@ export function Thread({
         <div className="dk-thread-miolo">
           <div className="dk-ticket-linha">
             <p>
-              <span>Ticket {numero}</span>
+              <span>{titulo}</span>
             </p>
           </div>
           {groups.map((g, i) =>

@@ -3741,3 +3741,17 @@ button {
   accent-color: var(--p-marca);
   cursor: pointer;
 }
+
+/* Mensagens de uma passagem do contato pelo bot, lidas dentro de um modal. */
+.dk-modal-passagem {
+  width: 720px;
+}
+
+.dk-passagem-corpo {
+  display: flex;
+  flex-direction: column;
+  height: 55vh;
+  border: 1px solid var(--p-superficie-2);
+  border-radius: 8px;
+  overflow: hidden;
+}
