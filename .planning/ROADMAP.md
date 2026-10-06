@@ -402,7 +402,7 @@ Plans:
 - [x] 03.3-11-PLAN.md — P06 Pipe Chat API (widget channel, public endpoints, delivery)
 - [x] 03.3-12-PLAN.md — P06 Pipe Chat embed bundle + config page
 - [x] 03.3-13-PLAN.md — P13 message-template page Blip parity
-- [ ] 03.3-14-PLAN.md — phase gate + owner re-test
+- [x] 03.3-14-PLAN.md — phase gate + owner re-test (aprovado pelo dono em 2026-10-06)
 
 ### Phase 03.4: Construir tudo que o Pipe marca como "em breve" ou "não disponível" (INSERTED)
 
@@ -500,7 +500,7 @@ Plans:
   4. O dono aprova a comparação visual
 
 **UI hint**: yes
-**Plans:** 22/25 plans executed
+**Plans:** 25/25 plans executed (portões aprovados pelo dono em 2026-10-06)
 
 Plans:
 
@@ -522,13 +522,13 @@ Plans:
 - [x] 03.2-16-PLAN.md — portão da Onda 1
 - [x] 03.2-17-PLAN.md — Regras e SLA
 - [x] 03.2-18-PLAN.md — Horários e Pausas personalizadas
-- [ ] 03.2-19-PLAN.md — portão da Onda 2
+- [x] 03.2-19-PLAN.md — portão da Onda 2 (aprovado pelo dono em 2026-10-06: "tudo aprovado")
 - [x] 03.2-20-PLAN.md — Respostas e Templates de mensagem
 - [x] 03.2-21-PLAN.md — Canais e Configurações gerais
-- [ ] 03.2-22-PLAN.md — portão da Onda 3
+- [x] 03.2-22-PLAN.md — portão da Onda 3 (aprovado pelo dono em 2026-10-06)
 - [x] 03.2-23-PLAN.md — Relatórios, Esforço, Pesquisa + cartão único
 - [x] 03.2-24-PLAN.md — dashboards de ligações e vendas
-- [ ] 03.2-25-PLAN.md — GATE-FINAL e OWNER APPROVED
+- [x] 03.2-25-PLAN.md — GATE-FINAL e OWNER APPROVED (aprovado pelo dono em 2026-10-06)
 
 ### Phase 4: Resolver o CRM e consolidar o repositório
 
