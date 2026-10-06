@@ -4,6 +4,7 @@ import { useEu, useSession } from '../context/session';
 import { api } from '@pipe/ui/api';
 import { APPLICATION } from './application-paths';
 import { useRead } from './query';
+import { loggedInDestination } from './tenant-links';
 
 /**
  * Portal shell combines the signed-in user, current account, and account-selector list. This is browser-mounted `PortalShell` from `apps/gestao/src/lib/portal.ts`, built from existing `api` responses `GET /v1/eu` and `GET /v1/contas/minhas`; no new endpoint is needed.
@@ -45,8 +46,14 @@ export function accountUseSwitch() {
   const navegar = useNavigate();
   const queue = useQueryClient();
   return useMutation({
-    mutationFn: (tenantId: string) => api.post('/v1/accounts/exchange', { tenantId }),
-    onSuccess: async () => {
+    mutationFn: (tenantId: string) => api.post<{ tenantId: string; slug: string }>('/v1/accounts/exchange', { tenantId }),
+    onSuccess: async (switched) => {
+      // With tenant hosts each org lives on its own subdomain (the parent-domain cookie already carries the new session): go there. On plain localhost there is one host, so swap the session in place.
+      const home = loggedInDestination(window.location, switched.slug, null);
+      if (home) {
+        window.location.assign(home);
+        return;
+      }
       await atualizar();
       queue.clear();
       navegar(APPLICATION);

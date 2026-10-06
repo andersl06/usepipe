@@ -37,6 +37,12 @@ test('denied tenant notice accepts only a slug', () => {
   assert.equal(readDeniedTenantNotice(''), null);
 });
 
+test('switching org goes to the destination org host, and stays in place on plain localhost', () => {
+  assert.equal(loggedInDestination(location('https://acme.pipe.test/application'), 'beta', null), 'https://beta.pipe.test/application');
+  assert.equal(loggedInDestination(location('http://localhost:3110/application'), 'beta', null), null);
+  assert.equal(loggedInDestination(location('https://acme.pipe.test/application'), 'not a slug!', null), null);
+});
+
 test('an existing session returns only to its own tenant', () => {
   const login = location('https://login.pipe.test/');
   assert.equal(loggedInDestination(login, 'acme', 'https://acme.desk.pipe.test/'), 'https://acme.desk.pipe.test/');
