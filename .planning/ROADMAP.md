@@ -187,7 +187,7 @@ Plans:
 - [x] 01-44-PLAN.md — (onda 36) Gestão sob /application: detail/{shortName}, create/*, telas de tenant, redirects legados e construtor único de caminhos (D-52).
 - [x] 01-45-PLAN.md — (onda 37) Links fora da Gestão, route-match de front sem link pendurado, nav-contract D-52 e smoke de navegador com o dono.
 - [x] 01-46-PLAN.md — (onda 38) Classificação STD-11 por regra (DDL, texto de produto, caminhos) e re-baseline explícito do gate (std11-classified).
-- [x] 01-47-PLAN.md — (onda 39) Mapa old→new do resíduo STD-11 (propostas Codex, check-map, revisão Sonnet) com aprovação do dono.
+- [ ] 01-47-PLAN.md — (onda 39) Mapa old→new do resíduo STD-11 (propostas Codex, check-map, revisão Sonnet) com aprovação do dono.
 - [ ] 01-48-PLAN.md — (onda 40) --ids-file nas ferramentas de rename e rename do escopo packages (gate std11-packages).
 - [ ] 01-49-PLAN.md — (onda 41) Rename do escopo apps/api/src/domain com checagem de alias SQL (gate std11-api-domain).
 - [ ] 01-50-PLAN.md — (onda 42) Rename de controllers/raiz da API, workers e bridge, com endpoints PT residuais (gate std11-api-core).
@@ -403,6 +403,34 @@ Plans:
 - [x] 03.3-12-PLAN.md — P06 Pipe Chat embed bundle + config page
 - [x] 03.3-13-PLAN.md — P13 message-template page Blip parity
 - [ ] 03.3-14-PLAN.md — phase gate + owner re-test
+
+### Phase 03.4: Construir tudo que o Pipe marca como "em breve" ou "não disponível" (INSERTED)
+
+**Goal:** Nenhum botão, aba, filtro ou rótulo do Pipe diz "em breve" ou "não disponível" sem um destino decidido: cada item do inventário (`.planning/phases/03.4-inventario-em-breve-e-nao-disponivel/INVENTORY.md`, 60 linhas) é construído, ligado ao que já existe, inventariado na Blip antes de construir, ou explicitamente descartado pelo dono com o rótulo removido ou trocado.
+**Requirements**: TBD
+**Depends on:** Phase 03.3
+**Fonte:** inventário de 2026-10-06 (A: 4 só falta ligar a UI; B: 20 parciais; C: 24 ausentes com Blip documentada; D: 5 ausentes sem captura; N: 7 que não contam).
+**Regras da fase:** validar no código antes de construir (já construído → só ligar a UI); onde falta referência, capturar na Blip antes de implementar (nada inventado); uma migration só quando necessária, aditiva; deploy por lote com dump antes.
+**Success Criteria** (what must be TRUE):
+
+  1. Os 4 itens da onda 1 (E-018, E-019, E-004, E-058) funcionam na tela, sem aviso de indisponível
+  2. Cada item das ondas 2 a 6 está construído e testado, ou tem decisão registrada do dono (descartar, adiar com motivo)
+  3. Cada item "AUSENTE sem captura" (E-002, E-003, E-009, E-027, E-052) tem a captura da Blip feita pelo dono antes de qualquer construção
+  4. Os produtos novos da onda 7 (Pipe Calls, Pagamentos, Facebook Ads, Kanban, transferência em lote, canais Salesforce e personalizado, Grupos de acesso, GoodData, filtro salvo, Deixar contrato e Deixar projeto) têm decisão do dono: construir em fase própria, adiar ou descartar
+  5. Uma busca por "em breve" e "não disponível" na interface só encontra itens com decisão registrada
+
+**UI hint**: yes
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD — Onda 1: vitórias rápidas, só UI (E-018 filtro Invisível, E-019 Falar com atendente, E-004 ícone Testar, E-058 modelo de Autenticação)
+- [ ] TBD — Onda 2: ligar peças existentes (E-054 OAuth 2.0 do cartão HTTP, E-043 Exportar da Visão Geral, E-049 a E-051 filtros de Contatos, E-026 permissão, E-015 a E-017 rótulos após a captura C-25)
+- [ ] TBD — Onda 3: relatórios de Atendimento (E-037, E-039 séries por dia; E-038 satisfação por atendente e fila; E-036 SLA agregado)
+- [ ] TBD — Onda 4: regras do Desk (E-030, E-031, E-032, E-033, E-034, E-035, E-028)
+- [ ] TBD — Onda 5: Builder (E-012, E-013 tracking e contexto do roteador; E-010 variáveis agent.*; E-014; E-009 após captura)
+- [ ] TBD — Onda 6: crescimento (E-059 mídia em modelo, E-060 avaliação por IA, E-041/E-042 relatório personalizado, E-053, E-052 após captura)
+- [ ] TBD — Onda 7: decisão do dono sobre os produtos novos (construir em fase própria, adiar, descartar)
+- [ ] TBD — Onda 8: casca e documentação (E-001 link da Comunidade, E-044 a E-047, E-002, E-055)
 
 ### Phase 03.1: Corrigir bugs do inventário Blip×Pipe (INSERTED)
 
