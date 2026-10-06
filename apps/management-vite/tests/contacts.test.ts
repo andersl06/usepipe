@@ -6,6 +6,7 @@ import {
   messageSide,
   periodDefault,
   countLabel,
+  contactLabel,
   rotuloDoStatus,
   ticketAtivo,
 } from '../src/pages/flow/contacts/regras';
@@ -59,5 +60,15 @@ describe('contacts: controls without backend', () => {
       /className="ct-add-filter" type="button" disabled title=\{NAO_DISPONIVEL\}/,
     );
     assert.equal(fonte.match(/readOnly\s+disabled/g)?.length, 2);
+  });
+});
+
+describe('contacts: row label', () => {
+  it('shows the identity first and the name second', () => {
+    assert.deepEqual(contactLabel({ identidade: 'x@wa.gw.msging.net', nome: 'Ana' }), { primary: 'x@wa.gw.msging.net', secondary: 'Ana' });
+  });
+  it('falls back to the name, then to a dash', () => {
+    assert.deepEqual(contactLabel({ identidade: null, nome: 'Ana' }), { primary: 'Ana', secondary: null });
+    assert.deepEqual(contactLabel({ identidade: null, nome: null }), { primary: '-', secondary: null });
   });
 });

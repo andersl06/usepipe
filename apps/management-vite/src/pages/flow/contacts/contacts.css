@@ -288,6 +288,7 @@
 .ct-nome {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--p-conteudo);
   line-height: 21px;
 }

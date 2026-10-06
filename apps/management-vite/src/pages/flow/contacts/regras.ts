@@ -3,6 +3,12 @@
  */
 import { TICKET_STATUS_LABELS } from '../../../lib/status-labels';
 
+/** Row label: channel identity first, name as the secondary line; no identity falls back to the name. */
+export function contactLabel(row: { identidade: string | null; nome: string | null }): { primary: string; secondary: string | null } {
+  if (row.identidade) return { primary: row.identidade, secondary: row.nome };
+  return { primary: row.nome ?? '-', secondary: null };
+}
+
 /** `{{ $ctrl.totalItems }} Contatos Aproximadamente` / `1 Contato` / `0 Contato`. */
 export function countLabel(total: number): string {
   if (total > 1) return `${total} Contatos Aproximadamente`;

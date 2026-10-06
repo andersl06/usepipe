@@ -16,6 +16,7 @@ import {
 } from '@pipe/db/schema';
 import type { TransactionPipe } from '@pipe/db';
 import type { GradeDoPortal } from '@pipe/contracts';
+import { channelIdentity, tunnelIdentity } from '@pipe/core';
 import { linkedActiveChannelOfType, linkedChannelIdsOfFlow } from './channel-links.js';
 
 /**
@@ -111,22 +112,39 @@ export async function listContactsOfFlow(tx: TransactionPipe, tid: string, fluxo
     canalTipo: string | null;
     conversas: number;
     ultimaConversa: Date | null;
+    stored: string | null;
   }>(sql`
     select ct.id, ct.nome, ct.email, ct.telefone_e164 as telefone, ct.avatar_url as "avatarUrl",
-           ch.nome as "canalNome", ch.tipo as "canalTipo",
+           ch.nome as "canalNome", ch.tipo as "canalTipo", idt.identificador as stored,
            count(distinct cv.id)::int as conversas,
            max(greatest(coalesce(cv.ultima_mensagem_em, cv.criada_em), o.quando)) as "ultimaConversa"
       from (${originsOfFlow(tid, fluxoId, channelIds)}) o
       join contato ct on ct.id = o.contato_id and ct.tenant_id = ${tid}::uuid
       left join inbox ib on ib.id = o.inbox_id
       left join canal ch on ch.id = ib.canal_id
+      left join lateral (
+        select ci.identificador from contato_identidade ci
+         where ci.tenant_id = ${tid}::uuid and ci.contato_id = ct.id and ci.canal_tipo = ch.tipo
+         order by ci.identificador limit 1
+      ) idt on true
       left join conversa cv on cv.contato_id = ct.id and cv.inbox_id = o.inbox_id and cv.tenant_id = ${tid}::uuid
      where ct.excluido_em is null
-     group by ct.id, ch.id
+     group by ct.id, ch.id, idt.identificador
      order by ct.nome asc
      limit 500
   `);
-  return rows;
+  const { rows: services } = await tx.execute(sql`
+    select 1 from roteador_servico where tenant_id = ${tid}::uuid and servico_id = ${fluxoId}::uuid limit 1
+  `);
+  const isService = services.length > 0;
+  return rows.map(({ stored, ...row }) => ({
+    ...row,
+    identidade: isService
+      ? tunnelIdentity(row.id)
+      : row.canalTipo === 'whatsapp_cloud'
+        ? channelIdentity({ contactId: row.id, phone: row.telefone ?? stored })
+        : stored,
+  }));
 }
 
 export type ContactListed = Awaited<ReturnType<typeof listContactsOfFlow>>[number];
@@ -206,7 +224,7 @@ export async function loadDetailContactOfFlow(
   const [identity] = selecionada?.channelType
     ? await tx.select({ valor: contactIdentity.identificador }).from(contactIdentity)
         .where(and(eq(contactIdentity.tenantId, tid), eq(contactIdentity.contactId, contactId),
-          eq(contactIdentity.channelType, selecionada.channelType))).limit(1)
+          eq(contactIdentity.channelType, selecionada.channelType))).orderBy(contactIdentity.identificador).limit(1)
     : [];
   const history = selecionada
     ? await tx

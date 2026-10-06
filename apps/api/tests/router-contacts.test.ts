@@ -57,6 +57,15 @@ beforeAll(async () => {
   withTicket = await newContact('Atendida por B');
   botOnly = await newContact('So conversou com o bot');
   ofChannel = await newContact('Do canal proprio');
+  await a.dono.execute(sql`
+    insert into contato_identidade (tenant_id, contato_id, canal_tipo, identificador)
+    values (${a.tenantId}, ${ofChannel}, 'whatsapp_cloud', '5511900000009'),
+           (${a.tenantId}, ${ofChannel}, 'whatsapp_cloud', '5511900000001')
+  `);
+  await a.dono.execute(sql`
+    insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal)
+    values (${a.tenantId}, ${a.flowId}, ${serviceB}, 'servico-b', true)
+  `);
   await execute(serviceB, withTicket);
   await execute(serviceB, botOnly);
   await a.dono.execute(sql`
@@ -109,5 +118,15 @@ describe('contacts of a router service', () => {
     expect((await detail(serviceB, withTicket))?.conversations).toHaveLength(1);
     expect(await detail(serviceA, botOnly)).toBeNull();
     expect(await detail(serviceB, ofChannel)).toBeNull();
+  });
+
+  it('labels a router row with the smallest stored channel identity as <digits>@wa.gw.msging.net', async () => {
+    const item = (await lista(a.flowId)).find((c) => c.id === ofChannel);
+    expect(item?.identidade).toBe('5511900000001@wa.gw.msging.net');
+  });
+
+  it('labels a service flow row with the tunnel identity', async () => {
+    const item = (await lista(serviceB)).find((c) => c.id === withTicket);
+    expect(item?.identidade).toBe(`${withTicket}@tunnel.msging.net`);
   });
 });

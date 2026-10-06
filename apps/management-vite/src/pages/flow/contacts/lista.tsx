@@ -8,6 +8,7 @@ import {
   formatLastInteraction,
   periodDefault,
   countLabel,
+  contactLabel,
   channelLabel,
   NAO_DISPONIVEL,
 } from './regras';
@@ -92,7 +93,9 @@ export function BotListContacts() {
             <div className="ct-no-contacts">Nenhum contato encontrado</div>
           ) : (
             <div className="ct-cards">
-              {contacts.map((contact) => (
+              {contacts.map((contact) => {
+                const label = contactLabel(contact);
+                return (
                 <Link className="ct-user" href={`${base}/users/${contact.id}`} key={contact.id}>
                   <span className="ct-section ct-section-avatar">
                     <span className="ct-avatar">
@@ -104,7 +107,8 @@ export function BotListContacts() {
                     </span>
                   </span>
                   <span className="ct-section ct-section-name">
-                    <span className="ct-nome">{contact.nome ?? '-'}</span>
+                    <span className="ct-nome" title={label.primary}>{label.primary}</span>
+                    {label.secondary ? <span className="ct-last-interaction">{label.secondary}</span> : null}
                     <span className="ct-last-interaction">
                       <span>Última interação:</span>&nbsp;
                       <span>
@@ -130,7 +134,8 @@ export function BotListContacts() {
                     </span>
                   </span>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

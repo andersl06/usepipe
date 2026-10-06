@@ -69,6 +69,7 @@ export interface ContactListed {
   avatarUrl: string | null;
   canalNome: string;
   canalTipo: string;
+  identidade: string | null;
   conversas: number;
   lastConversation: string | null;
 }
