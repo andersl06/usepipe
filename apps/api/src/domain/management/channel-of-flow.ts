@@ -171,6 +171,12 @@ export async function conferirQuePodeLigar(
   }
 }
 
+/** The unique index or trigger of migration 0093 refused the write (drizzle wraps the Postgres error in `cause`). */
+function isOneBotPerChannelViolation(error: unknown): boolean {
+  const pg = ((error as { cause?: unknown })?.cause ?? error) as { code?: string; constraint?: string } | null;
+  return pg?.code === '23505' && (pg.constraint === 'roteador_canal_um_bot' || pg.constraint === 'fluxo_canal_publicado_uk');
+}
+
 function flowAlreadyHasChannel(existente: { id: string; tipo: string; nome: string }): PipeError {
   return PipeError.conflito(
     'flow_already_has_channel',
@@ -229,13 +235,25 @@ export async function connectChannelToFlow(
     );
   }
 
-  if (atual.canalId) {
-    await tx.insert(routerChannel).values({ tenantId, routerId: atual.id, channelId: alvo.id });
-  } else {
-    await tx
-      .update(flow)
-      .set({ channelId: alvo.id, atualizadoEm: new Date() })
-      .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
+  try {
+    if (atual.canalId) {
+      await tx.insert(routerChannel).values({ tenantId, routerId: atual.id, channelId: alvo.id });
+    } else {
+      await tx
+        .update(flow)
+        .set({ channelId: alvo.id, atualizadoEm: new Date() })
+        .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
+    }
+  } catch (error) {
+    // Migration 0093 backstop: a concurrent link slipped past the checks above; answer like the check does.
+    if (isOneBotPerChannelViolation(error)) {
+      throw PipeError.conflito(
+        'number_in_use',
+        'Ops… Este número já está em uso. Para ativar o número neste bot, remova do anterior e tente novamente.',
+        {},
+      );
+    }
+    throw error;
   }
 
   await registrarAuditoria(tx, tenantId, {

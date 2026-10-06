@@ -456,6 +456,13 @@
       "when": 1790280000000,
       "tag": "0092_codigo_do_bloco_e_historico_de_status",
       "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "7",
+      "when": 1790290000000,
+      "tag": "0093_canal_um_bot_vivo",
+      "breakpoints": true
     }
   ]
 }
