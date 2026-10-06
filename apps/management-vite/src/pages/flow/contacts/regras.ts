@@ -79,6 +79,21 @@ export function channelLabel(tipo: string, nome: string): string {
   return rotulos[tipo] ?? nome;
 }
 
+/** Per-ticket header line of the contact history: number, Blip status label, opened and closed stamps. */
+export function ticketHeader(ticket: {
+  numero: number | null;
+  estado: string;
+  criadaEm: string;
+  encerradaEm: string | null;
+}): { title: string; status: string; opened: string; closed: string | null } {
+  return {
+    title: ticket.numero == null ? 'Ticket' : `Ticket #${ticket.numero}`,
+    status: rotuloDoStatus(ticket.estado),
+    opened: messageStamp(new Date(ticket.criadaEm)),
+    closed: ticket.encerradaEm ? messageStamp(new Date(ticket.encerradaEm)) : null,
+  };
+}
+
 /** When opening the detail view, the active ticket is the one from the URL (`?ticketId`) or the most recent one. */
 export function ticketAtivo<T extends { id: string }>(
   tickets: T[],

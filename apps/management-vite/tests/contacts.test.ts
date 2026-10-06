@@ -9,6 +9,7 @@ import {
   contactLabel,
   rotuloDoStatus,
   ticketAtivo,
+  ticketHeader,
 } from '../src/pages/flow/contacts/regras';
 
 describe('contacts: count and period', () => {
@@ -70,5 +71,26 @@ describe('contacts: row label', () => {
   it('falls back to the name, then to a dash', () => {
     assert.deepEqual(contactLabel({ identidade: null, nome: 'Ana' }), { primary: 'Ana', secondary: null });
     assert.deepEqual(contactLabel({ identidade: null, nome: null }), { primary: '-', secondary: null });
+  });
+});
+
+describe('contacts: ticket header', () => {
+  const iso = '2026-09-16T16:26:00.000Z';
+  it('shows number, Blip status and opened stamp; no closed stamp while open', () => {
+    const header = ticketHeader({ numero: 42, estado: 'Open', criadaEm: iso, encerradaEm: null });
+    assert.deepEqual(header, {
+      title: 'Ticket #42',
+      status: 'Em atendimento',
+      opened: messageStamp(new Date(iso)),
+      closed: null,
+    });
+  });
+  it('maps closed states to Atendido and formats the closed stamp', () => {
+    const header = ticketHeader({ numero: 7, estado: 'ClosedClient', criadaEm: iso, encerradaEm: iso });
+    assert.equal(header.status, 'Atendido');
+    assert.equal(header.closed, messageStamp(new Date(iso)));
+  });
+  it('keeps an unknown state as is', () => {
+    assert.equal(ticketHeader({ numero: 1, estado: 'Xyz', criadaEm: iso, encerradaEm: null }).status, 'Xyz');
   });
 });

@@ -76,6 +76,8 @@ export interface ContactListed {
 
 export interface TicketOfContact {
   id: string;
+  /** Per-tenant ticket number (numero_sequencial). */
+  numero: number | null;
   estado: string;
   criadaEm: string;
   encerradaEm: string | null;

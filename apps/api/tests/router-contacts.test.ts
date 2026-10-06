@@ -130,3 +130,36 @@ describe('contacts of a router service', () => {
     expect(item?.identidade).toBe(`${withTicket}@tunnel.msging.net`);
   });
 });
+
+describe('contact detail 90-day window', () => {
+  const detail = (contactId: string, ticketId?: string) =>
+    noTenant(a.tenantId, (tx) => loadDetailContactOfFlow(tx, a.tenantId, a.flowId, contactId, ticketId));
+
+  it('keeps conversations opened within 90 days, drops older ones and returns the ticket number', async () => {
+    const contactId = await newContact('Janela de 90 dias');
+    await a.dono.execute(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, estado, criada_em)
+      values (${a.tenantId}, ${a.inboxId}, ${contactId}, 'ClosedClient', now() - interval '91 days'),
+             (${a.tenantId}, ${a.inboxId}, ${contactId}, 'ClosedClient', now() - interval '89 days')
+    `);
+    const result = await detail(contactId);
+    expect(result?.conversations).toHaveLength(1);
+    expect(Number(result?.conversations[0]?.numero)).toBeGreaterThan(0);
+  });
+
+  it('falls back to the newest in-window conversation when ticketId is older than 90 days', async () => {
+    const contactId = await newContact('Ticket antigo');
+    const { rows } = await a.dono.execute<{ id: string }>(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, estado, criada_em)
+      values (${a.tenantId}, ${a.inboxId}, ${contactId}, 'ClosedClient', now() - interval '120 days')
+      returning id
+    `);
+    await a.dono.execute(sql`
+      insert into conversa (tenant_id, inbox_id, contato_id, estado, criada_em)
+      values (${a.tenantId}, ${a.inboxId}, ${contactId}, 'Open', now() - interval '1 day')
+    `);
+    const result = await detail(contactId, rows[0]!.id);
+    expect(result?.selecionada?.id).not.toBe(rows[0]!.id);
+    expect(result?.selecionada?.estado).toBe('Open');
+  });
+});

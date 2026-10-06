@@ -6,13 +6,7 @@ import { useRead } from '../../../../lib/query';
 import type { DetailOfContact } from '@pipe/contracts';
 import { NaoEncontrado } from '../../../nao-encontrado';
 import { contactPath, useContact } from '../../contact';
-import {
-  messageStamp,
-  diaEHora,
-  messageSide,
-  rotuloDoStatus,
-  ticketAtivo,
-} from '../regras';
+import { messageStamp, diaEHora, messageSide, rotuloDoStatus, ticketAtivo, ticketHeader } from '../regras';
 import { InformationContact } from './editar';
 
 /*
@@ -75,10 +69,14 @@ export function BotDetailContact() {
           />
           <section className="ct-tickets">
             <span className="ct-tickets-titulo">Tickets</span>
+            <span style={{ display: 'block', margin: '0 15px', fontSize: 12, color: 'var(--ink-2)' }}>
+              Exibindo os últimos 90 dias
+            </span>
             {data.conversations.length > 0 ? (
               <div className="ct-expansivel">
                 {data.conversations.map((ticket, indice) => {
                   const { dia, hora } = diaEHora(new Date(ticket.criadaEm));
+                  const header = ticketHeader(ticket);
                   return (
                     <details
                       className={`ct-ticket${indice % 2 !== 0 ? ' ct-ticket--par' : ''}${ticket.id === ativo?.id ? ' ct-ticket--ativo' : ''}`}
@@ -93,7 +91,10 @@ export function BotDetailContact() {
                           <span className="ct-ticket-data">
                             <span>{dia}</span>
                             <span>{hora}</span>
-                            <span>#{ticket.id.slice(0, 8)}</span>
+                            <span style={{ fontSize: 12 }}>
+                              {header.title} - {header.status} - Aberto {header.opened}
+                              {header.closed ? ` - Encerrado ${header.closed}` : ''}
+                            </span>
                           </span>
                           <span className="ct-ticket-actions">
                             <Link
@@ -150,7 +151,7 @@ export function BotDetailContact() {
                 })}
               </div>
             ) : (
-              <div className="ct-sem-tickets">Não há tickets abertos para este usuário</div>
+              <div className="ct-sem-tickets">Nenhuma conversa nos últimos 90 dias.</div>
             )}
           </section>
         </div>
@@ -172,9 +173,7 @@ export function BotDetailContact() {
                 ) : null}
                 <div className="ct-message-container">
                   <div className="ct-balao">{message.texto ?? `[${message.tipo}]`}</div>
-                  <div className="ct-notification">
-                    {messageStamp(new Date(message.criadaEm))}
-                  </div>
+                  <div className="ct-notification">{messageStamp(new Date(message.criadaEm))}</div>
                 </div>
               </div>
             );

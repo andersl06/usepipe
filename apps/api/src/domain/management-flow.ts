@@ -192,6 +192,7 @@ export async function loadDetailContactOfFlow(
     ? await tx
         .select({
           id: conversation.id,
+          numero: conversation.sequentialNumber,
           estado: conversation.state,
           criadaEm: conversation.criadaEm,
           encerradaEm: conversation.encerradaEm,
@@ -214,6 +215,8 @@ export async function loadDetailContactOfFlow(
             eq(conversation.tenantId, tid),
             eq(conversation.contatoId, contactId),
             inArray(conversation.inboxId, inboxIds),
+            // Blip shows at most 90 days of history on screen, counted from the ticket open date.
+            sql`${conversation.criadaEm} >= now() - interval '90 days'`,
           ),
         )
         .orderBy(desc(conversation.criadaEm))
