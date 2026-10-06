@@ -256,3 +256,7 @@ Semeados pelo orquestrador (não por este executor): 2 contatos (+5521999990001 
 Tarefa 1 do plano 03.2-25 concluída (consolidação da Onda 4, auditoria de ativos, GATE-FINAL.md, suíte completa). A Tarefa 2 (portão do dono) não foi executada.
 
 Status: PENDENTE DE OWNER APPROVED
+
+## Aprovação do dono (2026-10-06)
+
+O dono respondeu "sim, tudo aprovado" sobre o Atendimento (monitoramento, histórico, encerramento, filas, atendentes, pausas, regras) e as demais superfícies da fase: portões das Ondas 2, 3 e 4 e o GATE-FINAL ficam **OWNER APPROVED**. As aprovações não foram itemizadas linha a linha; as decisões O/X sem resposta registrada ficam como estavam no Pipe.
