@@ -20,10 +20,16 @@ export async function salvarConexao(
   pedido: { urlMessages?: string | null; urlNotifications?: string | null },
 ): Promise<Resultado<FlowConnection>> {
   try {
-    const value = await api.put<FlowConnection>(`/v1/management/flows/${flowId}/connection`, pedido);
+    const value = await api.put<FlowConnection>(
+      `/v1/management/flows/${flowId}/connection`,
+      pedido,
+    );
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {
-    return { ok: false, error: motivoDe(error, 'Não foi possível salvar a configuração de conexão.') };
+    return {
+      ok: false,
+      error: motivoDe(error, 'Não foi possível salvar a configuração de conexão.'),
+    };
   }
 }

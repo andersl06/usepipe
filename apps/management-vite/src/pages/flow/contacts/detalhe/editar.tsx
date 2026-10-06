@@ -113,8 +113,21 @@ export function InformationContact(props: Properties) {
                 <span>Usuário de teste</span>
               </label>
             ) : null}
-            <Linha nome="nome" rotulo="Nome" value={props.nome} editando={editando} classe="ct-fs-6" first />
-            <Linha nome="email" rotulo="E-mail" value={props.email} editando={editando} classe="ct-fs-6" />
+            <Linha
+              nome="nome"
+              rotulo="Nome"
+              value={props.nome}
+              editando={editando}
+              classe="ct-fs-6"
+              first
+            />
+            <Linha
+              nome="email"
+              rotulo="E-mail"
+              value={props.email}
+              editando={editando}
+              classe="ct-fs-6"
+            />
             <Linha
               nome="telefone"
               rotulo="Telefone"
@@ -133,7 +146,12 @@ export function InformationContact(props: Properties) {
             <div className="ct-linha">
               <span className="ct-rotulo ct-f4">Gênero</span>
               {editando ? (
-                <Select className="ct-selection" name="genero" defaultValue={genero ?? ''} aria-label="Gênero">
+                <Select
+                  className="ct-selection"
+                  name="genero"
+                  defaultValue={genero ?? ''}
+                  aria-label="Gênero"
+                >
                   <option value="">Selecione o gênero</option>
                   <option value="male">Masculino</option>
                   <option value="female">Feminino</option>
