@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import type {
-  Colega,
-  ConversationOfDesk,
-  EtiquetaDoDesk,
-  ItemOfConversation,
-  RespostaProntaDoDesk,
+import {
+  ticketNumber,
+  type Colega,
+  type ConversationOfDesk,
+  type EtiquetaDoDesk,
+  type ItemOfConversation,
+  type RespostaProntaDoDesk,
 } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
 import { Avatar } from '../../components/avatar';
 import { api } from '@pipe/ui/api';
 import { useRead } from '../../lib/query';
 import { atualizarLeituras } from '../../lib/actions';
-import { numeroDoTicket } from '../../lib/channel';
 import { displayName } from '../../lib/order';
 import { isClosedTicket } from '../../lib/situation';
 import { Thread } from './thread';
@@ -47,7 +47,7 @@ export function Conversation({
   const [search, setSearch] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const nome = displayName({ ...conversation, contactPhone: conversation.contactPhone });
-  const numero = numeroDoTicket(conversation.id);
+  const numero = ticketNumber(conversation.sequentialId);
 
   /**
    * Remove a tag from the open conversation through `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`. This does not close the ticket: source `ADD_TAGS` is separate from `CLOSE_TICKET`.
@@ -322,6 +322,7 @@ export function Conversation({
 
       <Thread
         conversationId={conversation.id}
+        numero={numero}
         itens={itens}
         agora={agora}
         aoReenviar={(id) => void reenviar(id)}

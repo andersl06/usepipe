@@ -1,11 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import type { ConversationOfDesk, LabelOfConversation, EtiquetaDoDesk } from '@pipe/contracts';
+import { ticketNumber, type ConversationOfDesk, type LabelOfConversation, type EtiquetaDoDesk } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
 import { useDeskSelection } from '../../context/desk-selection';
 import { api } from '@pipe/ui/api';
 import { useRead } from '../../lib/query';
 import { executar, atualizarLeituras } from '../../lib/actions';
-import { channelOf, numeroDoTicket } from '../../lib/channel';
+import { channelOf } from '../../lib/channel';
 import { dataAbreviada } from '../../lib/format';
 import { displayName } from '../../lib/order';
 
@@ -151,7 +151,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
                     onClick={() => openContact(conversation.contactId, h.id)}
                     className="dk-history-item dk-history-button"
                   >
-                    <b>Ticket {numeroDoTicket(h.id)}</b>
+                    <b>Ticket {ticketNumber(h.sequentialId)}</b>
                     <span>{h.filaNome ?? 'Transferência direta'}</span>
                     <small>
                       {h.encerradaEm ? dataAbreviada(new Date(h.encerradaEm)) : 'Aberto'}

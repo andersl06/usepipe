@@ -4,7 +4,8 @@ import { LogoPortal } from '@pipe/ui/icones-portal';
 import { IconeDesk } from '../../components/icones-desk';
 import { Avatar } from '../../components/avatar';
 import { executar } from '../../lib/actions';
-import { channelOf, numeroDoTicket } from '../../lib/channel';
+import { ticketNumber } from '@pipe/contracts';
+import { channelOf } from '../../lib/channel';
 import { cronometro, horarioRelativo } from '../../lib/format';
 import { fixada, naoLida, displayName } from '../../lib/order';
 import { isClosedTicket } from '../../lib/situation';
@@ -57,7 +58,7 @@ export function Card({
       className="dk-card"
       role="listitem"
       tabIndex={0}
-      aria-label={`Ticket ${numeroDoTicket(conversation.id)} - ${nome}`}
+      aria-label={`Ticket ${ticketNumber(conversation.sequentialId)} - ${nome}`}
       aria-current={selecionada ? 'true' : undefined}
       data-nao-lida={naoLidaAgora ? 'true' : 'false'}
       onClick={() => aoAbrir(conversation.id)}
@@ -118,7 +119,7 @@ export function Card({
           <IconeDesk nome="info" />
         </button>
         <span className="dk-card-number" aria-hidden="true">
-          {numeroDoTicket(conversation.id)}
+          {ticketNumber(conversation.sequentialId)}
         </span>
         <span className="dk-card-queue">
           <b>Fila:</b>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ticketStatusLabel } from '@pipe/contracts';
 import { Etiqueta } from '@pipe/ui';
 import {
   AbasDaFicha,
@@ -24,16 +25,6 @@ export const dynamic = 'force-dynamic';
  * itself being empty. The highlight says who the person is; the tabs say what
  * happened to them — conversation on one side, buying intent on the other.
  */
-
-const LABEL_STATE: Record<string, string> = {
-  Waiting: 'Na fila',
-  Assigned: 'Atribuída',
-  Open: 'Em atendimento',
-  ClosedAttendant: 'Encerrada pelo atendente',
-  ClosedClient: 'Encerrada pelo cliente',
-  ClosedClientInactivity: 'Encerrada por inatividade',
-  Transferred: 'Transferida',
-};
 
 const ABAS = [
   { key: 'conversas', rotulo: 'Conversas' },
@@ -161,12 +152,12 @@ export default async function PageContact({
                       <span className="quando">{dataHora(c.criadaEm, fuso)}</span>
                       <span>
                         <span className="t">
-                          {c.categoria ?? (c.standby ? 'Em espera' : (LABEL_STATE[c.state] ?? c.state))}
+                          {c.categoria ?? ticketStatusLabel(c)}
                         </span>
                         {c.queue ? <span className="quem"> · {c.queue}</span> : null}
                         {c.agent ? <span className="quem"> · {c.agent}</span> : null}
                         {c.encerradaEm ? null : (
-                          <span className="quem"> · {c.standby ? 'Em espera' : (LABEL_STATE[c.state] ?? c.state)}</span>
+                          <span className="quem"> · {ticketStatusLabel(c)}</span>
                         )}
                       </span>
                       {c.resumo ? <div className="resumo">{c.resumo}</div> : null}

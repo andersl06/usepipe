@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { ConversationOfHistory, TicketDoDesk } from '@pipe/contracts';
+import { ticketNumber, type ConversationOfHistory, type TicketDoDesk } from '@pipe/contracts';
 import { useRead } from '../../lib/query';
 import { useDeskSelection } from '../../context/desk-selection';
 import { IconeDesk } from '../../components/icones-desk';
 import { Avatar } from '../../components/avatar';
-import { channelOf, numeroDoTicket } from '../../lib/channel';
+import { channelOf } from '../../lib/channel';
 import { dataAbreviada } from '../../lib/format';
 import { displayName } from '../../lib/order';
 import { situationLabel } from '../../lib/situation';
@@ -150,6 +150,7 @@ export function PageContacts() {
         {ticketId && ticket.data ? (
           <Thread
             conversationId={ticket.data.ticket.id}
+            numero={ticketNumber(ticket.data.ticket.sequentialId)}
             itens={ticket.data.itens}
             agora={new Date()}
             onlyRead
@@ -224,7 +225,7 @@ export function PageContacts() {
                         aria-current={h.id === ticketId ? 'true' : undefined}
                         onClick={() => id && openContact(id, h.id)}
                       >
-                        <b>Ticket {numeroDoTicket(h.id)}</b>
+                        <b>Ticket {ticketNumber(h.sequentialId)}</b>
                         <span>{h.filaNome ?? 'Transferência direta'}</span>
                         <small>
                           {situationLabel(h)}

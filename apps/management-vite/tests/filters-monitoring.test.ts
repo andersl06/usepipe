@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { filterIds, matchesListFilters, parametersWithFilters, urlForClearFilters } from '../src/lib/filters-monitoring.ts';
+import { filterIds, matchesListFilters, parametersWithFilters, urlForClearFilters, validAgentStatus } from '../src/lib/filters-monitoring.ts';
 
 test('multiple selection survives submission and reopening, including in old links', () => {
   const a = '11111111-1111-4111-8111-111111111111';
@@ -59,4 +59,15 @@ test('empty filters let every row through and invisible matches no one yet', () 
   assert.equal(matchesListFilters({ contactName: 'Ana', agentState: undefined }, {}), true);
   assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'Online' }, { contact: '  ', status: '' }), true);
   assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'Online' }, { status: 'Invisible' }), false);
+});
+
+test('o status do atendente na URL só vale se for um dos três da Blip', () => {
+  assert.equal(validAgentStatus('Online'), 'Online');
+  assert.equal(validAgentStatus('Pause'), 'Pause');
+  assert.equal(validAgentStatus('Invisible'), 'Invisible');
+  for (const antigo of ['online', 'pausa', 'invisivel', 'Offline', '', 'Online ']) {
+    assert.equal(validAgentStatus(antigo), undefined, antigo);
+  }
+  assert.equal(validAgentStatus(null), undefined);
+  assert.equal(validAgentStatus(undefined), undefined);
 });

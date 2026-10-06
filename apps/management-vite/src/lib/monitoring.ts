@@ -10,7 +10,10 @@ import { type PillSla } from './sla';
 
 export interface ConversationOpenRow {
   id: string;
+  /** `#<sequentialId>`: o mesmo número que o Desk mostra. */
   ticket: string;
+  sequentialId: number;
+  parentSequentialId: number | null;
   contactName: string;
   queueId: string | null;
   queueName: string | null;
@@ -111,11 +114,6 @@ export interface Monitoring {
   ticketsOpenByHour: number[];
   /** Catálogo para os filtros rápidos. */
   listAgents: { id: string; name: string }[];
-}
-
-/** Número de ticket legível a partir do uuid — o modelo não tem sequência própria. */
-export function ticketDe(id: string): string {
-  return `#${id.replace(/-/g, '').slice(-6).toUpperCase()}`;
 }
 
 /**

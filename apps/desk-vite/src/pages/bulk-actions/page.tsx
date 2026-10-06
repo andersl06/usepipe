@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { QueueOfDesk } from '@pipe/contracts';
+import { ticketNumber, type QueueOfDesk } from '@pipe/contracts';
 import { useRead } from '../../lib/query';
 import { executar } from '../../lib/actions';
-import { numeroDoTicket } from '../../lib/channel';
 import { displayName } from '../../lib/order';
 
 /**
@@ -88,7 +87,7 @@ export function PageBulkActions() {
                       checked={marcadas.has(c.id)}
                       onChange={() => alternar(c.id)}
                     />{' '}
-                    {numeroDoTicket(c.id)} —{' '}
+                    {ticketNumber(c.sequentialId)} —{' '}
                     {displayName({ contactName: c.contatoNome, contactPhone: c.contatoTelefone })}{' '}
                     <span className="dk-bulk-empty">({c.filaNome ?? 'Transferência direta'})</span>
                   </label>
