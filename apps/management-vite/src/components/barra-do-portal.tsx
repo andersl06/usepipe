@@ -1,5 +1,6 @@
 import { Avatar } from '@pipe/ui';
 import { deriveBaseDomain } from '@pipe/contracts';
+import { useDetailsMenu } from '../lib/details-menu';
 import { useSair, accountUseSwitch, type PortalShell } from '../lib/shell';
 import { APPLICATION, tenantPath } from '../lib/application-paths';
 import { Link } from './link';
@@ -16,6 +17,10 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
   const baseDoDominio = deriveBaseDomain(window.location.hostname, import.meta.env['VITE_PIPE_DOMINIO_CONTAS']);
   const accountSwitch = accountUseSwitch();
   const sair = useSair();
+  const accountMenu = useDetailsMenu();
+  const helpMenu = useDetailsMenu();
+  const bellMenu = useDetailsMenu();
+  const profileMenu = useDetailsMenu();
   /*
    * Show only OTHER accounts: in the source DOM, a user on `supernova` sees three items and none is `supernova`.
    */
@@ -30,7 +35,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
         {/*
  * The account selector names the current contract and lists other accounts, the first daily action in the reference. There, switching navigates to another subdomain; here it switches sessions when the `api` reissues the cookie for the selected account. With one account, show only its name: a one-item menu would repeat the current account.
  */}
-        <details className="g-menu pt-account">
+        <details ref={accountMenu} className="g-menu pt-account">
         {/*
  * Reference `menu-contract`: `business` in a light `icon-contract-white` circle, bold 16px name, 12px account type below (`pl3`), and `arrow-down` in a separate block outside `group-buttom-contract`.
  */}
@@ -54,7 +59,10 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
             <IconePortal nome="painel" tamanho={24} />
             <span>
               Painel do contrato
-              <span className="pt-panel-account">{data.tenant.nome}</span>
+              <span className="pt-panel-account os-active" aria-current="true">
+                <IconePortal nome="cheque" tamanho={14} />
+                {data.tenant.nome}
+              </span>
             </span>
           </Link>
 
@@ -67,6 +75,8 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
                 <button
                   key={account.tenantId}
                   type="button"
+                  className="os-account-row"
+                  aria-label={`Switch to ${account.name}`}
                   disabled={accountSwitch.isPending}
                   onClick={() => accountSwitch.mutate(account.tenantId)}
                 >
@@ -113,7 +123,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
         {/*
  * The reference help `?` menu lists destinations, not explanatory prose: Blip Help, Academy, Community, Support. Our menu offers external help/community and support only when their URLs exist. Flow/router explanation belongs on the action card.
  */}
-        <details className="g-menu">
+        <details ref={helpMenu} className="g-menu">
           <summary className="g-iconbtn" title="Ajuda" aria-label="Ajuda">
             <IconePortal nome="ajuda" tamanho={24} />
           </summary>
@@ -132,7 +142,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
         {/*
  * The reference bell is `notificationsCenter` between help and the divider, opening a mostly repeated message. We do not yet have a notification center, but retain the bell so the right bar matches the three-item reference layout.
  */}
-        <details className="g-menu">
+        <details ref={bellMenu} className="g-menu">
           <summary className="g-iconbtn" title="Notificações" aria-label="Notificações">
             <IconePortal nome="sino" tamanho={24} />
           </summary>
@@ -143,7 +153,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
 
         <div className="pt-divisoria" />
 
-        <details className="g-menu pt-eu-menu">
+        <details ref={profileMenu} className="g-menu pt-eu-menu">
           {/*
  * In the reference, `arrow-down` appears to the avatar's right in `menu-user`, indicating that it opens a menu.
  */}

@@ -3530,6 +3530,29 @@ tr.grupo th {
   color: var(--ink-3);
 }
 
+/* Active contract marker under "Painel do contrato": check icon in moss. */
+.os-active {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--moss);
+  font-weight: 600;
+}
+
+.os-active svg {
+  flex: none;
+  fill: var(--moss);
+}
+
+.os-account-row {
+  min-height: 40px;
+}
+
+.os-account-row:focus-visible {
+  background: var(--moss-soft);
+  outline: 2px solid var(--moss);
+}
+
 /*
  * The list of OTHER accounts. The current account isn't in it: it's the title of the button that opened the menu.
  */
