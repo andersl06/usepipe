@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { filterIds, matchesListFilters, parametersWithFilters, urlForClearFilters } from '../src/lib/filters-monitoring.ts';
+import { filterIds, matchesListFilters, monitoringQuery, parametersWithFilters, urlForClearFilters } from '../src/lib/filters-monitoring.ts';
 
 test('multiple selection survives submission and reopening, including in old links', () => {
   const a = '11111111-1111-4111-8111-111111111111';
@@ -59,4 +59,15 @@ test('empty filters let every row through and invisible matches no one yet', () 
   assert.equal(matchesListFilters({ contactName: 'Ana', agentState: undefined }, {}), true);
   assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'Online' }, { contact: '  ', status: '' }), true);
   assert.equal(matchesListFilters({ contactName: 'Ana', agentState: 'Online' }, { status: 'Invisible' }), false);
+});
+
+test('agent action link filters the monitoring list by that agent', () => {
+  const q = monitoringQuery({ queue: 'q1', agent: 'a1' }, 'atribuido');
+  assert.equal(q.get('atendente'), 'a1');
+  assert.equal(q.get('fila'), 'q1');
+  assert.equal(q.get('aba'), 'atribuido');
+});
+
+test('monitoring query without an agent has no atendente key', () => {
+  assert.equal(monitoringQuery({ search: 'x' }, 'fila').has('atendente'), false);
 });

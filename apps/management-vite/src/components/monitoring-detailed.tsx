@@ -9,7 +9,7 @@ import {
   type Monitoring,
 } from '../lib/monitoring';
 import { numero } from '../lib/format';
-import { matchesListFilters } from '../lib/filters-monitoring';
+import { matchesListFilters, monitoringQuery, type MonitoringFilter as Filter } from '../lib/filters-monitoring';
 import { api } from '@pipe/ui/api';
 import { ManagementIcon } from './icones-management';
 import { IconePortal } from '@pipe/ui/icones-portal';
@@ -33,14 +33,6 @@ const ABAS = [
   { chave: 'filas', rotulo: 'Filas' },
   { chave: 'etiquetas', rotulo: 'Tags' },
 ] as const;
-
-type Filter = {
-  queue?: string;
-  agent?: string;
-  contact?: string;
-  status?: string;
-  search?: string;
-};
 
 type MonitoringActions = Pick<Monitoring, 'queues' | 'listAgents' | 'labels'>;
 
@@ -109,17 +101,6 @@ function IconeOpcoes({ tamanho }: PropsIcone) {
       <circle cx="12" cy="18.5" r="1" fill="currentColor" />
     </IconeTraco>
   );
-}
-
-function querystring(filter: Filter, aba: string): URLSearchParams {
-  const p = new URLSearchParams();
-  if (filter.queue) p.set('fila', filter.queue);
-  if (filter.agent) p.set('atendente', filter.agent);
-  if (filter.contact) p.set('contato', filter.contact);
-  if (filter.status) p.set('status', filter.status);
-  if (filter.search) p.set('busca', filter.search);
-  p.set('aba', aba);
-  return p;
 }
 
 /**
@@ -429,7 +410,7 @@ function ActionViewConversations({ filter, agentId }: { filter: Filter; agentId:
       <div className="mon-actions">
         <Link
           className="iconbtn mon-acao"
-          href={`?${querystring({ ...filter, agent: agentId }, 'atribuido').toString()}`}
+          href={`?${monitoringQuery({ ...filter, agent: agentId }, 'atribuido').toString()}`}
           data-tooltip="Ver as conversas deste atendente"
           aria-label="Ver as conversas deste atendente"
         >
@@ -871,7 +852,7 @@ export function MonitoringDetailed({
  * Blip places ticket-number search here inside the card, not in the filter strip.
  */}
         <form className="tbl-search" method="get">
-          {[...querystring(filter, aba)]
+          {[...monitoringQuery(filter, aba)]
             .filter(([key]) => key !== 'busca')
             .map(([key, value]) => (
               <input key={key} type="hidden" name={key} value={value} />
@@ -891,7 +872,7 @@ export function MonitoringDetailed({
         {ABAS.map((a) => (
           <Link
             key={a.chave}
-            href={`?${querystring(filter, a.chave).toString()}`}
+            href={`?${monitoringQuery(filter, a.chave).toString()}`}
             aria-current={aba === a.chave ? 'true' : undefined}
           >
             {a.rotulo}

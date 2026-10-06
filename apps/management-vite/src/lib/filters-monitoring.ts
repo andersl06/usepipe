@@ -40,3 +40,23 @@ export function matchesListFilters(
   if (filter.status && row.agentState !== filter.status) return false;
   return true;
 }
+
+export type MonitoringFilter = {
+  queue?: string;
+  agent?: string;
+  contact?: string;
+  status?: string;
+  search?: string;
+};
+
+/** Querystring of the monitoring list for a filter and tab; the agent becomes `atendente`. */
+export function monitoringQuery(filter: MonitoringFilter, aba: string): URLSearchParams {
+  const p = new URLSearchParams();
+  if (filter.queue) p.set('fila', filter.queue);
+  if (filter.agent) p.set('atendente', filter.agent);
+  if (filter.contact) p.set('contato', filter.contact);
+  if (filter.status) p.set('status', filter.status);
+  if (filter.search) p.set('busca', filter.search);
+  p.set('aba', aba);
+  return p;
+}
