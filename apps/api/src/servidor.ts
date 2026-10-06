@@ -36,18 +36,21 @@ import { closeDelayedJobs, consumeDelayedJobs, scheduleSweepDelayedJobs } from '
 import { registerScheduledMessages } from './domain/scheduled-messages.js';
 import { registerInputExpirations } from './domain/input-expiration-job.js';
 
-/**
- * Start Nest with a custom JSON parser that preserves raw request bytes in `corpoCru`. Meta signs those bytes with `X-Hub-Signature-256`; reserializing parsed JSON can change spacing or key order and make valid webhooks fail signature verification.
- */
-export async function createApplication(): Promise<INestApplication> {
-  const app = await NestFactory.create(AppModulo, { bodyParser: false });
+type CorsOptions = {
+  origin: boolean | ((origin: string | undefined, respond: (error: Error | null, ok?: boolean) => void) => void);
+  credentials: boolean;
+  methods: string[];
+  allowedHeaders: string[];
+  maxAge: number;
+};
 
-  /**
-   * Credentialed CORS uses fixed `PIPE_ORIGENS` plus strictly validated tenant hosts. Never wildcard it: browsers reject `*` with `credentials: true`, and allowing arbitrary origins would expose authenticated requests from signed-in users.
-   */
+/**
+ * Credentialed CORS uses fixed `PIPE_ORIGENS` plus strictly validated tenant hosts. Never wildcard it: browsers reject a wildcard on credentialed requests, and allowing arbitrary origins would expose authenticated requests from signed-in users.
+ */
+function buildAppCors(): CorsOptions {
   const permitidas = origensPermitidas();
-  app.enableCors({
-    origin: (origem: string | undefined, responder: (error: Error | null, ok?: boolean) => void) => {
+  return {
+    origin: (origem, responder) => {
       // A request without `Origin` is not from a browser, for example curl, Prometheus, or a customer integration. CORS does not govern it; authentication still does.
       responder(null, origem === undefined || origemPermitida(origem, permitidas));
     },
@@ -55,6 +58,34 @@ export async function createApplication(): Promise<INestApplication> {
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['authorization', 'content-type'],
     maxAge: 600,
+  };
+}
+
+/**
+ * Pipe Chat routes are called from customer sites, so any origin may pass CORS, but without credentials: these endpoints never read the session cookie. The per-channel Origin allow-list is enforced by the controller (403), so reflecting the origin here grants nothing by itself.
+ */
+const widgetCors: CorsOptions = {
+  origin: true,
+  credentials: false,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['content-type'],
+  maxAge: 600,
+};
+
+/** CORS options per request path: the public widget routes use `widgetCors`, everything else the credentialed app options. */
+export function corsOptionsFor(url: string | undefined, appCors: CorsOptions = buildAppCors()): CorsOptions {
+  return url?.startsWith('/v1/widget/') ? widgetCors : appCors;
+}
+
+/**
+ * Start Nest with a custom JSON parser that preserves raw request bytes in `corpoCru`. Meta signs those bytes with `X-Hub-Signature-256`; reserializing parsed JSON can change spacing or key order and make valid webhooks fail signature verification.
+ */
+export async function createApplication(): Promise<INestApplication> {
+  const app = await NestFactory.create(AppModulo, { bodyParser: false });
+
+  const appCors = buildAppCors();
+  app.enableCors((request: { url?: string }, callback: (error: Error | null, options: CorsOptions) => void) => {
+    callback(null, corsOptionsFor(request.url, appCors));
   });
 
   // Measure unmatched routes too so they appear in metrics.
@@ -101,6 +132,9 @@ export async function createApplication(): Promise<INestApplication> {
     '/v1/management/contract/certificates',
     express.json({ limit: process.env['PIPE_LIMITE_CERTIFICADO'] ?? '15mb' }),
   );
+
+  // Public Pipe Chat routes carry short texts only; keep the body small for unauthenticated callers.
+  app.use('/v1/widget', express.json({ limit: '16kb' }));
 
   app.use(
     express.json({

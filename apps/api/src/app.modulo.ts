@@ -32,6 +32,8 @@ import { ContactImportsController } from './controllers/imports.js';
 import { AccountsController } from './controllers/accounts.js';
 import { ActiveMessagesController } from './controllers/messages-active.js';
 import { TrackedLinksController } from './controllers/rastreador-de-cliques.js';
+import { WidgetController } from './controllers/widget.js';
+import { WidgetChannelsController } from './controllers/widget-channels.js';
 import { RedirectController } from './controllers/redirect.js';
 import { OperationsController } from './controllers/operations.js';
 import { SsoConnectionController, SsoLoginController } from './controllers/sso.js';
@@ -75,6 +77,8 @@ import { ManagementKnowledgeController } from './controllers/management-knowledg
     ContactLabelsController,
     ActiveMessagesController,
     TrackedLinksController,
+    WidgetController,
+    WidgetChannelsController,
     RedirectController,
     CrmController,
     AttachmentsController,

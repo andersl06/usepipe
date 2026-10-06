@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm';
 import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
+import { withinRateLimit } from '../rate-limit.js';
 import { codigoDoPostgres } from './dominios.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 
@@ -149,24 +150,6 @@ export async function listarLinksRastreados(
   }));
 }
 
-const WINDOW_OF_RATE_MS = 60_000;
-const LIMIT_BY_WINDOW = 30;
-const countByKey = new Map<string, { start: number; n: number }>();
-
-/**
- * Simple public-route rate limit of N clicks per IP per minute. ponytail: this fixed window is process-local and resets on deployment; if the `api` gains replicas, use a distributed limiter such as Redis.
- */
-function respeitaLimiteDeTaxa(key: string): boolean {
-  const agora = Date.now();
-  const atual = countByKey.get(key);
-  if (!atual || agora - atual.start > WINDOW_OF_RATE_MS) {
-    countByKey.set(key, { start: agora, n: 1 });
-    return true;
-  }
-  atual.n += 1;
-  return atual.n <= LIMIT_BY_WINDOW;
-}
-
 /**
  * Public route: resolve the code, record the click, and return the 302 destination. `null` means not found; the controller returns the same 404 for missing codes and links from another tenant. This query intentionally has no tenant filter because no tenant is established yet, like `resolverCanal` in Meta webhooks. It reveals only existence, not another tenant's data.
  */
@@ -174,7 +157,7 @@ export async function redirecionarClique(
   codigo: string,
   context: ContextOfClick,
 ): Promise<string | null> {
-  if (!respeitaLimiteDeTaxa(context.ip)) {
+  if (!withinRateLimit(`click:${context.ip}`, 30, 60_000)) {
     throw new PipeError(429, 'limit_of_rate', 'Muitos cliques em pouco tempo. Tente de novo em instantes.');
   }
 

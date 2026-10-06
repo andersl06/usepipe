@@ -127,6 +127,8 @@ export const FIELDS_SECRET_OF_CHANNEL = [
   // Two-step PIN saved when registering the number (`configuracao-de-webhook.ts`).
   // With it, someone controlling the number could migrate the tenant's WhatsApp to another provider.
   'pinVerificacao',
+  // Pipe Chat visitor-token HMAC secret; never returned by any endpoint.
+  'widgetSecret',
 ] as const;
 
 type Config = Record<string, unknown>;

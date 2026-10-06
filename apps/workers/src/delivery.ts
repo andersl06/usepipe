@@ -151,6 +151,12 @@ async function entregarUma(
     return gravarFalha(linha, 'mensagem_sumiu', 'A mensagem não existe mais no banco.');
   }
 
+  // Pipe Chat visitors read their replies by polling, so there is no external send: the stored message is the delivery.
+  if (data.canal_tipo === 'widget') {
+    await marcarEnviada(linha, linha.mensagem_id);
+    return { messageId: linha.mensagem_id, state: 'enviada' };
+  }
+
   const preparado = data.canal_tipo === 'instagram' ? prepararEnvioInstagram(data) : data.canal_tipo === 'messenger' ? prepararEnvioMessenger(data) : prepararEnvio(data, parametros);
   if ('erro' in preparado) {
     return gravarFalha(linha, preparado.erro.codigo, preparado.erro.texto);
@@ -162,20 +168,7 @@ async function entregarUma(
         ? await clienteInstagram().enviar(preparado.instagram)
         : 'messenger' in preparado ? await clienteMessenger().enviar(preparado.messenger)
         : await clienteWhatsApp().enviar(preparado.pedido);
-    await noTenant(linha.tenant_id, async (tx) => {
-      await tx.execute(sql`
-        update mensagem
-           set estado_entrega = 'enviada', id_provedor = ${resposta.idProvedor},
-               erro_codigo = null, erro_texto = null
-         where id = ${linha.mensagem_id}
-      `);
-      await tx.execute(sql`
-        update outbox_mensagem
-           set estado = 'enviada', tentativas = ${linha.tentativas + 1},
-               ultimo_erro = null, proxima_tentativa_em = null, atualizado_em = now()
-         where id = ${linha.id}
-      `);
-    });
+    await marcarEnviada(linha, resposta.idProvedor);
     return { messageId: linha.mensagem_id, state: 'enviada' };
   } catch (error) {
     const falha =
@@ -191,6 +184,23 @@ async function entregarUma(
     }
     return reagendar(linha, tentativas, falha);
   }
+}
+
+async function marcarEnviada(linha: Reivindicada, idProvedor: string): Promise<void> {
+  await noTenant(linha.tenant_id, async (tx) => {
+    await tx.execute(sql`
+      update mensagem
+         set estado_entrega = 'enviada', id_provedor = ${idProvedor},
+             erro_codigo = null, erro_texto = null
+       where id = ${linha.mensagem_id}
+    `);
+    await tx.execute(sql`
+      update outbox_mensagem
+         set estado = 'enviada', tentativas = ${linha.tentativas + 1},
+             ultimo_erro = null, proxima_tentativa_em = null, atualizado_em = now()
+       where id = ${linha.id}
+    `);
+  });
 }
 
 type Preparado = { pedido: PedidoEnvio } | { erro: { codigo: string; texto: string } };
