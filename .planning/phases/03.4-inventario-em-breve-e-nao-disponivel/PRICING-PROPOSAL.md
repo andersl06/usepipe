@@ -109,3 +109,13 @@ Meta (pass-through, informativo): modelo por mensagem desde 1/jul/2025; só mens
 1. Cobrar por **pacote com atendentes incluídos** (esta proposta) ou manter **por atendente** (R$ 97/179 no código)?
 2. Ao estourar a franquia de IA: **parar e avisar** ou **cobrar excedente**? E o desconto anual de 20% é aceitável dado o pior caso de margem?
 3. Qual o nicho de lançamento? Define se o Essencial (R$ 199, 3 atendentes) ou a Operação é o plano de entrada, e se há teste grátis de 14 dias.
+
+## Decisões do dono (2026-10-06)
+
+1. **Modelo:** pacote fechado (Essencial, Operação, Escala), não por atendente.
+2. **Cota de IA estourada:** **cobra a mais** (o atendimento da IA não para). O valor do excedente ainda **não foi definido**: precisa de um preço por conversa de IA acima da cota (custo estimado de R$ 0,07 por conversa).
+3. **Teste grátis:** **7 dias**.
+4. **Nicho de lançamento:** sem resposta ainda.
+5. Os valores dos três planos seguem como propostos acima, até o dono dizer o contrário. Concorrentes não aparecem na LP.
+
+Consequências no código (Fase 6, COBR-01/02): `LIMITES_DO_PLANO` (hoje por atendente) precisa virar pacote; construir cobrança do excedente de IA e controle do período de teste de 7 dias.
