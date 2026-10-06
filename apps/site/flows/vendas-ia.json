@@ -221,14 +221,24 @@
             "settings": {
               "id": "er-m1",
               "type": "text/plain",
-              "content": "Ops, tive um imprevisto aqui e não consegui responder agora. 🙏 Se quiser, escreva \"falar com um especialista\" e eu chamo alguém da equipe, ou tente de novo em instantes."
+              "content": "Ops, tive um imprevisto e não consegui responder agora. 🙏 Pode tentar de novo em instantes? Se preferir falar com uma pessoa, é só responder \"especialista\" que eu chamo alguém da equipe."
             }
           },
           "$invalid": false
         },
         { "input": { "bypass": false, "$invalid": false }, "$invalid": false }
       ],
-      "$conditionOutputs": [],
+      "$conditionOutputs": [
+        {
+          "$id": "er-esp",
+          "stateId": "desk:especialista",
+          "typeOfStateId": "state",
+          "conditions": [
+            { "source": "input", "comparison": "contains", "operator": "or", "values": ["especialista", "humano", "atendente", "pessoa"] }
+          ],
+          "$invalid": false
+        }
+      ],
       "$enteringCustomActions": [],
       "$leavingCustomActions": [],
       "$inputSuggestions": [],

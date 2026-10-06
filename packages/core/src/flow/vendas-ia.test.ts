@@ -110,7 +110,15 @@ describe('vendas-ia flow (fake provider)', () => {
     const h = harness(() => new Error('401'));
     await h.run('Oi', 'm1');
     expect(h.variables['stateId@vendas-ia']).toBe('erro-ia');
-    expect(h.sent.at(-1)!.conteudo).toContain('falar com um especialista');
+    expect(h.sent.at(-1)!.conteudo).toContain('especialista');
     expect(h.forwards).toHaveLength(0);
+  });
+
+  it('after a provider failure, asking for a specialist still reaches the Desk without the model', async () => {
+    const h = harness(() => new Error('401'));
+    await h.run('Oi', 'm1');
+    await h.run('quero falar com um especialista', 'm2');
+    expect(h.forwards).toHaveLength(1);
+    expect(h.variables['stateId@vendas-ia']).toBe('desk:especialista');
   });
 });

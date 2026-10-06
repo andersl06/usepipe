@@ -36,15 +36,3 @@ test('the embed bundle reads the `{ data: [...] }` envelope the widget API retur
   const bundle = readFileSync(new URL('../public/pipe-chat.js', import.meta.url), 'utf8');
   assert.match(bundle, /rows\.data/);
 });
-
-test('the specialist button is opt-in through data-specialist and keeps the safe rendering', async () => {
-  const { readFileSync } = await import('node:fs');
-  const bundle = readFileSync(new URL('../public/pipe-chat.js', import.meta.url), 'utf8');
-  assert.match(bundle, /getAttribute\('data-specialist'\)/);
-  // Only mounted when the label exists, and rate limited for 30 seconds.
-  assert.match(bundle, /if \(specialistLabel\) \{/);
-  assert.match(bundle, /SPECIALIST_COOLDOWN_MS = 30000/);
-  // Still textContent-only and without credentials.
-  assert.doesNotMatch(bundle, /innerHTML/);
-  assert.match(bundle, /credentials: 'omit'/);
-});

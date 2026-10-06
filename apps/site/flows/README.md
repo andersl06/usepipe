@@ -16,13 +16,13 @@ Fluxo do Builder (formato `{flow, globalActions}`) com: boas-vindas, agente de I
 - **Fila `Especialista`**: o fluxo precisa ter uma fila ativa chamada exatamente `Especialista`, com atendentes habilitados. O handoff grava `teams = Especialista` no contato e o Desk escolhe a fila por esse nome (uma regra de fila ou a fila padrão do fluxo valem antes, então não deixe uma regra capturando essas conversas). Os dados que o visitante informou ficam nos campos extras do contato (`lead_nome`, `lead_contato`, `lead_motivo`).
 - **Fora do horário** (ou sem ninguém online): o ticket entra na fila mesmo assim e a conversa fica aberta; o visitante lê que um especialista responde assim que voltar.
 - **Canal Pipe Chat**: crie o canal, vincule-o a este fluxo e publique o fluxo. Em origens permitidas, inclua `https://pipebr.app`.
-- **Site**: use o snippet do canal e acrescente `data-specialist="Falar com um especialista"` para mostrar o botão (opcional):
+- **Site**: use o snippet do canal, sem nenhum atributo extra:
 
 ```html
-<script src="https://<origem da gestão>/pipe-chat.js" data-key="<chave>" data-specialist="Falar com um especialista" async></script>
+<script src="https://<origem da gestão>/pipe-chat.js" data-key="<chave>" async></script>
 ```
 
-O botão envia o texto como mensagem do visitante; a IA reconhece e chama o especialista. Fica desabilitado por 30 segundos depois do clique.
+Não há botão de especialista dentro do chat. A pessoa pede um humano escrevendo (por exemplo "quero falar com um especialista"): a IA reconhece e chama o especialista. Se a IA estiver com problema, a mensagem de erro oferece responder "especialista", e o fluxo leva direto à fila mesmo sem a IA.
 
 ### Como testar
 
