@@ -1,6 +1,8 @@
 /*
  * Pipe Chat embed. Paste on a site:
  *   <script src="https://<management origin>/pipe-chat.js" data-key="<widgetKey>" async></script>
+ * Optional: add data-specialist="Falar com um especialista" to show a button that sends that label as a
+ * visitor message (the flow's AI agent turns it into a human handoff). Without it nothing changes.
  *
  * Plain ES2019, no dependencies. The UI lives in a Shadow DOM so host-page CSS cannot reach it and
  * its own classes (pc-*) cannot leak out. Message data is only ever written with textContent.
@@ -16,6 +18,9 @@
     return;
   }
   window.__pipeChatLoaded = true;
+
+  var specialistLabel = (script.getAttribute('data-specialist') || '').trim().slice(0, 60);
+  var SPECIALIST_COOLDOWN_MS = 30000;
 
   var API = new URL(script.src).origin + '/v1/widget/' + encodeURIComponent(key);
   var STORAGE_KEY = 'pipe-chat:' + key;
@@ -36,6 +41,7 @@
     errors: 0,
     timer: null,
     sending: false,
+    specialistUntil: 0,
   };
 
   function readStored() {
@@ -104,6 +110,11 @@
     '.pc-in{align-self:flex-start;background:var(--pc-surface);color:var(--pc-ink)}',
     '.pc-out{align-self:flex-end;background:var(--pc-moss);color:#fff}',
     '.pc-time{display:block;margin-top:4px;font-size:12px;opacity:.7}',
+    '.pc-actions{display:flex;padding:8px 12px 0;background:var(--pc-surface);border-top:1px solid var(--pc-surface-2)}',
+    '.pc-specialist{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border:1px solid var(--pc-moss);border-radius:8px;background:var(--pc-surface);color:var(--pc-moss);font:inherit;font-size:12px;font-weight:600;line-height:16px;cursor:pointer}',
+    '.pc-specialist svg{width:16px;height:16px;fill:var(--pc-moss);flex:none}',
+    '.pc-specialist:focus-visible{outline:2px solid var(--pc-moss);outline-offset:2px}',
+    '.pc-specialist:disabled{opacity:.5;cursor:not-allowed}',
     '.pc-composer{display:flex;gap:8px;padding:12px;background:var(--pc-surface);border-top:1px solid var(--pc-surface-2)}',
     '.pc-input{flex:1;min-width:0;min-height:44px;padding:0 12px;border:1px solid var(--pc-ink-2);border-radius:8px;font:inherit;font-size:14px;color:var(--pc-ink);background:var(--pc-surface)}',
     '.pc-input:focus-visible{outline:2px solid var(--pc-moss);outline-offset:0}',
@@ -182,9 +193,34 @@
   composer.appendChild(input);
   composer.appendChild(sendButton);
 
+  // Optional "talk to a specialist" action, a flex row above the composer so it never covers the list.
+  var specialistRow = null;
+  var specialistButton = null;
+  if (specialistLabel) {
+    specialistRow = document.createElement('div');
+    specialistRow.className = 'pc-actions';
+    specialistButton = document.createElement('button');
+    specialistButton.type = 'button';
+    specialistButton.className = 'pc-specialist';
+    specialistButton.setAttribute('aria-label', specialistLabel);
+    var ns2 = 'http://www.w3.org/2000/svg';
+    var icon = document.createElementNS(ns2, 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('aria-hidden', 'true');
+    var shape = document.createElementNS(ns2, 'path');
+    shape.setAttribute('d', 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-3.3 0-8 1.7-8 5v1h16v-1c0-3.3-4.7-5-8-5z');
+    icon.appendChild(shape);
+    var specialistText = document.createElement('span');
+    specialistText.textContent = specialistLabel;
+    specialistButton.appendChild(icon);
+    specialistButton.appendChild(specialistText);
+    specialistRow.appendChild(specialistButton);
+  }
+
   panel.appendChild(head);
   panel.appendChild(banner);
   panel.appendChild(list);
+  if (specialistRow) panel.appendChild(specialistRow);
   panel.appendChild(composer);
   wrap.appendChild(launcher);
   wrap.appendChild(panel);
@@ -246,6 +282,9 @@
     }
     var canSend = state.status === 'ready' && input.value.trim().length > 0 && !state.sending;
     sendButton.disabled = !canSend;
+    if (specialistButton) {
+      specialistButton.disabled = state.status !== 'ready' || state.sending || Date.now() < state.specialistUntil;
+    }
   }
 
   /* ------------------------------------------------------------- behavior */
@@ -345,19 +384,16 @@
   });
   window.addEventListener('resize', render);
 
-  composer.addEventListener('submit', function (event) {
-    event.preventDefault();
-    var text = input.value.trim();
-    if (!text || state.status !== 'ready' || state.sending) return;
+  // The one send path: the composer and the specialist button both go through it.
+  function sendText(text, onSent) {
     state.sending = true;
     render();
     request('POST', '/messages', { visitorId: state.visitorId, token: state.token, text: text }).then(
       function () {
         state.sending = false;
-        input.value = '';
+        if (onSent) onSent();
         render();
         poll();
-        input.focus();
       },
       function () {
         state.sending = false;
@@ -365,8 +401,27 @@
         render();
       },
     );
+  }
+
+  composer.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var text = input.value.trim();
+    if (!text || state.status !== 'ready' || state.sending) return;
+    sendText(text, function () {
+      input.value = '';
+      input.focus();
+    });
   });
 
+  if (specialistButton) {
+    specialistButton.addEventListener('click', function () {
+      if (state.status !== 'ready' || state.sending || Date.now() < state.specialistUntil) return;
+      // Disabled for 30 seconds so a nervous visitor cannot flood the queue.
+      state.specialistUntil = Date.now() + SPECIALIST_COOLDOWN_MS;
+      window.setTimeout(render, SPECIALIST_COOLDOWN_MS + 50);
+      sendText(specialistLabel);
+    });
+  }
   function mount() {
     document.body.appendChild(host);
     connect();
