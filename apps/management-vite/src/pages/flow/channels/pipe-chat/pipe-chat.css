@@ -1,0 +1,75 @@
+/* Pipe Chat configuration page inside the bot. Sizes 12/14/16/24, weights 400/600. */
+.pcc-corpo {
+  padding: 24px;
+}
+
+.pcc-linha {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.pcc-coluna {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  max-width: 640px;
+  font-size: 14px;
+}
+
+.pcc-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.pcc-aviso {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--surface-2, #f5f4f0);
+}
+
+.pcc-rotulo {
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pcc-origens {
+  width: 100%;
+  resize: vertical;
+  font-size: 14px;
+}
+
+.pcc-ajuda {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.pcc-acoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.pcc-codigo {
+  width: 100%;
+  margin: 0;
+  padding: 12px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--surface-2, #f5f4f0);
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

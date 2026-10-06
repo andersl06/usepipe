@@ -27,10 +27,14 @@ type ScreenChannel = {
   pendingIntegration?: boolean;
   /** Has its own page inside the bot: the card navigates. */
   page?: TypeOfChannelOfBot;
+  /** `channel.tipo` stored for this card when it differs from `key`. */
+  storedType?: string;
+  /** Path segment of a page that is not a typed provider channel. */
+  segment?: string;
 };
 
 const CHANNELS: readonly ScreenChannel[] = [
-  { key: 'pipe-chat', nome: 'Pipe Chat', logo: 'pipe', sempre: true },
+  { key: 'pipe-chat', nome: 'Pipe Chat', logo: 'pipe', storedType: 'widget', segment: 'pipe-chat' },
   { key: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp', page: 'whatsapp_cloud' },
   { key: 'messenger', nome: 'Messenger', logo: 'messenger', page: 'messenger' },
   { key: 'instagram', nome: 'Instagram', logo: 'instagram', page: 'instagram' },
@@ -56,9 +60,10 @@ export function ChannelsPage() {
 
       <div className="cn-lista">
         {CHANNELS.map((channel) => {
+          const storedType = channel.storedType ?? channel.key;
           const conectado = channel.sempre || (linked.data
-            ? linked.data.channels.some((item) => item.tipo === channel.key && item.ativo)
-            : cardConnected(contact, channel.key));
+            ? linked.data.channels.some((item) => item.tipo === storedType && item.ativo)
+            : cardConnected(contact, storedType));
           const miolo = (
             <>
               <div className="cn-card-content">
@@ -80,9 +85,9 @@ export function ChannelsPage() {
           );
           return (
             <div className="cn-item" key={channel.key}>
-              {channel.page ? (
+              {channel.page || channel.segment ? (
                 <Link
-                  href={channelRoute(base, channel.page)}
+                  href={channel.page ? channelRoute(base, channel.page) : `${base}/channels/${channel.segment}`}
                   className="cn-card cn-card--link"
                   aria-label={`${channel.nome}: ${conectado ? 'Conectado' : channel.pendingIntegration ? 'Em preparação' : 'Conectar'}`}
                 >

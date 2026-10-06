@@ -72,6 +72,7 @@ import { AbaPerfil } from './pages/flow/channels/whatsapp/perfil';
 import { TabSettings } from './pages/flow/channels/whatsapp/settings';
 import { PageChannelInstagram } from './pages/flow/channels/instagram/page';
 import { PageChannelMessenger } from './pages/flow/channels/messenger/page';
+import { PagePipeChat } from './pages/flow/channels/pipe-chat/page';
 import { ContractPage } from './pages/contract/page';
 import { CertificatesPage } from './pages/contract/certificates/page';
 import { MembersPage } from './pages/contract/members/page';
@@ -110,6 +111,7 @@ const contactRoutes = (
     </Route>
     <Route path="channels/instagram" element={<PageChannelInstagram />} />
     <Route path="channels/messenger" element={<PageChannelMessenger />} />
+    <Route path="channels/pipe-chat" element={<PagePipeChat />} />
     {/* `services` → `templates/pipeline` (D-54; route-inventory.md §2, "serviços do roteador"). */}
     <Route path="templates/pipeline" element={<ServicesPage />} />
 
