@@ -72,3 +72,9 @@ Continuam em aberto, sem resposta do dono:
 - C-42: o export real do fluxo AUVP Capital foi enviado (`auvpcapitaldev1 (7).json`, 174 blocos, 261 saídas de condição). `arestasDe()` desenha 245 setas (14 duplicadas, 1 destino inexistente e 1 saída de erro de encaminhamento ficam de fora). Os `$defaultOutput` (174 blocos, 168 com destino existente) não são desenhados, por regra documentada (`PAINEL-Saidas.md:53`). Falta comparar com o print do canvas da Blip; sem isso SC5 segue `unverifiable_runtime`.
 - "Nomear versão" (02-32, exige migração de `fluxo_versao`): fazer, adiar ou descartar.
 - Marca "Não disponível no Pipe" na biblioteca de variáveis: manter, esconder ou trocar o texto.
+
+### Decisões do dono, 2026-10-06 (resposta às três pendências)
+
+- **C-42:** aprovado **sem** a comparação com o canvas da Blip (override do dono). SC5 (setas) fica aceito com o teste de `arestasDe()` (42/42) e a rodada com o export real (245 setas; ver `ref/validacao-setas.md`).
+- **"Nomear versão":** fazer, incluindo a migração de `fluxo_versao`. Execução registrada fora desta verificação (commit próprio).
+- **Rótulo "Não disponível no Pipe":** decisão do dono: não esconder nem só manter. Inventariar tudo que o Pipe marca como "em breve" ou "não disponível", validar se já foi construído, inventariar na Blip o que falta e construir. Vira uma fase própria no ROADMAP.
