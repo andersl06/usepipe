@@ -73,6 +73,8 @@ export interface EtiquetaDoDesk {
 export interface Colega {
   id: string;
   nome: string;
+  /** Status do atendente agora; sem registro de status vale Offline. */
+  estado: StateAgent;
 }
 
 export interface RespostaProntaDoDesk {

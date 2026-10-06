@@ -468,7 +468,7 @@
   margin-top: 16px;
 }
 /*
- * Click Tracker — the `portal-fragment-click-tracker` microfrontend's panel on the `growth/clicktracker` route, measured in the copy with a ruler (1280×780 window): page with 24px 8px, rows with 0 8px, `bds-grid.container` at 944px centered, 8/4 and 3 columns with 0 8px, `bds-paper` with 16px radius. All color comes from Pipe's `--p-*` / `--g-*` tokens.
+ * Page frame of the Growth screens that follow the portal layout (Ads): page with 24px 8px, rows with 0 8px, container at 944px centered, 8/12 columns with 0 8px, `bds-paper` with 16px radius. All color comes from Pipe's `--p-*` / `--g-*` tokens.
  */
 .ck-page {
   padding: 24px 8px;
@@ -490,9 +490,7 @@
   margin: 0 auto;
 }
 .ck-col-12,
-.ck-col-8,
-.ck-col-4,
-.ck-col-3 {
+.ck-col-8 {
   display: flex;
   padding: 0 8px;
 }
@@ -501,12 +499,6 @@
 }
 .ck-col-8 {
   width: 66.666%;
-}
-.ck-col-4 {
-  width: 33.333%;
-}
-.ck-col-3 {
-  width: 25%;
 }
 /* Title `bds-typo fs-32 bold` (190×54) and the 130×40 tooltip with the icon button. */
 .ck-titulo-linha {
@@ -518,338 +510,10 @@
   font-weight: 700;
   line-height: 54px;
 }
-.ck-dica-titulo {
-  display: flex;
-  margin-top: -5px;
-}
-.ck-botao-icone {
-  display: grid;
-  place-items: center;
-  width: 130px;
-  height: 40px;
-  padding: 8px;
-  border: 0;
-  border-radius: var(--p-r-md);
-  background: transparent;
-  color: var(--p-conteudo);
-  cursor: pointer;
-}
-.ck-botao-icone:hover {
-  background: var(--g-tinta-hover);
-}
-/* Labels "Evento de conversão" / "Período analisado": fs-14 + 20px icon. */
-.ck-rotulo-linha {
-  height: 56px;
-  align-items: flex-start;
-}
-.ck-rotulo {
-  display: inline-flex;
-  align-items: center;
-  font-size: 14px;
-  line-height: 21px;
-}
-.ck-info {
-  display: inline-flex;
-  margin-left: 4px;
-  color: var(--p-conteudo);
-}
 .ck-paper {
   border-radius: 16px;
   background: var(--p-superficie-1);
   box-shadow: var(--g-shadow-card);
-}
-/* Event paper: 604×48, padding 12px; clickable chip 34×24 with a pencil. */
-.ck-evento-caixa {
-  width: 100%;
-  height: 61px;
-}
-.ck-evento {
-  display: flex;
-  height: 48px;
-  padding: 12px;
-}
-.ck-chip {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 2px 6px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--p-marca-suave);
-  color: var(--p-conteudo);
-  cursor: pointer;
-}
-.ck-chip svg {
-  margin-right: 2px;
-}
-.ck-chip-texto {
-  display: inline-block;
-  min-width: 4px;
-  padding: 0 2px;
-  font-size: 14px;
-  line-height: 16px;
-}
-/*
- * `bds-datepicker` in range mode: 174px 174px grid with 16px; `bds-input` with bold label, 7px 4px 8px 12px, 1px border and 8px radius (61px).
- */
-.ck-datas {
-  display: grid;
-  grid-template-columns: 174px 174px;
-  gap: 16px;
-}
-.ck-data {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 61px;
-  padding: 7px 4px 8px 12px;
-  border: 1px solid var(--p-linha-forte);
-  border-radius: var(--p-r-md);
-  background: var(--p-superficie-0);
-}
-.ck-data-icone {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  padding: 2px;
-  border-radius: var(--p-r-md);
-  color: var(--p-conteudo);
-}
-.ck-data-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  flex: 1 1 0;
-}
-.ck-data-rotulo {
-  margin-bottom: 2px;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 18px;
-}
-.ck-data-texto {
-  width: 100%;
-  height: 24px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--p-conteudo);
-  font: inherit;
-  font-size: 14px;
-  line-height: 22px;
-}
-.ck-data-texto:focus {
-  outline: none;
-}
-/*
- * Token paper: 0 10px margin, 16px above, 12px padding; 24px status strip with 8px radius; 76px row with 64px logo, texts and a ghost button.
- */
-.ck-token-margem {
-  width: 100%;
-  margin: 0 10px;
-}
-.ck-token {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 16px;
-  padding: 12px;
-}
-.ck-token-status {
-  width: 100%;
-  height: 24px;
-  padding: 2px 0 0 16px;
-  border-radius: var(--p-r-md);
-  background: var(--p-sucesso-fundo);
-}
-.ck-token-status-texto {
-  display: inline-flex;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 20px;
-}
-.ck-token-linha {
-  display: flex;
-  width: 100%;
-  min-height: 76px;
-  padding: 0 8px;
-}
-.ck-token-account {
-  align-items: flex-start;
-}
-.ck-token-logo {
-  display: block;
-  width: 64px;
-  height: 64px;
-  margin: 0 22px 0 -16px;
-  flex: none;
-}
-.ck-token-texto {
-  display: flex;
-  flex-direction: column;
-  margin: 10px 0 0 -30px;
-  padding: 0 8px;
-}
-.ck-token-texto strong {
-  font-size: 16px;
-  line-height: 24px;
-}
-.ck-token-texto small {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 18px;
-}
-.ck-token-actions {
-  position: relative;
-  justify-content: flex-end;
-  align-items: flex-start;
-}
-/* `bds-button variant="ghost" icon="plugin"`: 148×40, borda de 1px, 0 16px. */
-.ck-botao-fantasma {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 40px;
-  margin: 10px -15px 0 0;
-  padding: 0 16px;
-  border: 1px solid var(--p-conteudo);
-  border-radius: var(--p-r-md);
-  background: transparent;
-  color: var(--p-conteudo);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.ck-botao-fantasma:hover {
-  background: var(--g-tinta-hover);
-}
-.ck-ponto {
-  position: absolute;
-  top: 8px;
-  right: 30px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--p-sucesso-conteudo);
-}
-/* `hr`: 15px acima, 18px abaixo, 2px de altura. */
-.ck-separador {
-  width: 100%;
-  height: 2px;
-  margin: 15px 0 18px;
-  border: 0;
-  border-top: 1px solid var(--p-linha-media);
-  background: var(--p-superficie-3);
-}
-/*
- * Performance paper: 12px padding, 17px below; fs-16 title (32px), fs-14 subtitle (28px), indicators 16px below in four columns.
- */
-.ck-desempenho {
-  width: 100%;
-  margin-bottom: 17px;
-  padding: 12px;
-}
-.ck-performance-column {
-  display: flex;
-  flex-direction: column;
-  padding: 0 8px;
-}
-.ck-desempenho-titulo {
-  margin-left: 8px;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 32px;
-}
-.ck-desempenho-sub {
-  min-height: 28px;
-  margin-left: 8px;
-  font-size: 14px;
-  line-height: 21px;
-}
-.ck-indicadores {
-  display: flex;
-  margin: 16px -8px 0;
-}
-/*
- * Indicator: surface 2, 12px radius, 157px; fs-32 extra-bold value (46px), fs-12 extra-bold label (47px), 2px rule and 8px footer.
- */
-.ck-indicador {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 157px;
-  padding-top: 16px;
-  border-radius: 12px;
-  background: var(--p-superficie-2);
-}
-.ck-indicator-value {
-  display: flex;
-  align-items: center;
-  height: 46px;
-  font-size: 32px;
-  font-weight: 800;
-}
-.ck-indicador-alerta {
-  display: inline-flex;
-  margin-left: 4px;
-  color: var(--p-conteudo);
-}
-.ck-indicador-rotulo {
-  display: flex;
-  align-items: flex-start;
-  height: 47px;
-  margin-left: 4px;
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 18px;
-}
-.ck-indicador-rotulo .ck-info {
-  margin-top: 1px;
-}
-.ck-indicador-linha {
-  height: 2px;
-  background: var(--p-marca-linha);
-}
-.ck-indicador-rodape {
-  display: flex;
-  justify-content: space-between;
-  min-height: 16px;
-  padding: 8px;
-  font-size: 10px;
-  line-height: 15px;
-}
-.ck-indicador-rodape-texto {
-  width: 50%;
-}
-.ck-indicator-footer-value {
-  width: 41%;
-  text-align: right;
-}
-/* Empty state: 20px margin, 130×134 illustration with 30px below, fs-24 title. */
-.ck-empty {
-  margin: 20px;
-  text-align: center;
-}
-.ck-empty-illustration {
-  display: flex;
-  justify-content: center;
-  height: 134px;
-  margin-bottom: 30px;
-}
-.ck-empty-title {
-  display: block;
-  margin-bottom: 22px;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 24px;
-}
-.ck-empty-text {
-  margin: 0;
-  font-size: 16px;
-  line-height: 25.6px;
 }
 /*
  * Ads (Beta) — `growth/adsbuying` at the source, measured in the rendered DOM of `referencias-blip/canais/roteador/roteador-anuncios__pagina.html`: a centered `bds-paper` (`container xxs=8`, `margin: y-9`) with a `justify-content: space-between; align-items: center` row of at most 625px — illustration on the left, text column on the right (fs-24 bold title, fs-14 text, button right-aligned with `padding-top: 30px`). It's not a centered vertical card like before: it's horizontal, text on the left.
@@ -1114,16 +778,7 @@
   .gr-revisao dl {
     grid-template-columns: 1fr;
   }
-  .ck-col-8,
-  .ck-col-4,
-  .ck-col-3 {
+  .ck-col-8 {
     width: 100%;
-  }
-  .ck-datas {
-    grid-template-columns: 1fr 1fr;
-  }
-  .ck-indicadores {
-    flex-wrap: wrap;
-    gap: 16px 0;
   }
 }

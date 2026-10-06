@@ -6,6 +6,7 @@ import { useSession } from '../context/session';
 import { executar } from '../lib/actions';
 import { IconeDesk, type NomeDeIconeDesk } from './icones-desk';
 import { Avatar } from './avatar';
+import { presenceStatus } from '../lib/presenca-agente';
 import { AGENT_STATUS_LABELS } from '../lib/situation';
 
 /**
@@ -84,7 +85,7 @@ export function Rail({
               onClick={() => aoAbrir(!aberto)}
             >
               <Avatar nome={eu?.user.nome} tamanho={32} />
-              <span className="dk-presenca" data-status={state.toLowerCase()} />
+              <span className="dk-presenca" data-status={presenceStatus(state)} />
             </button>
           </li>
         </ul>
@@ -176,7 +177,7 @@ function StatusPanel({
                     className="dk-status-option"
                     onClick={() => void mudar('Pause', m.id)}
                   >
-                    <span className="dk-status-ponto" data-status="paused" />
+                    <span className="dk-status-ponto" data-status="pause" />
                     <span className="dk-status-rotulo">{m.nome}</span>
                     {state === 'Pause' && motivoAtual === m.nome ? (
                       <IconeDesk nome="check" />
@@ -200,7 +201,7 @@ function StatusPanel({
                   className="dk-status-option"
                   onClick={() => (o === 'Pause' ? setEscolhendoPausa(true) : void mudar(o))}
                 >
-                  <span className="dk-status-ponto" data-status={o.toLowerCase()} />
+                  <span className="dk-status-ponto" data-status={presenceStatus(o)} />
                   <span className="dk-status-rotulo">
                     {AGENT_STATUS_LABELS[o]}
                     {o === 'Pause' && state === 'Pause' && motivoAtual ? ` · ${motivoAtual}` : ''}

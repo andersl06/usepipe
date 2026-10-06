@@ -284,15 +284,32 @@ function Fechado({
   botao?: string;
   aoClicar?: () => void | Promise<void>;
 }) {
+  const [error, setError] = useState<string | null>(null);
+
+  async function clicar() {
+    if (!aoClicar) return;
+    setError(null);
+    try {
+      await aoClicar();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível concluir a ação.');
+    }
+  }
+
   return (
     <div className="dk-composer">
       <div className="dk-composer-closed">
         <div>
           <b>{titulo}</b>
           {description ? <div>{description}</div> : null}
+          {error ? (
+            <p className="dk-error" role="alert">
+              {error}
+            </p>
+          ) : null}
         </div>
         {botao && aoClicar ? (
-          <button type="button" className="dk-botao" onClick={() => void aoClicar()}>
+          <button type="button" className="dk-botao" onClick={() => void clicar()}>
             {botao}
           </button>
         ) : null}

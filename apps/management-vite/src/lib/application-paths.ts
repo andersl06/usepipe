@@ -26,7 +26,7 @@
  * from the `url:` declarations of the captured Blip bundles. One exception: `growth/tracked-links`
  * keeps our name instead of the table's `clicktracker` — `growth/navigation.tsx`'s own comment
  * documents that tracked links have no Blip counterpart, and the Click Tracker screen itself was
- * removed (03.1-DECISOES), so the old address must not be reintroduced.
+ * removed, so the old address must not be reintroduced.
  */
 
 export const APPLICATION = '/application';

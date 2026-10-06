@@ -374,9 +374,11 @@ export async function carregarStatus(
 
 export async function listarColegas(tx: TransactionPipe, atendenteId: string): Promise<Colega[]> {
   const { rows } = await tx.execute<Linha<Colega>>(sql`
-    select id, nome from usuario
-     where ativo and id <> ${atendenteId}
-     order by nome
+    select u.id, u.nome, coalesce(s.estado, 'Offline') as estado
+      from usuario u
+      left join status_atendente s on s.usuario_id = u.id
+     where u.ativo and u.id <> ${atendenteId}
+     order by u.nome
   `);
   return rows;
 }
