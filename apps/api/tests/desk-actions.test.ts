@@ -585,3 +585,24 @@ describe('Filas por fluxo', () => {
     expect(typeof body['error']).toBe('string');
   });
 });
+
+describe('Colegas na fila do Desk trazem o status do atendente', () => {
+  async function colegas(): Promise<{ id: string; estado: string }[]> {
+    const resposta = await fetch(`${api.url}/v1/desk/queue`, { headers: comCookie(sessionAgent) });
+    const corpo = (await resposta.json()) as { colegas: { id: string; estado: string }[] };
+    return corpo.colegas;
+  }
+
+  it('sem registro de status o colega aparece Offline; com registro, o estado gravado', async () => {
+    const antes = (await colegas()).find((c) => c.id === colegaId);
+    expect(antes?.estado).toBe('Offline');
+
+    await a.dono.execute(sql`
+      insert into status_atendente (usuario_id, tenant_id, estado, desde)
+      values (${colegaId}::uuid, ${a.tenantId}::uuid, 'Invisible', now())
+      on conflict (usuario_id) do update set estado = 'Invisible'
+    `);
+    const depois = (await colegas()).find((c) => c.id === colegaId);
+    expect(depois?.estado).toBe('Invisible');
+  });
+});

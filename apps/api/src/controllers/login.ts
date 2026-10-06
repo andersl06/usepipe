@@ -379,6 +379,7 @@ export class LoginController {
             byUserId: sessao.userId,
             targetUserId: sessao.userId,
             state: PRESENCE_ON_LOGOUT,
+            origem: 'logout',
           });
         }
       } catch (erro) {
@@ -501,7 +502,7 @@ export class MeController {
     const next = stateOnDeskOpening(previous, { reload, keepOnline });
     const state =
       next && next !== previous
-        ? (await definirStatus({ tenantId, byUserId: userId, targetUserId: userId, state: next })).state
+        ? (await definirStatus({ tenantId, byUserId: userId, targetUserId: userId, state: next, origem: 'abertura' })).state
         : previous;
     await stampPresence(tenantId, userId, keepOnline);
     return { state };

@@ -12,6 +12,7 @@ import type {
   EtiquetaDoDesk,
   ItemOfConversation,
   MotivoDePausa,
+  PassagemDoBot,
   PriorityOfDesk as Prioridade,
   RespostaProntaDoDesk,
   StatusOfAgent,
@@ -52,6 +53,8 @@ export async function listConversations(
   const { rows } = await tx.execute<{
     id: string;
     state: StateConversation;
+    sequentialId: number;
+    parentSequentialId: number | null;
     priority: Prioridade;
     criada_em: Date | string;
     primeira_resposta_em: Date | string | null;
@@ -70,6 +73,9 @@ export async function listConversations(
     nao_lida_em: Date | string | null;
   }>(sql`
     select c.id, c.estado as state, c.prioridade as priority, c.criada_em, c.primeira_resposta_em,
+           c.numero_sequencial::int as "sequentialId",
+           (select p.numero_sequencial::int from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId",
            c.ultima_mensagem_em, c.ultima_mensagem_de as "lastMessageOf",
            c.janela_expira_em as "windowExpiresAt", c.em_espera_desde,
            (c.estado = 'Open' and c.em_espera_desde is not null) as "emStandby", ct.nome as contato_nome,
@@ -98,6 +104,8 @@ export async function listConversations(
   return rows.map((r) => ({
     id: r.id,
     estado: r.state,
+    sequentialId: r.sequentialId,
+    parentSequentialId: r.parentSequentialId,
     emStandby: r.emStandby,
     prioridade: r.priority,
     criadaEm: iso(r.criada_em),
@@ -366,9 +374,11 @@ export async function carregarStatus(
 
 export async function listarColegas(tx: TransactionPipe, atendenteId: string): Promise<Colega[]> {
   const { rows } = await tx.execute<Linha<Colega>>(sql`
-    select id, nome from usuario
-     where ativo and id <> ${atendenteId}
-     order by nome
+    select u.id, u.nome, coalesce(s.estado, 'Offline') as estado
+      from usuario u
+      left join status_atendente s on s.usuario_id = u.id
+     where u.ativo and u.id <> ${atendenteId}
+     order by u.nome
   `);
   return rows;
 }
@@ -381,6 +391,8 @@ export async function listHistoryOfContact(
 ): Promise<ConversationOfHistory[]> {
   const { rows } = await tx.execute<{
     id: string;
+    sequentialId: number;
+    parentSequentialId: number | null;
     criada_em: Date | string;
     encerrada_em: Date | string | null;
     state: StateConversation;
@@ -388,6 +400,9 @@ export async function listHistoryOfContact(
     closed_by: string | null;
   }>(sql`
     select c.id, c.criada_em, c.encerrada_em, c.estado as "state", f.nome as fila_nome,
+           c.numero_sequencial::int as "sequentialId",
+           (select p.numero_sequencial::int from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId",
            ev.dados->>'encerrada_por' as closed_by
       from conversa c
       left join fila f on f.id = c.fila_id
@@ -403,11 +418,153 @@ export async function listHistoryOfContact(
   `);
   return rows.map((r) => ({
     id: r.id,
+    sequentialId: r.sequentialId,
+    parentSequentialId: r.parentSequentialId,
     criadaEm: iso(r.criada_em),
     encerradaEm: isoOuNulo(r.encerrada_em),
     estado: r.state,
     filaNome: r.fila_nome,
     closedBy: r.closed_by,
+  }));
+}
+
+type LinhaDaPassagem = {
+  id: string;
+  executionId: string;
+  direction: string;
+  at: Date | string;
+  previousCode: string | null;
+  currentCode: string | null;
+  currentName: string | null;
+};
+
+/** The bot messages read to find the passes of one contact: the most recent ones, plenty for the history list. */
+const MAX_BOT_MESSAGES = 3000;
+
+/**
+ * Cut a contact's bot messages (oldest first) into passes. A new pass begins when the execution changes
+ * or when the customer's message was consumed at the flow's root block: the bot's first reply of that
+ * turn carries the root as its previous block, and the customer's messages before the reply open the pass.
+ */
+export function splitBotPassages(rows: readonly LinhaDaPassagem[], rootCodes: ReadonlySet<string>): PassagemDoBot[] {
+  const starts: number[] = [];
+  let turnStart = -1;
+  rows.forEach((m, i) => {
+    if (i === 0 || m.executionId !== rows[i - 1]!.executionId) {
+      starts.push(i);
+      turnStart = -1;
+    }
+    if (m.direction === 'entrada') {
+      if (turnStart < 0) turnStart = i;
+      return;
+    }
+    if (turnStart >= 0 && m.previousCode !== null && rootCodes.has(m.previousCode) && turnStart > starts[starts.length - 1]!) {
+      starts.push(turnStart);
+    }
+    turnStart = -1;
+  });
+  return starts.map((start, n) => {
+    const slice = rows.slice(start, n + 1 < starts.length ? starts[n + 1]! : rows.length);
+    const first = slice[0]!;
+    const withBlock = [...slice].reverse().find((m) => m.direction !== 'entrada' && (m.currentCode !== null || m.currentName !== null));
+    return {
+      id: first.id,
+      executionId: first.executionId,
+      iniciadaEm: iso(first.at),
+      encerradaEm: iso(slice[slice.length - 1]!.at),
+      mensagens: slice.length,
+      ultimoBlocoCodigo: withBlock?.currentCode ?? null,
+      ultimoBlocoNome: withBlock?.currentName ?? null,
+    };
+  });
+}
+
+/**
+ * The contact's passes through the bot that never became a ticket (messages with no `conversa_id`,
+ * reached through `execucao_fluxo.contato_id`), newest first. Always scoped to the tenant and the contact.
+ */
+export async function listBotPassagesOfContact(
+  tx: TransactionPipe,
+  tenantId: string,
+  contactId: string,
+  limit: number,
+): Promise<PassagemDoBot[]> {
+  const { rows } = await tx.execute<LinhaDaPassagem>(sql`
+    select * from (
+      select m.id, m.execucao_id as "executionId", m.direcao as direction, m.criada_em as "at",
+             m.bloco_anterior_codigo as "previousCode", m.bloco_atual_codigo as "currentCode",
+             m.bloco_atual_nome as "currentName"
+        from mensagem m
+        join execucao_fluxo e on e.id = m.execucao_id and e.tenant_id = m.tenant_id
+       where m.tenant_id = ${tenantId}::uuid
+         and e.contato_id = ${contactId}::uuid
+         and m.conversa_id is null
+       order by m.criada_em desc, m.id desc
+       limit ${MAX_BOT_MESSAGES}
+    ) recentes
+    order by "at", id
+  `);
+  if (rows.length === 0) return [];
+  const { rows: roots } = await tx.execute<{ codigo: string }>(sql`
+    select distinct b.codigo
+      from bloco b
+      join execucao_fluxo e on e.fluxo_versao_id = b.versao_id and e.tenant_id = b.tenant_id
+     where b.tenant_id = ${tenantId}::uuid and e.contato_id = ${contactId}::uuid and b.tipo = 'inicio'
+  `);
+  const passages = splitBotPassages(rows, new Set(roots.map((root) => root.codigo)));
+  return passages.reverse().slice(0, limit);
+}
+
+/**
+ * The messages of one pass: the bot execution's messages without a ticket between `inicio` and `fim`.
+ * The execution must belong to the contact and the tenant, so a pass of someone else never opens by id.
+ */
+export async function listMessagesOfBotPassage(
+  tx: TransactionPipe,
+  tenantId: string,
+  contactId: string,
+  executionId: string,
+  inicio: Date,
+  fim: Date,
+): Promise<ItemOfConversation[]> {
+  const { rows } = await tx.execute<{
+    id: string;
+    criada_em: Date | string;
+    direction: string;
+    type: string;
+    content: string | null;
+    stateDelivery: string | null;
+    errorCode: string | null;
+    errorText: string | null;
+    lidaAt: Date | string | null;
+    entregueAt: Date | string | null;
+  }>(sql`
+    select m.id, m.criada_em, m.direcao as "direction", m.tipo as "type", m.conteudo as "content",
+           m.estado_entrega as "stateDelivery", m.erro_codigo as "errorCode", m.erro_texto as "errorText",
+           m.lida_em as "lidaAt", m.entregue_em as "entregueAt"
+      from mensagem m
+      join execucao_fluxo e on e.id = m.execucao_id and e.tenant_id = m.tenant_id
+     where m.tenant_id = ${tenantId}::uuid
+       and e.id = ${executionId}::uuid
+       and e.contato_id = ${contactId}::uuid
+       and m.conversa_id is null
+       and m.criada_em >= ${inicio} and m.criada_em <= ${fim}
+     order by m.criada_em, m.id
+  `);
+  return rows.map((m): ItemOfConversation => ({
+    genero: 'mensagem',
+    id: m.id,
+    criadaEm: iso(m.criada_em),
+    direction: m.direction === 'entrada' ? 'entrada' : 'saida',
+    tipo: m.type,
+    conteudo: m.content,
+    stateDelivery: m.stateDelivery,
+    errorCode: m.errorCode,
+    errorText: m.errorText,
+    lidaEm: isoOuNulo(m.lidaAt),
+    entregueEm: isoOuNulo(m.entregueAt),
+    deRespostaPronta: false,
+    deTemplate: false,
   }));
 }
 
@@ -420,6 +577,8 @@ export async function carregarTicketAntigo(
 ): Promise<TicketAntigo | null> {
   const { rows } = await tx.execute<{
     id: string;
+    sequentialId: number;
+    parentSequentialId: number | null;
     state: StateConversation;
     priority: Prioridade;
     criada_em: Date | string;
@@ -438,6 +597,9 @@ export async function carregarTicketAntigo(
     closedByName: string | null;
   }>(sql`
     select c.id, c.estado as "state", c.prioridade as "priority", c.criada_em, c.primeira_resposta_em,
+           c.numero_sequencial::int as "sequentialId",
+           (select p.numero_sequencial::int from conversa p
+             where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId",
            c.ultima_mensagem_em as "lastMessageAt", c.encerrada_em, c.motivo_encerramento as "reasonClosure", c.pausado_seg as "pausadoSeg",
            f.nome as fila_nome, ca.tipo as "channelType",
            ct.id as "contactId", ct.nome as contato_nome, ct.telefone_e164 as "phoneE164",
@@ -457,6 +619,8 @@ export async function carregarTicketAntigo(
   if (!r) return null;
   return {
     id: r.id,
+    sequentialId: r.sequentialId,
+    parentSequentialId: r.parentSequentialId,
     estado: r.state,
     prioridade: r.priority,
     criadaEm: iso(r.criada_em),

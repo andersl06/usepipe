@@ -1,3 +1,5 @@
+import { AGENT_STATUS_FILTER_VALUES } from '@pipe/contracts';
+
 /** Accept legacy links with one ID, repeated values, or comma-separated lists. */
 export function filterIds(value: string | readonly string[] | undefined): string[] {
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -59,4 +61,11 @@ export function monitoringQuery(filter: MonitoringFilter, aba: string): URLSearc
   if (filter.search) p.set('busca', filter.search);
   p.set('aba', aba);
   return p;
+}
+
+/**
+ * Status do atendente vindo da query string: só Online, Pause e Invisible filtram. Link salvo com outro valor (como `online` ou `pausa`) é ignorado em vez de esvaziar a lista.
+ */
+export function validAgentStatus(value: string | null | undefined): string | undefined {
+  return (AGENT_STATUS_FILTER_VALUES as readonly string[]).includes(value ?? '') ? (value as string) : undefined;
 }

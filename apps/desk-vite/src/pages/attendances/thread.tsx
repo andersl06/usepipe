@@ -3,19 +3,21 @@ import type { ItemOfConversation } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
 import { horarioDoBalao } from '../../lib/format';
 import { agrupar, deliverySignal, type Message } from '../../lib/groups';
-import { numeroDoTicket } from '../../lib/channel';
 
 /**
  * Reference thread `message-list--panechat` (`~/desk-clone/capturas/parciais/thread.html`) groups `.blip-card` bubbles in `.card-group-container` with `.blip-message-group > .blip-card-group.left|right`, with `.group-notification` time on the speaker's side and delivery signal before time for outgoing groups. Put ticket-opening `.ticket .fancy` and `h3` before messages. Show the return-to-bottom button beyond 150px from the bottom (source settings.json `MINIMUM_SCROLL_DISTANCE`).
  */
 export function Thread({
   conversationId,
+  titulo,
   itens,
   agora,
   aoReenviar,
   onlyRead = false,
 }: {
   conversationId: string;
+  /** Texto do cabeçalho da conversa (ex.: Ticket #42). */
+  titulo: string;
   itens: ItemOfConversation[];
   agora: Date;
   aoReenviar?: (messageId: string) => void;
@@ -43,7 +45,7 @@ export function Thread({
         <div className="dk-thread-miolo">
           <div className="dk-ticket-linha">
             <p>
-              <span>Ticket {numeroDoTicket(conversationId)}</span>
+              <span>{titulo}</span>
             </p>
           </div>
           {groups.map((g, i) =>

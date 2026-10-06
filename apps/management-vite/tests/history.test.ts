@@ -8,7 +8,7 @@ import {
   reconciliarMarcados,
 } from '../src/lib/history.ts';
 import type { HistoryRow } from '../src/lib/history.ts';
-import { ticketDe } from '../src/lib/monitoring.ts';
+import { ticketNumber } from '@pipe/contracts';
 
 /**
  * History's grouping and the ticket number.
@@ -18,7 +18,9 @@ import { ticketDe } from '../src/lib/monitoring.ts';
 
 const linha = (parcial: Partial<HistoryRow> = {}): HistoryRow => ({
   id: 'a',
-  ticket: '#000001',
+  ticket: '#1',
+  sequentialId: 1,
+  parentSequentialId: null,
   contactName: 'Contato',
   queueName: 'Suporte',
   agentName: 'Ana',
@@ -134,10 +136,10 @@ test('selecionar todos considera somente resultados visíveis', () => {
   assert.deepEqual([...alternarTodosVisiveis(new Set(['a']), [])], []);
 });
 
-test('o ticket sai dos últimos seis do uuid, em maiúsculas e sem hífen', () => {
+test('o ticket é o sequencial com #, o mesmo número que o Desk mostra', () => {
   /*
-   * It's the number the agent reads aloud and the manager pastes into search. If the rule changes, already-dictated tickets stop finding the conversation.
+   * It's the number the agent reads aloud and the manager pastes into search; it comes from the ticket's sequential id, not from its uuid.
    */
-  assert.equal(ticketDe('0191f3aa-77e2-7a1b-9c3d-0000000abc12'), '#0ABC12');
-  assert.equal(ticketDe('----------------------------ABCDEF'), '#ABCDEF');
+  assert.equal(ticketNumber(42), '#42');
+  assert.equal(ticketNumber(1002), '#1002');
 });

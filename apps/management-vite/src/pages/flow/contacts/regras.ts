@@ -1,7 +1,7 @@
 /*
  * Contacts screen interface rules, copied from the origin's controller (`portal.js`, `users` module): approximate count, the picker's default period, date formatting, and which side each history bubble sits on.
  */
-import { TICKET_STATUS_LABELS } from '../../../lib/status-labels';
+import { ticketStatusLabel } from '../../../lib/status-labels';
 
 /** Row label: channel identity first, name as the secondary line; no identity falls back to the name. */
 export function contactLabel(row: { identidade: string | null; nome: string | null }): { primary: string; secondary: string | null } {
@@ -66,7 +66,7 @@ export function messageSide(direction: string): 'direita' | 'esquerda' {
 
 /** `modules.application.detail.attendance.history.<statusName>` traduzido para o estado do Pipe. */
 export function rotuloDoStatus(state: string): string {
-  return TICKET_STATUS_LABELS[state] ?? state;
+  return ticketStatusLabel({ state });
 }
 
 /** `getChannelNameFromSource`: nome do canal a partir da origem. */

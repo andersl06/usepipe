@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { schema } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { requirePermission } from '../session.js';
@@ -45,6 +46,33 @@ export interface PedidoDeStatus {
   targetUserId: string;
   state: StateAgent;
   motivoPausaId?: string | null;
+  /** What caused a change made by the system (`logout`, `abertura`); kept in the history when there is no pause reason. */
+  origem?: string;
+}
+
+/**
+ * Current status of the agent, locked until the end of the transaction so two changes in a row record the right `de`. An agent with no row is Offline.
+ */
+export async function statusAtual(tx: TransactionPipe, userId: string): Promise<StateAgent> {
+  const { rows } = await tx.execute<{ state: string }>(
+    sql`select estado as "state" from status_atendente where usuario_id = ${userId}::uuid for update`,
+  );
+  const state = rows[0]?.state ?? '';
+  return ehStateAgent(state) ? state : 'Offline';
+}
+
+/**
+ * One row of the agent's status history per effective change (Online, Pause, Invisible, Offline). Calls with the same value write nothing. Callers run it in the same transaction that changes `status_atendente`, so the history never disagrees with the current status.
+ */
+export async function registrarHistoricoDeStatus(
+  tx: TransactionPipe,
+  p: { tenantId: string; userId: string; of: StateAgent; to: StateAgent; motivo?: string | null; at: Date },
+): Promise<void> {
+  if (p.of === p.to) return;
+  await tx.execute(sql`
+    insert into status_atendente_historico (tenant_id, usuario_id, de, para, motivo, em)
+    values (${p.tenantId}, ${p.userId}, ${p.of}, ${p.to}, ${p.motivo ?? null}, ${p.at})
+  `);
 }
 
 export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: StateAgent }> {
@@ -70,6 +98,8 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: St
     );
     if (!rows[0]) throw PipeError.naoEncontrado('Atendente');
 
+    const anterior = await statusAtual(tx, pedido.targetUserId);
+
     await tx.execute(sql`
       insert into status_atendente (usuario_id, tenant_id, estado, desde, conectado_em)
       values (${pedido.targetUserId}, ${pedido.tenantId}, ${pedido.state}, ${agora}, ${agora})
@@ -83,16 +113,27 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: St
        where usuario_id = ${pedido.targetUserId}::uuid and encerrada_em is null
     `);
 
+    let motivo: string | null = pedido.origem ?? null;
     if (pedido.state === 'Pause' && pedido.motivoPausaId) {
-      const { rows: motivos } = await tx.execute<{ id: string }>(
-        sql`select id from motivo_pausa where id = ${pedido.motivoPausaId}::uuid and ativo limit 1`,
+      const { rows: motivos } = await tx.execute<{ id: string; nome: string }>(
+        sql`select id, nome from motivo_pausa where id = ${pedido.motivoPausaId}::uuid and ativo limit 1`,
       );
       if (!motivos[0]) throw PipeError.naoEncontrado('Motivo de pausa');
+      motivo = motivos[0].nome;
       await tx.execute(sql`
         insert into pausa (tenant_id, usuario_id, motivo_id)
         values (${pedido.tenantId}, ${pedido.targetUserId}, ${pedido.motivoPausaId})
       `);
     }
+
+    await registrarHistoricoDeStatus(tx, {
+      tenantId: pedido.tenantId,
+      userId: pedido.targetUserId,
+      of: anterior,
+      to: pedido.state,
+      motivo,
+      at: agora,
+    });
   });
 
   // Emit only after commit, like other domain actions.

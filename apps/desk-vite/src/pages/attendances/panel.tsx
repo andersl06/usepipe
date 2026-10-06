@@ -1,13 +1,21 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import type { ConversationOfDesk, LabelOfConversation, EtiquetaDoDesk } from '@pipe/contracts';
+import {
+  ticketNumber,
+  type ConversationOfDesk,
+  type LabelOfConversation,
+  type EtiquetaDoDesk,
+  type PassagemDoBot,
+} from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
 import { useDeskSelection } from '../../context/desk-selection';
 import { api } from '@pipe/ui/api';
 import { useRead } from '../../lib/query';
 import { executar, atualizarLeituras } from '../../lib/actions';
-import { channelOf, numeroDoTicket } from '../../lib/channel';
+import { channelOf } from '../../lib/channel';
 import { dataAbreviada } from '../../lib/format';
 import { displayName } from '../../lib/order';
+import { entradasDoHistorico } from '../../lib/historico-contato';
+import { LinhaPassagemDoBot, ModalPassagemDoBot } from './passagem-bot';
 
 /**
  * Reference contact `.drawer` (`~/desk-clone/capturas/parciais/drawer.html`) has `Dados do Contato` and `Informações`, `Histórico`, `Comentários` tabs with `bds-paper` stacks. Source `Falar com gestor` is manager chat, absent in Pipe. Information includes name, ID, email, phone, document, raw key/value extras, and copy buttons. `Comentários` shows an empty state or entry field; these are internal conversation notes (`itens` of kind `nota`) saved through `salvarNotaInterna`.
@@ -17,12 +25,16 @@ type Aba = 'informacoes' | 'historico' | 'comentarios';
 export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; agora: Date }) {
   const [aba, setAba] = useState<Aba>('informacoes');
   const [editingContact, setEditingContact] = useState(false);
+  const [passagemAberta, setPassagemAberta] = useState<PassagemDoBot | null>(null);
   const { openContact } = useDeskSelection();
   const conversationId = aberta?.conversation.id ?? null;
 
   // Leave edit mode when switching tickets, so one contact's form cannot remain open over another contact's data.
   // aberto por cima dos dados de outro.
-  useEffect(() => setEditingContact(false), [conversationId]);
+  useEffect(() => {
+    setEditingContact(false);
+    setPassagemAberta(null);
+  }, [conversationId]);
 
   if (!aberta) {
     return (
@@ -48,7 +60,8 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
     );
   }
 
-  const { conversation, itens, history, labelsOfContact } = aberta;
+  const { conversation, itens, history, botPassages, labelsOfContact } = aberta;
+  const entradasDoContato = entradasDoHistorico(history, botPassages);
   const notas = itens.filter((i) => i.genero === 'nota');
   const abas: { id: Aba; rotulo: string }[] = [
     { id: 'informacoes', rotulo: 'Informações' },
@@ -139,25 +152,33 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
           <div className="dk-panel-body" role="tabpanel">
             <section className="dk-paper">
               <h3 className="dk-paper-title">Histórico</h3>
-              {history.length === 0 ? (
+              {entradasDoContato.length === 0 ? (
                 <div className="dk-comments-empty" style={{ minHeight: 120 }}>
                   Não há mensagens nos últimos 90 dias.
                 </div>
               ) : (
-                history.map((h) => (
-                  <button
-                    key={h.id}
-                    type="button"
-                    onClick={() => openContact(conversation.contactId, h.id)}
-                    className="dk-history-item dk-history-button"
-                  >
-                    <b>Ticket {numeroDoTicket(h.id)}</b>
-                    <span>{h.filaNome ?? 'Transferência direta'}</span>
-                    <small>
-                      {h.encerradaEm ? dataAbreviada(new Date(h.encerradaEm)) : 'Aberto'}
-                    </small>
-                  </button>
-                ))
+                entradasDoContato.map((e) =>
+                  e.tipo === 'bot' ? (
+                    <LinhaPassagemDoBot
+                      key={e.chave}
+                      passagem={e.passagem}
+                      aoAbrir={() => setPassagemAberta(e.passagem)}
+                    />
+                  ) : (
+                    <button
+                      key={e.chave}
+                      type="button"
+                      onClick={() => openContact(conversation.contactId, e.ticket.id)}
+                      className="dk-history-item dk-history-button"
+                    >
+                      <b>Ticket {ticketNumber(e.ticket.sequentialId)}</b>
+                      <span>{e.ticket.filaNome ?? 'Transferência direta'}</span>
+                      <small>
+                        {e.ticket.encerradaEm ? dataAbreviada(new Date(e.ticket.encerradaEm)) : 'Aberto'}
+                      </small>
+                    </button>
+                  ),
+                )
               )}
             </section>
           </div>
@@ -170,6 +191,13 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
           </div>
         ) : null}
       </div>
+      {passagemAberta ? (
+        <ModalPassagemDoBot
+          contactId={conversation.contactId}
+          passagem={passagemAberta}
+          aoFechar={() => setPassagemAberta(null)}
+        />
+      ) : null}
     </div>
   );
 }

@@ -237,8 +237,12 @@ button {
   background: var(--p-sucesso-sobre-escuro);
 }
 
-.dk-presenca[data-status='paused'] {
+.dk-presenca[data-status='pause'] {
   background: var(--p-alerta-conteudo);
+}
+
+.dk-presenca[data-status='invisible'] {
+  background: var(--p-conteudo-desabilitado);
 }
 
 .dk-presenca[data-status='offline'] {
@@ -277,8 +281,34 @@ button {
   cursor: pointer;
 }
 
-.dk-menu-item:hover {
+.dk-menu-item:hover:not(:disabled) {
   background: var(--p-superficie-2);
+}
+
+.dk-menu-item:disabled {
+  color: var(--p-conteudo-desabilitado);
+  cursor: not-allowed;
+}
+
+.dk-menu-nota {
+  max-width: 260px;
+  margin: 0 8px 4px;
+  padding: 0 16px;
+  color: var(--p-conteudo-desabilitado);
+  font-size: 12px;
+}
+
+.dk-conversation-error {
+  margin: 0;
+  padding: 8px 24px;
+}
+
+.dk-colega-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  font-size: 14px;
 }
 
 .dk-menu-item[aria-checked='true'] {
@@ -2364,8 +2394,16 @@ button {
   background: var(--p-sucesso-sobre-escuro);
 }
 
-.dk-status-ponto[data-status='paused'] {
+.dk-status-ponto[data-status='pause'] {
   background: var(--p-alerta-conteudo);
+}
+
+.dk-status-ponto[data-status='invisible'] {
+  background: var(--p-conteudo-desabilitado);
+}
+
+.dk-status-ponto[data-status='offline'] {
+  background: var(--p-error-on-dark);
 }
 
 .dk-status-pausas {
@@ -3702,4 +3740,18 @@ button {
   margin: 0;
   accent-color: var(--p-marca);
   cursor: pointer;
+}
+
+/* Mensagens de uma passagem do contato pelo bot, lidas dentro de um modal. */
+.dk-modal-passagem {
+  width: 720px;
+}
+
+.dk-passagem-corpo {
+  display: flex;
+  flex-direction: column;
+  height: 55vh;
+  border: 1px solid var(--p-superficie-2);
+  border-radius: 8px;
+  overflow: hidden;
 }

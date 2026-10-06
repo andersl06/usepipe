@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { filterIds, matchesListFilters, monitoringQuery, parametersWithFilters, urlForClearFilters } from '../src/lib/filters-monitoring.ts';
+import { filterIds, matchesListFilters, monitoringQuery, parametersWithFilters, urlForClearFilters, validAgentStatus } from '../src/lib/filters-monitoring.ts';
 
 test('multiple selection survives submission and reopening, including in old links', () => {
   const a = '11111111-1111-4111-8111-111111111111';
@@ -70,4 +70,15 @@ test('agent action link filters the monitoring list by that agent', () => {
 
 test('monitoring query without an agent has no atendente key', () => {
   assert.equal(monitoringQuery({ search: 'x' }, 'fila').has('atendente'), false);
+});
+
+test('o status do atendente na URL só vale se for um dos três da Blip', () => {
+  assert.equal(validAgentStatus('Online'), 'Online');
+  assert.equal(validAgentStatus('Pause'), 'Pause');
+  assert.equal(validAgentStatus('Invisible'), 'Invisible');
+  for (const antigo of ['online', 'pausa', 'invisivel', 'Offline', '', 'Online ']) {
+    assert.equal(validAgentStatus(antigo), undefined, antigo);
+  }
+  assert.equal(validAgentStatus(null), undefined);
+  assert.equal(validAgentStatus(undefined), undefined);
 });

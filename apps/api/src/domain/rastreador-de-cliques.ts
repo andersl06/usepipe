@@ -11,13 +11,9 @@ import { confirmarUrlSegura } from './management/integrations.js';
  * Rastreador de cliques (Growth › Click Tracker): um link curto por fluxo, e o
  * clique público que ele registra.
  *
- * A tela `growth/clicktracker` que já existe (`apps/management-vite/.../clicktracker.tsx`)
- * é a MEDIÇÃO da Blip de anúncios Click-to-WhatsApp da Meta (atribuição de conversas a
- * campanha de anúncio) — outra coisa, sem link nenhum para cadastrar
- * (`referencias-blip/pesquisa/blip-produtos-novos.md` linha 12). O que esta tarefa pede — cadastrar
- * um link, gerar encurtador, redirecionar em público e contar clique — é o recurso
- * descrito no pedido, não aquela tela; por isso o backend nasce aqui, sozinho, sem
- * mexer no componente visual existente (fora do escopo pedido: só o backend).
+ * Não é a medição de anúncios Click-to-WhatsApp da Meta (atribuição de conversas a
+ * campanha): aqui se cadastra um link, gera o encurtador, redireciona em público e
+ * conta o clique.
  *
  * Raw SQL, como `mensagem-ativa.ts`: as tabelas (`link_rastreado`, `clique_link`,
  * migration 0038) não entram no schema Drizzle para não competir com quem mexe em

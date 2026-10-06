@@ -31,6 +31,7 @@ import {
   closeQueues,
 } from './queues.js';
 import { measureRequest } from './metrics.js';
+import { logRequests } from './request-log.js';
 import { assertTenantDomainConfig } from './tenant-domain-config.js';
 import { closeDelayedJobs, consumeDelayedJobs, scheduleSweepDelayedJobs } from './delayed-jobs.js';
 import { registerScheduledMessages } from './domain/scheduled-messages.js';
@@ -82,6 +83,9 @@ export function corsOptionsFor(url: string | undefined, appCors: CorsOptions = b
  */
 export async function createApplication(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModulo, { bodyParser: false });
+
+  // First in the chain so every request leaves a trace, including those refused by CORS or by a later parser.
+  app.use(logRequests());
 
   const appCors = buildAppCors();
   app.enableCors((request: { url?: string }, callback: (error: Error | null, options: CorsOptions) => void) => {

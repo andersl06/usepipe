@@ -401,6 +401,11 @@ export const message = pgTable(
     blockCurrentName: text('bloco_atual_nome'),
     blockPreviousId: uuid('bloco_anterior_id'),
     blockPreviousName: text('bloco_anterior_nome'),
+    /**
+     * Código (stateId do Builder) do bloco: estável entre versões publicadas, ao contrário do id da linha `bloco`. Em subfluxo o id fica nulo e o código ainda é gravado.
+     */
+    blockCurrentCode: text('bloco_atual_codigo'),
+    blockPreviousCode: text('bloco_anterior_codigo'),
   },
   (t) => [
     primaryKey({ columns: [t.id, t.criadaEm] }),
@@ -499,6 +504,30 @@ export const statusAgent = pgTable(
     conectadoEm: moment('conectado_em'),
   },
   (t) => [listaCheck('status_atendente_estado_ck', t.estado, STATES_AGENT)],
+);
+
+/**
+ * Uma linha por troca efetiva de status do atendente (inclusive as feitas pelo sistema, como Offline por inatividade ou logout), gravada na mesma transação da troca.
+ */
+export const statusAgentHistory = pgTable(
+  'status_atendente_historico',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    usuarioId: uuid('usuario_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    ofState: text('de').notNull(),
+    toState: text('para').notNull(),
+    /** Nome do motivo da pausa, ou a origem da troca feita pelo sistema (`inatividade`, `logout`, `abertura`). */
+    motivo: text('motivo'),
+    em: moment('em').notNull().defaultNow(),
+  },
+  (t) => [
+    listaCheck('status_atendente_historico_de_ck', t.ofState, STATES_AGENT),
+    listaCheck('status_atendente_historico_para_ck', t.toState, STATES_AGENT),
+    index('status_atendente_historico_usuario_idx').on(t.tenantId, t.usuarioId, t.em),
+  ],
 );
 
 export const SCOPES_LABEL = ['conversa', 'contato', 'ambos'] as const;

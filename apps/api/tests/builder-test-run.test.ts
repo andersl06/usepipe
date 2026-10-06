@@ -377,6 +377,33 @@ describe('POST /v1/management/flows/:id/builder/test-runs', () => {
     expect(alheia.body['debug']['error']).toMatch(/não existe neste Pipe/);
   });
 
+  it('a ticket closed by the bot leaves the simulated ticket in the same Blip status as production', async () => {
+    const comFechamento = (status: string, closedBy?: string) => {
+      const d = desenhoComHttpPrivado();
+      d.globals = {
+        $enteringCustomActions: [
+          { type: 'ProcessCommand', settings: { method: 'set', uri: '/tickets/atual/status', resource: { status, ...(closedBy ? { closedBy } : {}) }, variable: 'r' } },
+          { type: 'ProcessCommand', settings: { method: 'get', uri: '/tickets/atual', variable: 'ticketDepois' } },
+        ],
+      };
+      return d;
+    };
+    const id = await criado(`Fecha ${randomUUID().slice(0, 6)}`);
+    const casos: [string, string | undefined, string][] = [
+      ['ClosedClient', undefined, 'ClosedClient'],
+      ['ClosedClientInactivity', undefined, 'ClosedClientInactivity'],
+      ['ClosedClient', 'inatividade', 'ClosedClientInactivity'],
+    ];
+    for (const [status, closedBy, esperado] of casos) {
+      await salvar(sessionEditor, id, comFechamento(status, closedBy));
+      await resetTestRun(sessionEditor, id);
+      const { status: http, body } = await testRun(sessionEditor, id, { input: 'oi' });
+      expect(http).toBe(200);
+      expect(body['debug']['error']).toBeUndefined();
+      expect(JSON.parse(body['debug']['variables']['ticketDepois'] as string).resource.estado).toBe(esperado);
+    }
+  });
+
   it('ExecuteScriptV2 context.*Async and time.* behave as in production, and never reveal secret.* (P9)', async () => {
     const id = await criado(`Script V2 ${randomUUID().slice(0, 6)}`);
     const segredo = 'tok-INVENTED-v2-98765';

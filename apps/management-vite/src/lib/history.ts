@@ -9,7 +9,10 @@ import type { StatusClosure } from '@pipe/core';
 
 export interface HistoryRow {
   id: string;
+  /** `#<sequentialId>`: o mesmo número que o Desk mostra. */
   ticket: string;
+  sequentialId: number;
+  parentSequentialId: number | null;
   contactName: string;
   queueName: string | null;
   agentName: string | null;

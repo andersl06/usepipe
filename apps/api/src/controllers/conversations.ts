@@ -46,6 +46,10 @@ type LineConversation = {
   contactName: string | null;
   contactPhone: string | null;
   channelType: string;
+  emEsperaDesde: Date | string | null;
+  emStandby: boolean;
+  sequentialId: number;
+  parentSequentialId: number | null;
 };
 
 type LineMessage = {
@@ -101,6 +105,14 @@ export class ConversationsController {
 
     const filters: SQL[] = [];
     if (consulta['estado']) filters.push(igualEmLista('c.estado', consulta['estado'], ESTADOS));
+    // Standby is a flag on an Open ticket, no longer a state of its own.
+    if (consulta['standby'] !== undefined) {
+      const standby = consulta['standby'];
+      if (standby !== 'true' && standby !== 'false') {
+        throw PipeError.request('filter_invalid', '"standby" aceita apenas true ou false.');
+      }
+      filters.push(standby === 'true' ? sql`c.em_espera_desde is not null` : sql`c.em_espera_desde is null`);
+    }
     if (consulta['fila_id']) filters.push(sql`c.fila_id = ${consulta['fila_id']}::uuid`);
     if (consulta['atendente_id']) {
       filters.push(sql`c.atendente_id = ${consulta['atendente_id']}::uuid`);
@@ -378,7 +390,11 @@ const COLUMNS_CONVERSATION = `
   c.janela_expira_em as "windowExpiresAt", c.fila_id as "queueId",
   f.nome as "queueName", c.atendente_id, u.nome as "agentName",
   ct.id as "contactId", ct.nome as "contactName", ct.telefone_e164 as "contactPhone",
-  ca.tipo as "channelType"
+  ca.tipo as "channelType",
+  c.em_espera_desde as "emEsperaDesde", c.em_espera_desde is not null as "emStandby",
+  c.numero_sequencial::int as "sequentialId",
+  (select p.numero_sequencial::int from conversa p
+    where p.id = c.conversa_pai_id and p.tenant_id = c.tenant_id) as "parentSequentialId"
 `;
 
 
@@ -410,6 +426,10 @@ function asConversation(linha: LineConversation): Record<string, unknown> {
   return {
     id: linha.id,
     state: linha.state,
+    emStandby: linha.emStandby,
+    emEsperaDesde: iso(linha.emEsperaDesde),
+    sequentialId: linha.sequentialId,
+    parentSequentialId: linha.parentSequentialId,
     priority: linha.priority,
     criada_em: iso(linha.criada_em),
     atribuida_em: iso(linha.atribuida_em),

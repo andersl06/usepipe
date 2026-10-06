@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import type { ConversationOpen, RespostaProntaDoDesk, TemplateAprovado } from '@pipe/contracts';
+import { ticketNumber, type ConversationOpen, type RespostaProntaDoDesk, type TemplateAprovado } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
 import { api, chamarApi, motivoDaFalha } from '@pipe/ui/api';
 import { Modal } from '@pipe/ui/modal';
 import { atualizarLeituras } from '../../lib/actions';
 import { MAX_FILES_BY_SENDING, recusaDoLote } from '../../lib/attachments';
 import { windowOpen } from '../../lib/order';
-import { TICKET_STATUS_LABELS, isClosedTicket } from '../../lib/situation';
+import { closedTicketTitle, isClosedTicket } from '../../lib/situation';
 import { TRIGGERS, combinaComTermo, responsesTrigger } from '../../lib/composer-trigger';
-import { numeroDoTicket } from '../../lib/channel';
 
 /**
  * Reference composer `.pane-chat-message-input` (`~/desk-clone/capturas/parciais/composer.html`): `bds-paper` holds the message textarea above a reply, attachment, emoji, and audio/action row; audio is primary until text turns it into Send. When free text is unavailable, replace the composer with a centered message and button for `standbyInputLock`, `clientClosed`, `clientClosedInactivity`, `attendantClosed`, or closed 24-hour window (`failedMaxTimeChannelInterval`, which opens template sending here). Send text, attachment, or template through `POST /v1/conversas/:id/mensagens`. Internal notes use contact-panel `Comentário` instead.
@@ -67,7 +66,7 @@ export function Composer({
   if (isClosedTicket(conversation.state)) {
     return (
       <Fechado
-        titulo={`Conversa ${TICKET_STATUS_LABELS[conversation.state].toLowerCase()}.`}
+        titulo={closedTicketTitle(conversation.state)}
         description="Envie uma nova mensagem para reabrir a conversa."
       />
     );
@@ -285,15 +284,32 @@ function Fechado({
   botao?: string;
   aoClicar?: () => void | Promise<void>;
 }) {
+  const [error, setError] = useState<string | null>(null);
+
+  async function clicar() {
+    if (!aoClicar) return;
+    setError(null);
+    try {
+      await aoClicar();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível concluir a ação.');
+    }
+  }
+
   return (
     <div className="dk-composer">
       <div className="dk-composer-closed">
         <div>
           <b>{titulo}</b>
           {description ? <div>{description}</div> : null}
+          {error ? (
+            <p className="dk-error" role="alert">
+              {error}
+            </p>
+          ) : null}
         </div>
         {botao && aoClicar ? (
-          <button type="button" className="dk-botao" onClick={() => void aoClicar()}>
+          <button type="button" className="dk-botao" onClick={() => void clicar()}>
             {botao}
           </button>
         ) : null}
@@ -415,7 +431,7 @@ function TemplateModal({
 
   return (
     <Modal skin={{ fundo: 'dk-veu', caixa: 'dk-modal' }} rotuloId="modelo-titulo" onFechar={aoFechar}>
-      <h2 id="modelo-titulo">Enviar mensagem ativa · Ticket {numeroDoTicket(conversation.id)}</h2>
+      <h2 id="modelo-titulo">Enviar mensagem ativa · Ticket {ticketNumber(conversation.sequentialId)}</h2>
       {templates.length === 0 ? (
         <p>Nenhum modelo de mensagem aprovado para este canal.</p>
       ) : (

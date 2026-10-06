@@ -66,7 +66,8 @@ async function carregar(
  * (`flow.ts`), which runs inside the inbound transaction. Returns the closure reason (tag names).
  * `closedBy` is who ended it (`evento.dados.encerrada_por`, read by metrics and by the Blip ticket
  * status: `cliente` → `ClosedClient`, `inatividade` → `ClosedClientInactivity`); the default keeps
- * the Desk/API rule, an agent or else `transferencia`.
+ * the Desk/API rule, `atendente`: `transferencia` belongs only to `transferConversation`, which closes the
+ * ticket and opens a child; closing through an integration key is still an attendant closure.
  */
 export async function closeInTransaction(
   tx: Parameters<Parameters<typeof noTenant>[1]>[0],
@@ -75,7 +76,7 @@ export async function closeInTransaction(
   agentId: string | null,
   etiquetas: readonly { id: string; name: string }[],
   agora: Date,
-  closedBy: ClosedBy = agentId ? 'atendente' : 'transferencia',
+  closedBy: ClosedBy = 'atendente',
   extraEventData: Record<string, unknown> = {},
 ): Promise<string> {
   const closedState = closedStateOf(closedBy);
@@ -170,8 +171,7 @@ export async function closeConversation(
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
     const conversa = await carregar(tx, pedido.conversationId, ator, 'conversa.encerrar');
-    const closedBy: ClosedBy = ator.agentId ? 'atendente' : 'transferencia';
-    requireTransition(conversa.state, closedStateOf(closedBy));
+    requireTransition(conversa.state, closedStateOf('atendente'));
 
     const etiquetaIds = [...new Set(pedido.etiquetaIds ?? (pedido.etiquetaIds ? [pedido.etiquetaIds] : []))];
     const { rows: etiquetas } = etiquetaIds.length
@@ -190,7 +190,11 @@ export async function closeConversation(
       throw PipeError.request('label_required', 'Escolha as tags obrigatórias para finalizar.');
     }
 
-    const motivo = await closeInTransaction(tx, ator.tenantId, conversa, ator.agentId, etiquetas, agora);
+    // An integration key has no agent; its origin goes on the event, never into the ticket state.
+    const motivo = await closeInTransaction(
+      tx, ator.tenantId, conversa, ator.agentId, etiquetas, agora, 'atendente',
+      ator.agentId ? {} : { origem: 'api' },
+    );
     return { motivo };
   });
 
@@ -198,7 +202,7 @@ export async function closeConversation(
   // Depois do commit. A conversa mudou e saiu da fila do atendente.
   await publicar(ator.tenantId, evento('conversation', pedido.conversationId));
   await publicar(ator.tenantId, evento('queue'));
-  return { state: closedStateOf(ator.agentId ? 'atendente' : 'transferencia'), reason: resultado.motivo };
+  return { state: closedStateOf('atendente'), reason: resultado.motivo };
 }
 
 export interface EsperaAlternada {

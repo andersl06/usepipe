@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { transitionDeliveryAllowed } from '@pipe/core';
 import { keyringOfEnvironment, decifrarConfig, estaCifrado } from '@pipe/db';
+import { baseDoLinkDeAnexo, linkAssinadoDeAnexo, segredoDeLink } from '@pipe/storage';
 import type { StateDelivery } from '@pipe/core';
 import { databaseOwner, noTenant } from './database.js';
 import { clienteInstagram } from './instagram.js';
@@ -40,7 +41,7 @@ type Reivindicada = {
   tentativas: number;
 };
 
-type LinhaDeEnvio = {
+export type LinhaDeEnvio = {
   tipo: string;
   conteudo: string | null;
   dados: Record<string, unknown> | null;
@@ -56,7 +57,7 @@ type LinhaDeEnvio = {
   template_status: string | null;
   anexo_mime: string | null;
   anexo_bytes: number | null;
-  anexo_chave: string | null;
+  anexo_id: string | null;
   anexo_nome: string | null;
 };
 
@@ -130,7 +131,7 @@ async function entregarUma(
              t.cabecalho_tipo as template_cabecalho, t.variaveis as template_variaveis,
              t.status_meta as template_status,
              a.mime as anexo_mime, a.bytes as anexo_bytes,
-             a.chave_storage as anexo_chave, a.nome_original as anexo_nome
+             a.id as anexo_id, a.nome_original as anexo_nome
         from mensagem m
         left join conversa c on c.id = m.conversa_id
         left join execucao_fluxo ex on ex.id = m.execucao_id
@@ -291,7 +292,7 @@ function prepararEnvio(
   return { pedido: { para, conteudo: conteudo.conteudo, credentials: credenciais } };
 }
 
-function montarConteudo(
+export function montarConteudo(
   linha: LinhaDeEnvio,
   parametros: Record<string, string> | undefined,
 ): { conteudo: Conteudo } | { erro: { codigo: string; texto: string } } {
@@ -345,7 +346,7 @@ function montarConteudo(
         },
       };
     }
-    if (!linha.anexo_mime || linha.anexo_bytes === null || !linha.anexo_chave) {
+    if (!linha.anexo_mime || linha.anexo_bytes === null || !linha.anexo_id) {
       return { erro: { codigo: 'anexo_ausente', texto: `Mensagem de ${linha.tipo} sem anexo.` } };
     }
     const falha = validateMedia({
@@ -354,10 +355,21 @@ function montarConteudo(
       bytes: linha.anexo_bytes,
     });
     if (falha) return { erro: { codigo: falha.codigo, texto: falha.texto } };
+    let link: string;
+    try {
+      link = linkDeAnexo(linha.anexo_id);
+    } catch (error) {
+      return {
+        erro: {
+          codigo: 'anexo_link_indisponivel',
+          texto: `Não foi possível assinar o link do anexo: ${(error as Error).message}`,
+        },
+      };
+    }
     return {
       conteudo: {
         tipo: typeMedia,
-        link: urlOfMedia(linha.anexo_chave),
+        link,
         legenda: linha.conteudo ?? undefined,
         nameFile: linha.anexo_nome ?? undefined,
       },
@@ -450,14 +462,15 @@ export function credentialsOf(cru: Record<string, unknown> | null): CredentialsC
   };
 }
 
-/** `anexo.chave_storage` is an object-storage key; the public base URL is configuration. */
-function urlOfMedia(key: string): string {
-  if (/^https?:\/\//i.test(key)) return key;
-  const base = (process.env['PIPE_STORAGE_URL_BASE'] ?? 'http://localhost:9000/pipe').replace(
-    /\/$/,
-    '',
-  );
-  return `${base}/${key.replace(/^\//, '')}`;
+/**
+ * Pipe-uploaded media reaches Meta through the API's signed link, never through a storage path: the link expires in 15 minutes, so it is built here at delivery time (an outbox retry hours later gets a fresh one). Base and secret match what the API uses to verify it: `PIPE_URL_API` and the keyring.
+ */
+function linkDeAnexo(anexoId: string): string {
+  return linkAssinadoDeAnexo({
+    anexoId,
+    segredo: segredoDeLink(keyringOfEnvironment()),
+    base: baseDoLinkDeAnexo(),
+  });
 }
 
 async function gravarFalha(

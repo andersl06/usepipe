@@ -10,12 +10,12 @@ import { SListFilter, SOperationFilter } from '../../components/filters-quick';
 import { FieldContact, PanelField, PanelFilters } from '../../components/panel-filters';
 import { Select } from '@pipe/ui/select';
 import { ChipsInput } from '@pipe/ui/chips-input';
-import { parametersWithFilters, filterIds } from '../../lib/filters-monitoring';
+import { parametersWithFilters, filterIds, validAgentStatus } from '../../lib/filters-monitoring';
 import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';
 import { Metrica } from '../../components/metrica';
 import { MonitoringDetailed } from '../../components/monitoring-detailed';
 import { useContact } from '../flow/contact';
-import { AGENT_STATUS_LABELS } from '../../lib/status-labels';
+import { AGENT_STATUS_FILTER_VALUES, AGENT_STATUS_LABELS } from '../../lib/status-labels';
 import { useEu } from '../../context/session';
 import { attendanceBase } from './shell';
 
@@ -53,7 +53,7 @@ interface Search {
   search?: string;
 }
 
-const STATES_OF_AGENT = (['Online', 'Pause', 'Invisible'] as const).map((id) => ({ id, nome: AGENT_STATUS_LABELS[id] }));
+const STATES_OF_AGENT = AGENT_STATUS_FILTER_VALUES.map((id) => ({ id, nome: AGENT_STATUS_LABELS[id] }));
 
 /**
  * The page header's "Atualizar tela" icon — `bds-button icon="refresh" variant="secondary"` with the 24 glyph (`dom/monitoring.html`). Invalidates the `api` read and the screen redoes the query.
@@ -268,10 +268,10 @@ export function PageMonitoring() {
   const [search, setSearch] = useSearchParams();
   const [panelOpen, setPanelOpen] = useState(false);
   const [fieldPanel, setFieldPanel] = useState<string | null>(null);
-  const [statusEscolhido, setStatusEscolhido] = useState(search.get('status') ?? '');
+  const [statusEscolhido, setStatusEscolhido] = useState(validAgentStatus(search.get('status')) ?? '');
   const openPanel = (campo: string | null = null) => {
     setFieldPanel(campo);
-    setStatusEscolhido(search.get('status') ?? '');
+    setStatusEscolhido(validAgentStatus(search.get('status')) ?? '');
     setPanelOpen(true);
   };
   const [modoTv, setModoTv] = useState(false);
@@ -285,12 +285,21 @@ export function PageMonitoring() {
     saveFilters(filtrosKey, queueAgent);
   }, [filtrosKey, queueAgent]);
 
+  /* Link salvo com um status que não existe mais: tira da URL em vez de manter um filtro que não filtra. */
+  useEffect(() => {
+    const bruto = search.get('status');
+    if (bruto !== null && validAgentStatus(bruto) === undefined) {
+      setSearch(parametersWithFilters(search, { status: '' }), { replace: true });
+    }
+  }, [search, setSearch]);
+
   const crus = Object.fromEntries(search.entries()) as Search;
   /*
    * Value from the URL, already checked: an id that isn't a UUID becomes "no filter" instead of a 500 from Postgres's `::uuid` cast.
    */
   const params: Search = {
     ...crus,
+    status: validAgentStatus(crus.status),
     queue: filterIds(queueAgent.queue).join(','),
     agent: filterIds(queueAgent.agent).join(','),
   };

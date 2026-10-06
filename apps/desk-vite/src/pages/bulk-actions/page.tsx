@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { QueueOfDesk } from '@pipe/contracts';
+import { ticketNumber, type QueueOfDesk } from '@pipe/contracts';
 import { useRead } from '../../lib/query';
 import { executar } from '../../lib/actions';
-import { numeroDoTicket } from '../../lib/channel';
 import { displayName } from '../../lib/order';
+import { AGENT_STATUS_LABELS } from '../../lib/situation';
 
 /**
  * `Ações em Massa` at `/bulk-ticket` follows the reference bulk transfer screen (`~/desk-clone/clone/index.html`, bulk section; `desk2/blip-clone-bulk.png`): 20/400 title, `Chatbot` card and `Transferir` chip, select-all and open-ticket list on the left (or `Nenhum atendimento aberto para transferir.`), queue/agent destination choices on the right, and `Cancelar`/`Transferir` below. `transferirEmMassa` repeats `transferirConversa` per ticket; as in the reference, transferring closes one ticket and opens another.
@@ -88,7 +88,7 @@ export function PageBulkActions() {
                       checked={marcadas.has(c.id)}
                       onChange={() => alternar(c.id)}
                     />{' '}
-                    {numeroDoTicket(c.id)} —{' '}
+                    {ticketNumber(c.sequentialId)} —{' '}
                     {displayName({ contactName: c.contatoNome, contactPhone: c.contatoTelefone })}{' '}
                     <span className="dk-bulk-empty">({c.filaNome ?? 'Transferência direta'})</span>
                   </label>
@@ -143,7 +143,7 @@ export function PageBulkActions() {
                 <option value="">Selecionar atendente</option>
                 {queue.data?.colegas.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.nome}
+                    {c.nome} · {AGENT_STATUS_LABELS[c.estado]}
                   </option>
                 ))}
               </select>

@@ -1,19 +1,21 @@
 import { useState } from 'react';
-import type {
-  Colega,
-  ConversationOfDesk,
-  EtiquetaDoDesk,
-  ItemOfConversation,
-  RespostaProntaDoDesk,
+import {
+  ticketNumber,
+  type Colega,
+  type ConversationOfDesk,
+  type EtiquetaDoDesk,
+  type ItemOfConversation,
+  type RespostaProntaDoDesk,
 } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
 import { Avatar } from '../../components/avatar';
 import { api } from '@pipe/ui/api';
 import { useRead } from '../../lib/query';
 import { atualizarLeituras } from '../../lib/actions';
-import { numeroDoTicket } from '../../lib/channel';
 import { displayName } from '../../lib/order';
-import { isClosedTicket } from '../../lib/situation';
+import { esperaDisponivel } from '../../lib/espera';
+import { presenceStatus } from '../../lib/presenca-agente';
+import { AGENT_STATUS_LABELS, isClosedTicket } from '../../lib/situation';
 import { Thread } from './thread';
 import { Composer } from './composer';
 import { CardClosureTicket, avisarTicketFinalizado } from '@pipe/ui';
@@ -47,7 +49,7 @@ export function Conversation({
   const [search, setSearch] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const nome = displayName({ ...conversation, contactPhone: conversation.contactPhone });
-  const numero = numeroDoTicket(conversation.id);
+  const numero = ticketNumber(conversation.sequentialId);
 
   /**
    * Remove a tag from the open conversation through `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`. This does not close the ticket: source `ADD_TAGS` is separate from `CLOSE_TICKET`.
@@ -62,9 +64,15 @@ export function Conversation({
     }
   }
 
+  const espera = esperaDisponivel(conversation);
+
   async function alternarEspera() {
     setMenu(false);
     setError(null);
+    if (!espera.habilitada) {
+      setError(espera.motivo);
+      return;
+    }
     try {
       await api.post(`/v1/conversations/${conversation.id}/wait`);
       atualizarLeituras();
@@ -194,6 +202,9 @@ export function Conversation({
                     type="button"
                     role="menuitem"
                     className="dk-menu-item"
+                    disabled={!espera.habilitada}
+                    title={espera.motivo ?? undefined}
+                    aria-describedby={espera.motivo ? 'espera-motivo' : undefined}
                     onClick={() => void alternarEspera()}
                   >
                     <IconeDesk nome="pausa" tamanho={20} />
@@ -201,6 +212,11 @@ export function Conversation({
                       ? 'Remover do Modo de Espera'
                       : 'Modo de Espera'}
                   </button>
+                  {espera.motivo ? (
+                    <p id="espera-motivo" className="dk-menu-nota">
+                      {espera.motivo}
+                    </p>
+                  ) : null}
                   <button
                     type="button"
                     role="menuitem"
@@ -241,6 +257,11 @@ export function Conversation({
             </button>
           </div>
         </div>
+        {error ? (
+          <p className="dk-error dk-conversation-error" role="alert">
+            {error}
+          </p>
+        ) : null}
         <div className="dk-divisor" />
         {!isClosedTicket(conversation.state) ? (
           <>
@@ -322,15 +343,11 @@ export function Conversation({
 
       <Thread
         conversationId={conversation.id}
+        titulo={`Ticket ${numero}`}
         itens={itens}
         agora={agora}
         aoReenviar={(id) => void reenviar(id)}
       />
-      {error ? (
-        <p className="dk-error" style={{ padding: '0 24px' }}>
-          {error}
-        </p>
-      ) : null}
       <Composer
         conversation={conversation}
         respostas={respostas}
@@ -487,6 +504,7 @@ function ModalTransferir({
     }
   }
 
+  const colegaEscolhido = colegas.find((c) => c.id === agentId);
   const podeTransferir = alvo === 'fila' ? Boolean(queueId) : Boolean(agentId);
 
   return (
@@ -537,10 +555,16 @@ function ModalTransferir({
             <option value="">Selecionar atendente</option>
             {colegas.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.nome}
+                {c.nome} · {AGENT_STATUS_LABELS[c.estado]}
               </option>
             ))}
           </select>
+          {colegaEscolhido ? (
+            <p className="dk-colega-status" data-status={presenceStatus(colegaEscolhido.estado)}>
+              <span className="dk-status-ponto" data-status={presenceStatus(colegaEscolhido.estado)} />
+              {colegaEscolhido.nome} está {AGENT_STATUS_LABELS[colegaEscolhido.estado]}
+            </p>
+          ) : null}
         </>
       )}
       <p style={{ color: 'var(--p-conteudo-desabilitado)', fontSize: 14 }}>

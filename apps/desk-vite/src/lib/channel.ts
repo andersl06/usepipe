@@ -16,9 +16,3 @@ export function channelOf(tipo: TypeChannelDatabase): { logo: NameOfLogoOfChanne
   return CHANNELS[tipo] ?? CHANNELS.widget;
 }
 
-/**
- * Display a ticket number such as `#1002`. Our domain has only a conversation UUID, not a sequential number; display its first six characters in uppercase, stable for that conversation. Ponytail: add a `sequencial` column to the conversation and use the real number here.
- */
-export function numeroDoTicket(id: string): string {
-  return '#' + id.replace(/-/g, '').slice(0, 6).toUpperCase();
-}

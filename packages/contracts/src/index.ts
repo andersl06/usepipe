@@ -14,3 +14,4 @@ export * from './flow-resources.js';
 export * from './flow-ai-model.js';
 export * from './tenant-host.js';
 export * from './flow-secrets.js';
+export * from './status-labels.js';

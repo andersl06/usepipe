@@ -49,7 +49,7 @@ beforeAll(async () => {
   });
   cenario = await montarCenario(`anexos-lote-${randomUUID().slice(0, 8)}`);
   api = await upApi(0);
-  process.env['PIPE_STORAGE_URL_BASE'] = api.url;
+  process.env['PIPE_URL_API'] = api.url;
 
   const novo = createToken();
   await cenario.dono.execute(sql`

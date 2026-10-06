@@ -75,6 +75,7 @@ type LineConversation = {
   windowExpiresAt: Date | string | null;
   firstResponseAt: Date | string | null;
   lastMessageAt: Date | string | null;
+  emEsperaDesde: Date | string | null;
   channelId: string;
   channelType: string;
 };
@@ -100,7 +101,8 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     const { rows } = await tx.execute<LineConversation>(sql`
       select c.id, c.estado as state, c.fila_id as "queueId", c.atendente_id as "agentId",
              c.janela_expira_em as "windowExpiresAt", c.primeira_resposta_em as "firstResponseAt",
-             c.ultima_mensagem_em as "lastMessageAt", ca.id as "channelId", ca.tipo as "channelType"
+             c.ultima_mensagem_em as "lastMessageAt", c.em_espera_desde as "emEsperaDesde",
+             ca.id as "channelId", ca.tipo as "channelType"
         from conversa c
         join inbox ib on ib.id = c.inbox_id
         join canal ca on ca.id = ib.canal_id
@@ -248,10 +250,27 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
       const firstResponse =
         comoData(conversation.firstResponseAt) === null && !!pedido.agentId && clienteJaFalou;
 
+      // A send that takes the ticket out of standby closes the waiting interval the same way the
+      // toggle does: `espera_encerrada` carries the seconds, so the effort metrics have a pair for
+      // every `espera_iniciada`.
+      const inicioDaEspera = comoData(conversation.emEsperaDesde);
+      const pausadoSeg = inicioDaEspera ? Math.round((agora.getTime() - inicioDaEspera.getTime()) / 1000) : 0;
+      if (inicioDaEspera) {
+        await registrarEvento(tx, {
+          tenantId: pedido.tenantId,
+          conversationId: conversation.id,
+          type: 'espera_encerrada',
+          at: agora,
+          userId: pedido.agentId ?? null,
+          queueId: conversation.queueId,
+          data: { motivo: 'envio', pausado_seg: pausadoSeg },
+        });
+      }
+
       await tx.execute(sql`
       update conversa
          set estado = ${stateNew},
-             pausado_seg = pausado_seg + coalesce(round(extract(epoch from (${agora}::timestamptz - em_espera_desde)))::int, 0),
+             pausado_seg = pausado_seg + ${pausadoSeg},
              em_espera_desde = null,
              ultima_mensagem_em = ${agora}, ultima_mensagem_de = 'atendente',
              primeira_resposta_em = coalesce(primeira_resposta_em, ${firstResponse ? agora : null}),

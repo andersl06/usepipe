@@ -24,6 +24,9 @@ export type StateAgent = 'Online' | 'Pause' | 'Invisible' | 'Offline';
 export interface ConversationOfList {
   id: string;
   estado: StateConversation;
+  /** Número sequencial do ticket por tenant (o mesmo da Blip e do bridge) e o do ticket pai, quando houver. */
+  sequentialId: number;
+  parentSequentialId: number | null;
   prioridade: PriorityOfDesk;
   criadaEm: string;
   /** Null means the agent has not answered this conversation yet; shown as the Unanswered card. */
@@ -70,6 +73,8 @@ export interface EtiquetaDoDesk {
 export interface Colega {
   id: string;
   nome: string;
+  /** Status do atendente agora; sem registro de status vale Offline. */
+  estado: StateAgent;
 }
 
 export interface RespostaProntaDoDesk {
@@ -158,8 +163,29 @@ export interface LabelOfConversation {
   nome: string;
 }
 
+/**
+ * A contact's pass through the bot that never became a ticket: its messages have no conversation, only
+ * the bot execution. A pass starts when the customer's message finds the bot at the flow's root block
+ * and ends with the last message before the next pass. `executionId` + `iniciadaEm` + `encerradaEm`
+ * are what `GET /v1/desk/contacts/:id/bot-passages/:executionId?inicio&fim` takes to read its messages.
+ */
+export interface PassagemDoBot {
+  /** Id da primeira mensagem da passagem: chave estável para a lista. */
+  id: string;
+  executionId: string;
+  iniciadaEm: string;
+  encerradaEm: string;
+  mensagens: number;
+  /** Último bloco que falou: código (stateId, estável entre publicações) e nome. */
+  ultimoBlocoCodigo: string | null;
+  ultimoBlocoNome: string | null;
+}
+
 export interface ConversationOfHistory {
   id: string;
+  /** Número sequencial do ticket por tenant e o do ticket pai, quando houver. */
+  sequentialId: number;
+  parentSequentialId: number | null;
   criadaEm: string;
   encerradaEm: string | null;
   estado: StateConversation;
@@ -183,6 +209,8 @@ export interface ConversationOfDesk {
    */
   labelsOfContact: LabelOfConversation[];
   history: ConversationOfHistory[];
+  /** Passagens do contato pelo bot sem ticket, mais recentes primeiro; vazio quando o histórico está desligado. */
+  botPassages: PassagemDoBot[];
 }
 
 /**
@@ -196,6 +224,9 @@ export interface ResponseOfConversation {
 
 export interface TicketAntigo {
   id: string;
+  /** Número sequencial do ticket por tenant e o do ticket pai, quando houver. */
+  sequentialId: number;
+  parentSequentialId: number | null;
   estado: StateConversation;
   prioridade: PriorityOfDesk;
   criadaEm: string;

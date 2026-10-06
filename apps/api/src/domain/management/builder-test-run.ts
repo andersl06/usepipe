@@ -8,6 +8,7 @@ import {
   inputExpirationMessage,
   pendingInputExpiration,
   stateSaved,
+  closedStateOf,
 } from '@pipe/core';
 import type { Context, ServicosDoMotor, InboundTrace, FlowBlip } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
@@ -189,8 +190,8 @@ function servicesOfTestRun(
         },
         transfer: (_tx, queueId) => enqueue(queueId),
         enqueue: () => enqueue(null),
-        close: async () => {
-          conversation.estado = 'ClosedAttendant';
+        close: async (_tx, closedBy) => {
+          conversation.estado = closedStateOf(closedBy);
         },
         setPriority: async (_tx, priority) => {
           conversation.prioridade = priority;
