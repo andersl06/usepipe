@@ -78,7 +78,10 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
                   className="os-account-row"
                   aria-label={`Switch to ${account.name}`}
                   disabled={accountSwitch.isPending}
-                  onClick={() => accountSwitch.mutate(account.tenantId)}
+                  onClick={() => {
+                    if (accountMenu.current) accountMenu.current.open = false;
+                    accountSwitch.mutate(account.tenantId);
+                  }}
                 >
                   {/*
  * Local `balao` corresponds to source `message-ballon`; for `business` use local `panel`, the closest facade icon. Adding a shared-package icon for this single screen is unwarranted.
