@@ -329,11 +329,11 @@ Plans:
 
 **Wave 17** *(blocked on Wave 16 completion)*
 
-- [ ] 02-27-PLAN.md — F-6 toast único no canto inferior esquerdo; publicar/salvar por toast; sem faixa nem modal (D-56)
+- [x] 02-27-PLAN.md — F-6 toast único no canto inferior esquerdo; publicar/salvar por toast; sem faixa nem modal (D-56)
 
 **Wave 18** *(blocked on Wave 17 completion)*
 
-- [ ] 02-28-PLAN.md — F-6 marcas de erro: nó vermelho, borda e ícone nos cards, campo danger; sem listas (D-56)
+- [x] 02-28-PLAN.md — F-6 marcas de erro: nó vermelho, borda e ícone nos cards, campo danger; sem listas (D-56)
 
 **Wave 19** *(blocked on Wave 18 completion)*
 
@@ -341,27 +341,27 @@ Plans:
 
 **Wave 20** *(blocked on Wave 19 completion)*
 
-- [ ] 02-30-PLAN.md — F-3 Biblioteca de variáveis: 118 variáveis da Blip, nome puro, busca por aba, zebra (D-56)
+- [x] 02-30-PLAN.md — F-3 Biblioteca de variáveis: 118 variáveis da Blip, nome puro, busca por aba, zebra (D-56)
 
 **Wave 21** *(blocked on Wave 20 completion)*
 
-- [ ] 02-31-PLAN.md — F-2 Configuração, aba Variáveis com as 8 seções da Blip (D-56)
+- [x] 02-31-PLAN.md — F-2 Configuração, aba Variáveis com as 8 seções da Blip (D-56)
 
 **Wave 22** *(blocked on Wave 21 completion)*
 
-- [ ] 02-32-PLAN.md — F-2 Configuração, Versões em cards e Ações globais pelo componente da aba Ações
+- [x] 02-32-PLAN.md — F-2 Configuração, Versões em cards e Ações globais pelo componente da aba Ações
 
 **Wave 23** *(blocked on Wave 22 completion)*
 
-- [ ] 02-33-PLAN.md — F-5 filas embutidas: aviso sem atendimento, lista, busca, cards, criação (D-56, reverte D-15)
+- [x] 02-33-PLAN.md — F-5 filas embutidas: aviso sem atendimento, lista, busca, cards, criação (D-56, reverte D-15)
 
 **Wave 24** *(blocked on Wave 23 completion)*
 
-- [ ] 02-34-PLAN.md — F-5 filas embutidas: modo regras da fila
+- [x] 02-34-PLAN.md — F-5 filas embutidas: modo regras da fila
 
 **Wave 25** *(blocked on Wave 24 completion)*
 
-- [ ] 02-35-PLAN.md — Portão do dono da rodada F-1..F-6: regressão e medição lado a lado
+- [x] 02-35-PLAN.md — Portão do dono da rodada F-1..F-6: regressão e medição lado a lado
 
 **UI hint**: yes
 
@@ -380,6 +380,29 @@ Plans:
 
 **Plans**: TBD
 **UI hint**: yes
+
+### Phase 03.3: Owner request round: 13 UI-bug, Blip-parity and audit points (INSERTED)
+
+**Goal:** The owner's 13-point request round (UI bugs, Blip parity, audits) is delivered against real Blip evidence: each point has a findings entry, a test-covered fix or audit report, and one atomic commit; unproven Blip details are listed for owner re-test.
+**Requirements**: P01..P13 (owner points in 03.3-OWNER-REQUEST.md)
+**Depends on:** Phase 3
+**Plans:** 14 plans
+
+Plans:
+- [ ] 03.3-01-PLAN.md — findings ledger; P01 CSS collision guard; P12 monitoring agent-link regression test
+- [ ] 03.3-02-PLAN.md — P07 router contacts show channel identity
+- [ ] 03.3-03-PLAN.md — P03 team card wired + contract/router/flow user-management investigation
+- [ ] 03.3-04-PLAN.md — P02 org switcher: multi-tenant tests, accessible menu, active org marker
+- [ ] 03.3-05-PLAN.md — P04 analytics limits per report, server enforcement, router aggregation
+- [ ] 03.3-06-PLAN.md — P08 log filters fixed, logs shown when logging is off
+- [ ] 03.3-07-PLAN.md — P09 contact history 90 days + ticket headers (Desk report only)
+- [ ] 03.3-08-PLAN.md — P10 channel isolation audit + fixes (webhook split, input expiration, templates channel)
+- [ ] 03.3-09-PLAN.md — P11 builder vs declared rules audit + 03.1 closure evidence
+- [ ] 03.3-10-PLAN.md — P05 Growth cards audit/fixes + Active Messages vs WhatsApp rules
+- [ ] 03.3-11-PLAN.md — P06 Pipe Chat API (widget channel, public endpoints, delivery)
+- [ ] 03.3-12-PLAN.md — P06 Pipe Chat embed bundle + config page
+- [ ] 03.3-13-PLAN.md — P13 message-template page Blip parity
+- [ ] 03.3-14-PLAN.md — phase gate + owner re-test
 
 ### Phase 03.1: Corrigir bugs do inventário Blip×Pipe (INSERTED)
 
@@ -420,20 +443,20 @@ Plans:
 **Goal:** O ciclo de vida do ticket e do atendente usa os mesmos status, em inglês e com a mesma grafia da Blip (Waiting, Assigned, Open, ClosedAttendant, ClosedClient, ClosedClientInactivity, Transferred; Online, Pause, Invisible, Offline), com standby como flag do ticket e não como status; o contato no bot continua com id próprio na execução e o ticket com id próprio, e cada mensagem do bot carrega o bloco atual e o anterior. Fecha também as 3 lacunas da verificação da 03.1 (0084, botão de template sem URL/telefone, `teams` no roteador com contexto desligado).
 **Requirements**: TBD
 **Depends on:** Phase 03.1
-**Plans:** 4/12 plans executed
+**Plans:** 11/12 plans executed
 
 Plans:
 - [x] 03.1.1-01-PLAN.md — Banco: vocabulário Blip, migration 0091 (conversão, CHECKs, sequencial/pai, carimbo de bloco) e pré-voo da árvore
 - [x] 03.1.1-02-PLAN.md — Core e contratos: máquina de estados Blip, standby como flag, status do atendente
 - [x] 03.1.1-03-PLAN.md — Lacunas D-08(a) migration 0084 e D-08(b) botão de template incompleto
 - [x] 03.1.1-04-PLAN.md — API núcleo de conversa: encerramento, transferência com pai, standby, status do atendente, distribuição
-- [ ] 03.1.1-05-PLAN.md — API Desk: consultas com emStandby e ids do ticket, comandos desk:, webhook
-- [ ] 03.1.1-06-PLAN.md — API Gestão: monitoramento, encerramento automático, SLA
-- [ ] 03.1.1-07-PLAN.md — API motor: flow.ts/queue-entry.ts no vocabulário novo e D-08(c) teams no roteador
-- [ ] 03.1.1-08-PLAN.md — Bridge LIME sem tradução de status, com sequencial e pai reais
-- [ ] 03.1.1-09-PLAN.md — Carimbo de bloco atual/anterior nas mensagens do bot (D-06)
-- [ ] 03.1.1-10-PLAN.md — Desk: rótulos num mapa único, standby como flag, seletor de status
-- [ ] 03.1.1-11-PLAN.md — Gestão e CRM: rótulos num mapa por app e filtros de status
+- [x] 03.1.1-05-PLAN.md — API Desk: consultas com emStandby e ids do ticket, comandos desk:, webhook
+- [x] 03.1.1-06-PLAN.md — API Gestão: monitoramento, encerramento automático, SLA
+- [x] 03.1.1-07-PLAN.md — API motor: flow.ts/queue-entry.ts no vocabulário novo e D-08(c) teams no roteador
+- [x] 03.1.1-08-PLAN.md — Bridge LIME sem tradução de status, com sequencial e pai reais
+- [x] 03.1.1-09-PLAN.md — Carimbo de bloco atual/anterior nas mensagens do bot (D-06)
+- [x] 03.1.1-10-PLAN.md — Desk: rótulos num mapa único, standby como flag, seletor de status
+- [x] 03.1.1-11-PLAN.md — Gestão e CRM: rótulos num mapa por app e filtros de status
 - [ ] 03.1.1-12-PLAN.md — Suíte completa, grep final e checkpoint do dono (heurística A2)
 
 ### Phase 03.2: Paridade visual da tela Atendimento do fluxo (INSERTED)
@@ -561,7 +584,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 22/22 | Complete   | 2026-09-27 |
+| 2. Fechar o Builder | 59/59 | Complete   | 2026-10-06 |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |
