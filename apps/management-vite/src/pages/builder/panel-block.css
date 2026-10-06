@@ -10,7 +10,8 @@
  * so without their own surfaces the `@pipe/ui` primitives inside them (`th`, `.iconbtn`, muted
  * text) paint with the light theme: white table header, white close button, grey-on-black text.
  */
-.bl-panel {
+.bl-panel,
+.bl-panel[data-tema='escuro'] {
   --p-superficie-0: #424242;
   --p-superficie-1: #393939;
   --p-superficie-2: #1f1f1f;
@@ -292,7 +293,8 @@
   color: var(--p-builder-marca);
   text-decoration: underline;
 }
-.bl-panel--block .bl-mais {
+.bl-panel--block .bl-mais,
+.bl-panel--flutuante .bl-mais {
   min-height: 56px;
   width: 100%;
   padding: 12px 16px;
@@ -304,7 +306,8 @@
   font-weight: 700;
   text-align: center;
 }
-.bl-panel--block .bl-mais:hover {
+.bl-panel--block .bl-mais:hover,
+.bl-panel--flutuante .bl-mais:hover {
   background: #ededed;
 }
 .bl-panel--block button:disabled {
@@ -364,6 +367,22 @@
   width: 100%;
   box-sizing: border-box;
   padding-right: 32px;
+}
+/* "Ir para" is the same 56px box as the Se/Condição selects: label 8px from the top, value on a 22px line, light border, white 20px arrow. */
+.bl-panel--block .bl-destination-picker > .sub {
+  top: 8px;
+}
+.bl-panel--block .bl-campo--interno .bl-destination-picker-input {
+  padding: 25px 32px 7px 12px;
+  border-color: rgb(255 255 255 / 20%);
+  line-height: 22px;
+}
+.bl-panel--block .bl-destination-picker-arrow {
+  right: 5px;
+  bottom: 8px;
+  width: 20px;
+  height: 20px;
+  color: #fff;
 }
 .bl-panel--block .bl-destination-picker-input:hover,
 .bl-panel--block .bl-destination-picker-input:focus {
@@ -738,6 +757,11 @@
 .bl-acao-menu {
   position: relative;
 }
+/* The row's ⋮ is a 40×40 icon button, as in the reference action row. */
+.bl-panel--block .bl-acao-menu > .iconbtn {
+  width: 40px;
+  height: 40px;
+}
 .bl-panel--block .bl-acao-menu .bl-menu-actions {
   bottom: auto;
   top: 100%;
@@ -849,7 +873,7 @@
 }
 .bl-panel--block .bl-condition-fields .selection-control > .sub {
   position: absolute;
-  top: 5px;
+  top: 8px;
   left: 12px;
   font-size: 12px;
   font-weight: 700;
@@ -858,11 +882,17 @@
   pointer-events: none;
 }
 .bl-panel--block .bl-condition-fields .selection-control > span:not(.sub) {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .bl-panel--block .bl-condition-fields .selection-control svg {
+  flex-shrink: 0;
   width: 20px;
   height: 20px;
 }
@@ -1416,6 +1446,7 @@
   color: inherit;
   font-size: 16px;
   font-weight: 700;
+  text-align: left;
   text-transform: uppercase;
   cursor: pointer;
 }

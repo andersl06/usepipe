@@ -10,6 +10,10 @@ import { IconePortal } from '@pipe/ui/icones-portal';
  *
  * `abas` renders the tab strip (`.bl-abas`) between the header divider and the body, when the panel
  * has tabs; `children` is each panel's own body markup, untouched.
+ *
+ * The shell mounts outside `.bl-editor`, so it carries `data-tema="escuro"` itself: the
+ * `--p-builder-marca-*` tokens only exist in the dark scope, and without it the active-tab
+ * underline and every other brand-colored detail resolve to nothing under the light theme.
  */
 export function FloatingSidebar({
   lado,
@@ -27,7 +31,11 @@ export function FloatingSidebar({
   children: ReactNode;
 }) {
   return (
-    <aside className={`bl-panel bl-panel--flutuante bl-panel--${lado}`} aria-label={ariaLabel}>
+    <aside
+      className={`bl-panel bl-panel--flutuante bl-panel--${lado}`}
+      aria-label={ariaLabel}
+      data-tema="escuro"
+    >
       <div className="bl-panel-header">
         {titulo ? (
           <input
