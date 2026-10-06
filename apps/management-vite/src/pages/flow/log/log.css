@@ -278,3 +278,13 @@
     margin-left: 0;
   }
 }
+
+/* "Limpar" resets every filter; styled as the Id link, as a button. */
+.lg-limpar {
+  align-self: flex-end;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--p-t-sm);
+}

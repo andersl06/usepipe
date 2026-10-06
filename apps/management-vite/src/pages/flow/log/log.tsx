@@ -4,26 +4,10 @@ import { useRead } from '../../../lib/query';
 import { filterStorageKey, loadFilters, saveFilters } from '../../../lib/filter-memory';
 import { useEu } from '../../../context/session';
 import { ShellModule, useContact } from '../contact';
-import { TelaDoLog, type LogFilterValues } from './tela';
+import { TelaDoLog } from './tela';
+import { EMPTY_LOG_FILTERS, logQuery, validateLogFilters, type LogFilterValues } from './filtros';
 import '../integrations/header-of-page.css';
 import './log.css';
-
-/** Shape guard for the stored filter (D-30): any string field missing drops the whole value. */
-function validateLogFilters(value: unknown): LogFilterValues | null {
-  if (!value || typeof value !== 'object') return null;
-  const v = value as Record<string, unknown>;
-  const fields = ['busca', 'de', 'ate', 'direcao', 'tipo'] as const;
-  if (fields.some((f) => typeof v[f] !== 'string')) return null;
-  return {
-    busca: v.busca as string,
-    de: v.de as string,
-    ate: v.ate as string,
-    direcao: v.direcao as string,
-    tipo: v.tipo as string,
-  };
-}
-
-const FILTROS_VAZIOS: LogFilterValues = { busca: '', de: '', ate: '', direcao: '', tipo: '' };
 
 /**
  * Growth › Log — the source's `auth.application.detail.growth.messages.log` (module 4842 template in portal.js, `MessagesController` controller).
@@ -51,7 +35,7 @@ export function PageLog() {
   const eu = useEu();
   const filtrosKey = filterStorageKey('management', 'log', eu.tenant.id, eu.user.id);
   const [filtros, setFiltros] = useState<LogFilterValues>(
-    () => loadFilters(filtrosKey, validateLogFilters) ?? FILTROS_VAZIOS,
+    () => loadFilters(filtrosKey, validateLogFilters) ?? EMPTY_LOG_FILTERS,
   );
   useEffect(() => {
     saveFilters(filtrosKey, filtros);
@@ -63,13 +47,7 @@ export function PageLog() {
   const direction = filtros.direcao;
   const tipo = filtros.tipo;
 
-  const queryBase = new URLSearchParams();
-  if (search) queryBase.set('search', search);
-  if (de) queryBase.set('from', de);
-  if (ate) queryBase.set('to', ate);
-  if (direction) queryBase.set('direction', direction);
-  if (tipo) queryBase.set('type', tipo);
-  const filterKey = queryBase.toString();
+  const filterKey = logQuery(filtros);
 
   const firstPage = useRead<LogPage>(
     `/v1/management/flows/${contact.id}/analytics/log?${filterKey}`,
@@ -97,7 +75,7 @@ export function PageLog() {
     if (!cursor || carregandoMais) return;
     setCarregandoMais(true);
     try {
-      const q = new URLSearchParams(queryBase);
+      const q = new URLSearchParams(filterKey);
       q.set('cursor', cursor);
       const page = await api.get<LogPage>(
         `/v1/management/flows/${contact.id}/analytics/log?${q.toString()}`,
@@ -120,6 +98,7 @@ export function PageLog() {
         ate={ate}
         direction={direction}
         tipo={tipo}
+        carregado={firstPage.data !== undefined}
         temMais={temMais}
         carregandoMais={carregandoMais}
         aoCarregarMais={carregarMais}

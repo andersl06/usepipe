@@ -1,7 +1,8 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { SearchIcon, IconePortal } from '@pipe/ui/icones-portal';
 import { Select } from '@pipe/ui/select';
 import { Interruptor } from '../integrations/interruptor';
+import { EMPTY_LOG_FILTERS, filtersFromForm, type LogFilterValues } from './filtros';
 
 /** `mensagem.direcao`/`mensagem.tipo` (`@pipe/db/schema`) — os valores que o filtro aceita. */
 const DIRECTIONS: [string, string][] = [
@@ -66,14 +67,6 @@ export interface LogMessage {
   metadata: string | null;
 }
 
-export interface LogFilterValues {
-  busca: string;
-  de: string;
-  ate: string;
-  direcao: string;
-  tipo: string;
-}
-
 export function TelaDoLog({
   search,
   de,
@@ -81,6 +74,7 @@ export function TelaDoLog({
   direction,
   tipo,
   messages,
+  carregado = false,
   temMais = false,
   carregandoMais = false,
   aoCarregarMais,
@@ -93,6 +87,8 @@ export function TelaDoLog({
   direction?: string;
   tipo?: string;
   messages: LogMessage[];
+  /** The first page has arrived: the filter bar stays so an empty result can be cleared. */
+  carregado?: boolean;
   temMais?: boolean;
   carregandoMais?: boolean;
   aoCarregarMais?: () => void;
@@ -106,26 +102,27 @@ export function TelaDoLog({
 }) {
   const [ativo, setAtivo] = useState(false);
   const filterActive = Boolean(search || de || ate || direction || tipo);
-  const showSearch = filterActive || messages.length !== 0;
+  const showSearch = filterActive || messages.length !== 0 || carregado;
+  const filtros: LogFilterValues = {
+    busca: search,
+    de: de ?? '',
+    ate: ate ?? '',
+    direcao: direction ?? '',
+    tipo: tipo ?? '',
+  };
+  /* The search text is typed locally and applied on submit; the other filters apply as soon as they change. */
+  const [texto, setTexto] = useState(search);
+  useEffect(() => {
+    setTexto(search);
+  }, [search]);
 
-  /* Selects e datas reenviam o MESMO formulário: assim nenhum filtro já
-     escolhido some quando outro muda. O envio é interceptado (onSubmit
-     abaixo) — nunca navega, só atualiza o state da tela (D-30). */
-  function reenviar(evento: ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
-    evento.currentTarget.form?.requestSubmit();
+  function aplicar(mudanca: Partial<LogFilterValues>) {
+    aoAplicarFiltro?.({ ...filtros, ...mudanca });
   }
 
   function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    if (!aoAplicarFiltro) return;
-    const data = new FormData(evento.currentTarget);
-    aoAplicarFiltro({
-      busca: String(data.get('busca') ?? ''),
-      de: String(data.get('de') ?? ''),
-      ate: String(data.get('ate') ?? ''),
-      direcao: String(data.get('direcao') ?? ''),
-      tipo: String(data.get('tipo') ?? ''),
-    });
+    aoAplicarFiltro?.(filtersFromForm(new FormData(evento.currentTarget)));
   }
 
   return (
@@ -144,7 +141,8 @@ export function TelaDoLog({
                       <div className="lg-campo">
                         <input
                           name="busca"
-                          defaultValue={search}
+                          value={texto}
+                          onChange={(evento) => setTexto(evento.target.value)}
                           autoComplete="off"
                           placeholder="Pesquise por qualquer termo para filtrar as mensagens..."
                         />
@@ -156,15 +154,15 @@ export function TelaDoLog({
                     <div className="lg-filters">
                       <label className="lg-filter">
                         <span>De</span>
-                        <input type="date" name="de" defaultValue={de} onChange={reenviar} />
+                        <input type="date" name="de" value={filtros.de} onChange={(evento) => aplicar({ de: evento.target.value })} />
                       </label>
                       <label className="lg-filter">
                         <span>Até</span>
-                        <input type="date" name="ate" defaultValue={ate} onChange={reenviar} />
+                        <input type="date" name="ate" value={filtros.ate} onChange={(evento) => aplicar({ ate: evento.target.value })} />
                       </label>
                       <label className="lg-filter">
                         <span>Direção</span>
-                        <Select name="direcao" defaultValue={direction} onChange={reenviar} aria-label="Direção">
+                        <Select name="direcao" value={filtros.direcao} onChange={(evento) => aplicar({ direcao: evento.target.value })} aria-label="Direção">
                           {DIRECTIONS.map(([value, rotulo]) => (
                             <option key={value} value={value}>
                               {rotulo}
@@ -174,7 +172,7 @@ export function TelaDoLog({
                       </label>
                       <label className="lg-filter">
                         <span>Tipo</span>
-                        <Select name="tipo" defaultValue={tipo} onChange={reenviar} aria-label="Tipo">
+                        <Select name="tipo" value={filtros.tipo} onChange={(evento) => aplicar({ tipo: evento.target.value })} aria-label="Tipo">
                           {TIPOS.map(([value, rotulo]) => (
                             <option key={value} value={value}>
                               {rotulo}
@@ -182,6 +180,11 @@ export function TelaDoLog({
                           ))}
                         </Select>
                       </label>
+                      {filterActive ? (
+                        <button type="button" className="lg-link lg-limpar" onClick={() => aoAplicarFiltro?.(EMPTY_LOG_FILTERS)}>
+                          Limpar
+                        </button>
+                      ) : null}
                     </div>
                   </form>
                 </div>

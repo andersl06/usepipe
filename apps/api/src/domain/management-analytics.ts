@@ -419,9 +419,15 @@ export async function loadLogOfMessages(
   limite: number,
 ): Promise<Page<LinhaDoLog>> {
   const channelIds = await linkedChannelIdsOfFlow(tx, tenantId, fluxoId);
-  if (!channelIds.length) return { data: [], page_info: { has_next_page: false, end_cursor: null } };
+  // A router service flow has no channel of its own: its log is the messages of its executions.
+  const scope = channelIds.length
+    ? sql`i.canal_id in (${sql.join(channelIds.map((id) => sql`${id}::uuid`), sql`, `)})`
+    : messageOfFlow([fluxoId]);
 
-  const filterSearch = filter.search?.trim() ? sql`m.conteudo ilike ${`%${filter.search.trim()}%`}` : sql`true`;
+  // Backslash, % and _ in the term are literal text, not ilike wildcards.
+  const filterSearch = filter.search?.trim()
+    ? sql`m.conteudo ilike ${`%${filter.search.trim().replace(/[\\%_]/g, '\\$&')}%`} escape '\\'`
+    : sql`true`;
   const filterDirection = filter.direction ? sql`m.direcao = ${filter.direction}` : sql`true`;
   const filterType = filter.type ? sql`m.tipo = ${filter.type}` : sql`true`;
   const filterOf = filter.de
@@ -450,7 +456,7 @@ export async function loadLogOfMessages(
       join contato ct on ct.id = coalesce(cv.contato_id, ex.contato_id)
       join inbox i on i.id = coalesce(cv.inbox_id, ex.inbox_id)
       join canal ca on ca.id = i.canal_id
-     where i.canal_id in (${sql.join(channelIds.map((id) => sql`${id}::uuid`), sql`, `)})
+     where ${scope}
        and ${filterSearch} and ${filterDirection} and ${filterType} and ${filterOf} and ${filterUntil}
        and ${conditionOfCursor('m.criada_em', 'timestamptz', 'desc', cursor, 'm.id')}
      order by ${orderSql('m.criada_em', 'desc', 'm.id')}
