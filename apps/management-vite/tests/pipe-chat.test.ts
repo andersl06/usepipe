@@ -29,3 +29,10 @@ test('pipeChatSnippet escapes quotes and angle brackets in the key', () => {
   assert.ok(!out.includes('"><script>'));
   assert.ok(out.includes('data-key="&quot;&gt;&lt;script&gt;"'));
 });
+
+test('the embed bundle reads the `{ data: [...] }` envelope the widget API returns', async () => {
+  // Regression: the bundle once accepted only a bare array, so no message (visitor or bot) was ever shown.
+  const { readFileSync } = await import('node:fs');
+  const bundle = readFileSync(new URL('../public/pipe-chat.js', import.meta.url), 'utf8');
+  assert.match(bundle, /rows\.data/);
+});

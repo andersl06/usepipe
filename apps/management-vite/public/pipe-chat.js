@@ -273,7 +273,8 @@
     return request('GET', '/messages' + query).then(
       function (rows) {
         state.errors = 0;
-        absorb(Array.isArray(rows) ? rows : []);
+        // The API answers `{ data: [...] }`; a bare array is also accepted.
+        absorb(Array.isArray(rows) ? rows : rows && Array.isArray(rows.data) ? rows.data : []);
         render();
         schedule();
       },
