@@ -185,9 +185,9 @@ Plans:
 - [x] 01-42-PLAN.md — (onda 34) Corrigir quebras de runtime do rename (a partir do relatório da varredura) e criar o verificador de contrato de runtime (D-53).
 - [x] 01-43-PLAN.md — (onda 35) short_name único por tenant (migração 0051 com backfill) e GET /v1/management/flows/short-name/:shortName (D-52).
 - [x] 01-44-PLAN.md — (onda 36) Gestão sob /application: detail/{shortName}, create/*, telas de tenant, redirects legados e construtor único de caminhos (D-52).
-- [ ] 01-45-PLAN.md — (onda 37) Links fora da Gestão, route-match de front sem link pendurado, nav-contract D-52 e smoke de navegador com o dono.
-- [ ] 01-46-PLAN.md — (onda 38) Classificação STD-11 por regra (DDL, texto de produto, caminhos) e re-baseline explícito do gate (std11-classified).
-- [ ] 01-47-PLAN.md — (onda 39) Mapa old→new do resíduo STD-11 (propostas Codex, check-map, revisão Sonnet) com aprovação do dono.
+- [x] 01-45-PLAN.md — (onda 37) Links fora da Gestão, route-match de front sem link pendurado, nav-contract D-52 e smoke de navegador com o dono.
+- [x] 01-46-PLAN.md — (onda 38) Classificação STD-11 por regra (DDL, texto de produto, caminhos) e re-baseline explícito do gate (std11-classified).
+- [x] 01-47-PLAN.md — (onda 39) Mapa old→new do resíduo STD-11 (propostas Codex, check-map, revisão Sonnet) com aprovação do dono.
 - [ ] 01-48-PLAN.md — (onda 40) --ids-file nas ferramentas de rename e rename do escopo packages (gate std11-packages).
 - [ ] 01-49-PLAN.md — (onda 41) Rename do escopo apps/api/src/domain com checagem de alias SQL (gate std11-api-domain).
 - [ ] 01-50-PLAN.md — (onda 42) Rename de controllers/raiz da API, workers e bridge, com endpoints PT residuais (gate std11-api-core).
@@ -583,7 +583,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
+| 1. Padronizar linguagem técnica, navegação e renderização | 22/57 | In Progress|  |
 | 2. Fechar o Builder | 59/59 | Complete   | 2026-10-06 |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
