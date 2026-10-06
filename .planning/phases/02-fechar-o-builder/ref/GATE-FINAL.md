@@ -121,3 +121,5 @@ _Aprovação final: pendente. Depois da resposta, acrescentar aqui a linha do do
 | Assets da Blip (D-33) | `git diff --name-only --diff-filter=A c7234632 HEAD` filtrado por `.svg/.png/.woff/.woff2/.jpg/.gif/.webp/.ttf/.otf` e por `referencias-blip` | — | 0 arquivos binários novos; 0 caminhos de `referencias-blip` |
 
 Nenhum gate vermelho; nenhuma correção nesta etapa.
+
+**Aprovação do dono (F-1..F-6):** 2026-10-05 — F-1, F-2, F-3, F-4, F-5 e F-6 aprovados (resposta do dono: "aprovado"). As linhas NEEDS VALIDATION de VERIFICACAO-VISUAL.md §Rodada F-1..F-6, "Nomear versão" (02-32) e a marca "Não disponível no Pipe" (02-30/02-31) seguem sem decisão específica do dono.
