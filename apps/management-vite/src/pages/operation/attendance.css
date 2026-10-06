@@ -1231,7 +1231,7 @@
 /* `.tblwrap` clips overflow; the action tooltips must escape the panel. */
 .mon-detalhado { overflow: visible; }
 
-.mon-detalhado .scroll {
+.tblwrap.mon-detalhado .scroll {
 
   margin: 0;
 
@@ -1363,7 +1363,7 @@
 
 
 
-.mon-detalhado td.acts { position: relative; }
+.mon-detalhado td.acts { position: relative; overflow: visible; }
 
 .mon-detalhado .mon-actions {
   justify-content: center;
@@ -1670,5 +1670,5 @@
 }
 
 @media (max-width: 1100px) {
-  .mon-detalhado .scroll { overflow-x: auto; }
+  .tblwrap.mon-detalhado .scroll { overflow-x: auto; }
 }

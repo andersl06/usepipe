@@ -96,8 +96,8 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
   };
 
   return (
-    <div className="gr-tela">
-      <header className="gr-cabecalho">
+    <div className="rm-tela">
+      <header className="rm-cabecalho">
         <h1>Gerenciador de relatórios</h1>
         <p>
           Gere relatórios para diferentes dados do seu contato inteligente ou acesse os relatórios
@@ -105,12 +105,12 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
         </p>
       </header>
 
-      <form className="gr-formulario" onSubmit={gerar} noValidate>
-        <div className="gr-cards">
-          <section className="gr-paper gr-parametros">
+      <form className="rm-formulario" onSubmit={gerar} noValidate>
+        <div className="rm-cards">
+          <section className="rm-paper rm-parametros">
             {avisoVisivel ? (
-              <div className="gr-aviso" role="status">
-                <span className="gr-aviso-icone">!</span>
+              <div className="rm-aviso" role="status">
+                <span className="rm-aviso-icone">!</span>
                 <span>
                   Não é possível gerar relatórios de atendimento para um router ou chatbot sem
                   atendimento ativo.
@@ -126,10 +126,10 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             ) : null}
 
             <h2>Escolha um chatbot para extrair os dados</h2>
-            <label className="gr-campo gr-campo-interno">
-              <span className="gr-select">
+            <label className="rm-campo rm-campo-interno">
+              <span className="rm-select">
                 <IconePortal nome="robo" tamanho={20} />
-                <span className="gr-campo-miolo">
+                <span className="rm-campo-miolo">
                   <span>Bot</span>
                   <Select
                     value={botEscolhido}
@@ -143,17 +143,17 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                 </span>
               </span>
             </label>
-            {error && !botEscolhido ? <p className="gr-error">Campo obrigatório</p> : null}
+            {error && !botEscolhido ? <p className="rm-error">Campo obrigatório</p> : null}
 
-            <div className="gr-divisor" />
+            <div className="rm-divisor" />
 
             <h3>Selecione o período do relatório</h3>
             <p>Configure um intervalo de até 90 dias para qualquer período nos últimos 5 anos.</p>
-            <div className="gr-datas">
-              <label className="gr-campo gr-campo-interno">
-                <span className="gr-data">
+            <div className="rm-datas">
+              <label className="rm-campo rm-campo-interno">
+                <span className="rm-data">
                   <IconePortal nome="calendario" tamanho={20} />
-                  <span className="gr-campo-miolo">
+                  <span className="rm-campo-miolo">
                     <span>Data Inicial</span>
                     <input
                       type="date"
@@ -167,10 +167,10 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                   </span>
                 </span>
               </label>
-              <label className="gr-campo gr-campo-interno">
-                <span className="gr-data">
+              <label className="rm-campo rm-campo-interno">
+                <span className="rm-data">
                   <IconePortal nome="calendario" tamanho={20} />
-                  <span className="gr-campo-miolo">
+                  <span className="rm-campo-miolo">
                     <span>Data Final</span>
                     <input
                       type="date"
@@ -185,7 +185,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                 </span>
               </label>
             </div>
-            <div className="gr-intervalos" aria-label="Intervalos rápidos">
+            <div className="rm-intervalos" aria-label="Intervalos rápidos">
               {INTERVALOS_RAPIDOS.map((dias) => (
                 <button
                   key={dias}
@@ -201,11 +201,11 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
               ))}
             </div>
             {error && inicio && fim && !periodValid(inicio, fim) ? (
-              <p className="gr-error">O período deve ser de no máximo 90 dias</p>
+              <p className="rm-error">O período deve ser de no máximo 90 dias</p>
             ) : null}
           </section>
 
-          <section className="gr-paper gr-tipos">
+          <section className="rm-paper rm-tipos">
             <h2>Defina o tipo de relatório</h2>
             <p>
               Selecione entre as opções os dados que deseja analisar no relatório. Entenda melhor
@@ -214,8 +214,8 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             </p>
             <Options itens={REPORTS} escolhido={tipo} aoEscolher={setTipo} />
             {tipo === 'thread-transcription' ? (
-              <label className="gr-campo gr-contact">
-                <span className="gr-contact-label">
+              <label className="rm-campo rm-contact">
+                <span className="rm-contact-label">
                   Contato
                   <button type="button" onClick={() => setHelpHistoryOpen(true)}>
                     (Saiba como gerar corretamente)
@@ -229,23 +229,23 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                   aria-invalid={error && contactFilter.trim().length < 5}
                 />
                 {error && contactFilter.trim().length < 5 ? (
-                  <span className="gr-error">
+                  <span className="rm-error">
                     O filtro de contato deve ter pelo menos 5 caracteres
                   </span>
                 ) : null}
               </label>
             ) : null}
 
-            <div className="gr-divisor" />
+            <div className="rm-divisor" />
 
             <h2>Relatórios de atendimento</h2>
             <p>É necessário selecionar um bot com atendimento ativo para gerar estes relatórios.</p>
             <Options itens={REPORTS_OF_ATTENDANCE} escolhido={tipo} aoEscolher={setTipo} />
-            {error && !tipo ? <p className="gr-error">Campo obrigatório</p> : null}
+            {error && !tipo ? <p className="rm-error">Campo obrigatório</p> : null}
           </section>
         </div>
 
-        <div className="gr-gerar">
+        <div className="rm-gerar">
           <button type="submit" className="an-bds-btn">
             <span aria-hidden="true">▤</span>
             Gerar Relatório
@@ -253,10 +253,10 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
         </div>
       </form>
 
-      <section className="gr-reports gr-paper">
+      <section className="rm-reports rm-paper">
         <h2>Meus relatórios</h2>
         <p>Uma lista com todos os relatórios que você já criou.</p>
-        <div className="gr-tabela-caixa">
+        <div className="rm-tabela-caixa">
           <table>
             <thead>
               <tr>
@@ -272,7 +272,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             <tbody>
               {reports.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="gr-empty">
+                  <td colSpan={7} className="rm-empty">
                     Nenhum arquivo gerado nos últimos 7 dias.
                   </td>
                 </tr>
@@ -286,7 +286,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
                     <td>{dataPt(report.inicio)}</td>
                     <td>{dataPt(report.fim)}</td>
                     <td>
-                      <span className="gr-pendente">Pendente...</span>
+                      <span className="rm-pendente">Pendente...</span>
                     </td>
                   </tr>
                 ))
@@ -296,7 +296,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
         </div>
       </section>
 
-      <div className="gr-termo-acao">
+      <div className="rm-termo-acao">
         <button
           type="button"
           className="an-bds-btn an-bds-btn--secundario"
@@ -307,8 +307,8 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
         </button>
       </div>
 
-      <footer className="gr-feedback">
-        <div className="gr-feedback-chamada" aria-hidden="true">
+      <footer className="rm-feedback">
+        <div className="rm-feedback-chamada" aria-hidden="true">
           ☻
         </div>
         <div>
@@ -330,27 +330,27 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
       </footer>
 
       {termoAberto ? (
-        <div className="gr-modal" role="dialog" aria-modal="true" aria-labelledby="gr-termo-titulo">
+        <div className="rm-modal" role="dialog" aria-modal="true" aria-labelledby="rm-termo-titulo">
           <button
-            className="gr-modal-fundo"
+            className="rm-modal-fundo"
             type="button"
             aria-label="Fechar"
             onClick={() => setTermoAberto(false)}
           />
-          <div className="gr-modal-caixa">
+          <div className="rm-modal-caixa">
             <button
-              className="gr-modal-fechar"
+              className="rm-modal-fechar"
               type="button"
               aria-label="Fechar"
               onClick={() => setTermoAberto(false)}
             >
               ×
             </button>
-            <div className="gr-modal-illustration" aria-hidden="true">
+            <div className="rm-modal-illustration" aria-hidden="true">
               ✓
             </div>
-            <div className="gr-modal-texto">
-              <h2 id="gr-termo-titulo">Termo de Responsabilidade</h2>
+            <div className="rm-modal-texto">
+              <h2 id="rm-termo-titulo">Termo de Responsabilidade</h2>
               <p>
                 A solicitação e obtenção de Relatórios representam uma interação com a Plataforma
                 Pipe. O Cliente, controlador dos dados pessoais, declara ciência e concordância de
@@ -360,7 +360,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             </div>
             <button
               type="button"
-              className="an-bds-btn gr-modal-botao"
+              className="an-bds-btn rm-modal-botao"
               onClick={() => setTermoAberto(false)}
             >
               Fechar
@@ -370,24 +370,24 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
       ) : null}
 
       {helpHistoryOpen ? (
-        <div className="gr-modal" role="dialog" aria-modal="true" aria-labelledby="gr-ajuda-titulo">
+        <div className="rm-modal" role="dialog" aria-modal="true" aria-labelledby="rm-ajuda-titulo">
           <button
-            className="gr-modal-fundo"
+            className="rm-modal-fundo"
             type="button"
             aria-label="Fechar"
             onClick={() => setHelpHistoryOpen(false)}
           />
-          <div className="gr-modal-caixa gr-modal-ajuda">
+          <div className="rm-modal-caixa rm-modal-ajuda">
             <button
-              className="gr-modal-fechar"
+              className="rm-modal-fechar"
               type="button"
               aria-label="Fechar"
               onClick={() => setHelpHistoryOpen(false)}
             >
               ×
             </button>
-            <div className="gr-modal-texto">
-              <h2 id="gr-ajuda-titulo">Como funciona o Histórico Completo de Conversas</h2>
+            <div className="rm-modal-texto">
+              <h2 id="rm-ajuda-titulo">Como funciona o Histórico Completo de Conversas</h2>
               <p>
                 Para obter resultados mais precisos e evitar erros na geração do relatório,
                 considere as orientações abaixo.
@@ -414,7 +414,7 @@ export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
             </div>
             <button
               type="button"
-              className="an-bds-btn gr-modal-botao"
+              className="an-bds-btn rm-modal-botao"
               onClick={() => setHelpHistoryOpen(false)}
             >
               Fechar
@@ -436,9 +436,9 @@ function Options({
   aoEscolher: (tipo: Tipo) => void;
 }) {
   return (
-    <div className="gr-options">
+    <div className="rm-options">
       {itens.map((item) => (
-        <label key={item.value} className="gr-option">
+        <label key={item.value} className="rm-option">
           <input
             type="radio"
             name="relatorio"
