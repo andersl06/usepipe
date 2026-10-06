@@ -338,6 +338,19 @@ export interface VersionOfFlow {
   publishedBy: string | null;
   criadoEm: string | null;
   atualizadoEm: string | null;
+  /** Blip "Nomear versão" title (max 50) and description (max 200); null when not named. */
+  titulo: string | null;
+  descricao: string | null;
+}
+
+/** Limits of the Blip "Nomear versão" modal. */
+export const VERSION_TITLE_MAX = 50;
+export const VERSION_DESCRIPTION_MAX = 200;
+
+/** `PUT /v1/management/flows/:id/builder/versions/:version/name`; an empty string clears the field. */
+export interface VersionNameRequest {
+  titulo: string;
+  descricao: string;
 }
 
 /**

@@ -11,6 +11,7 @@ import {
 import type { State, ExportDoEditor, FlowBlip, Saida } from '@pipe/core';
 import { registrarAuditoria } from '@pipe/db';
 import type { Ator, TransactionPipe } from '@pipe/db';
+import { VERSION_DESCRIPTION_MAX, VERSION_TITLE_MAX } from '@pipe/contracts';
 import type {
   BuilderOfFlow,
   DesenhoDoBuilder,
@@ -79,10 +80,13 @@ type LinhaVersao = {
   publishedByName: string | null;
   createdAt: Date | string | null;
   atualizado_em: Date | string | null;
+  titulo: string | null;
+  descricao: string | null;
 };
 
 const COLUNAS_DA_VERSAO = sql`
   v.id, v.versao as "version", v.estado as "state", v.publicada_em, v.criado_em as "createdAt", v.atualizado_em,
+  v.titulo, v.descricao,
   u.nome as "publishedByName",
   (select count(*)::int from bloco b where b.versao_id = v.id) as "blocks"
 `;
@@ -100,6 +104,8 @@ const comoVersao = (l: LinhaVersao): VersionOfFlow => ({
   publishedBy: l.publishedByName,
   criadoEm: instante(l.createdAt),
   atualizadoEm: instante(l.atualizado_em),
+  titulo: l.titulo,
+  descricao: l.descricao,
 });
 
 async function versaoLida(tx: TransactionPipe, versaoId: string): Promise<VersionOfFlow> {
@@ -729,6 +735,56 @@ async function versionIdOfNumber(
   const linha = rows[0];
   if (!linha) throw PipeError.naoEncontrado('versão');
   return linha.id;
+}
+
+/**
+ * "Nomear versão" (Blip modal "Edite o título e descrição da versão"): sets the title (max 50) and description (max 200) of one version. Both are trimmed; an empty text clears the field. Same gate as the other Builder edits.
+ */
+export async function nameVersion(
+  tx: TransactionPipe,
+  tid: string,
+  usuarioId: string,
+  fluxoId: string,
+  numero: number,
+  corpo: unknown,
+): Promise<VersionOfFlow> {
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDIT_FLOW);
+  const versaoId = await versionIdOfNumber(tx, fluxoId, numero);
+  const entrada = (corpo ?? {}) as Record<string, unknown>;
+  const campo = (chave: 'titulo' | 'descricao', max: number): string | null => {
+    const valor = entrada[chave];
+    if (valor === undefined || valor === null) return null;
+    if (typeof valor !== 'string') {
+      throw PipeError.request('invalid_version_name', `O campo "${chave}" deve ser um texto.`);
+    }
+    const limpo = valor.trim();
+    if (limpo.length > max) {
+      throw PipeError.request(
+        'invalid_version_name',
+        `O campo "${chave}" aceita no máximo ${max} caracteres.`,
+        { campo: chave, max },
+      );
+    }
+    return limpo === '' ? null : limpo;
+  };
+  const titulo = campo('titulo', VERSION_TITLE_MAX);
+  const descricao = campo('descricao', VERSION_DESCRIPTION_MAX);
+
+  const antes = await versaoLida(tx, versaoId);
+  await tx.execute(sql`
+    update fluxo_versao set titulo = ${titulo}, descricao = ${descricao}, atualizado_em = now()
+     where id = ${versaoId}
+  `);
+  const depois = await versaoLida(tx, versaoId);
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'alterou',
+    objetoTipo: 'fluxo_versao',
+    objetoId: versaoId,
+    antes: { titulo: antes.titulo, descricao: antes.descricao },
+    depois: { titulo, descricao, fluxoId, versao: numero },
+  });
+  return depois;
 }
 
 /** Copy an old version into the draft; the published version remains live until another publish. */

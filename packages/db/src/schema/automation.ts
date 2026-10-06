@@ -229,9 +229,14 @@ export const flowVersion = pgTable(
     global: jsonb('global')
       .notNull()
       .default(sql`'{}'::jsonb`),
+    /** Migration 0094: the Blip "Nomear versão" title (max 50) and description (max 200); both optional. */
+    title: text('titulo'),
+    description: text('descricao'),
     ...carimbos(),
   },
   (t) => [
+    check('fluxo_versao_titulo_ck', sql`char_length(${t.title}) <= 50`),
+    check('fluxo_versao_descricao_ck', sql`char_length(${t.description}) <= 200`),
     listaCheck('fluxo_versao_estado_ck', t.state, STATES_FLOW_VERSION),
     uniqueIndex('fluxo_versao_uk').on(t.fluxoId, t.versao),
   ],

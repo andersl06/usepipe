@@ -36,3 +36,16 @@ export function formatPublishedAt(iso: string, timeZone = 'America/Sao_Paulo'): 
   const parte = (tipo: string) => partes.find((p) => p.type === tipo)?.value ?? '';
   return `${parte('day')}/${parte('month')}/${parte('year')} - ${parte('hour')}:${parte('minute')}:${parte('second')}`;
 }
+
+/** Limits of the Blip "Nomear versão" modal (`@pipe/contracts`: VERSION_TITLE_MAX / VERSION_DESCRIPTION_MAX). */
+export const TITLE_MAX = 50;
+export const DESCRIPTION_MAX = 200;
+
+/** The title and description of the "Nomear versão" form, trimmed; an empty text clears the field. */
+export function normalizeVersionName(titulo: string, descricao: string): { titulo: string; descricao: string } | { error: string } {
+  const t = titulo.trim();
+  const d = descricao.trim();
+  if (t.length > TITLE_MAX) return { error: `O título aceita no máximo ${TITLE_MAX} caracteres.` };
+  if (d.length > DESCRIPTION_MAX) return { error: `A descrição aceita no máximo ${DESCRIPTION_MAX} caracteres.` };
+  return { titulo: t, descricao: d };
+}

@@ -16,6 +16,7 @@ import {
   carregarBuilder,
   listVersions,
   loadVersionDrawing,
+  nameVersion,
   publicarRascunho,
   restoreVersion,
   salvarRascunho,
@@ -111,6 +112,23 @@ export class ManagementBuilderController {
     const numero = /^\d+$/.test(versao) ? Number(versao) : Number.NaN;
     return noTenant(session.tenantId, (tx) =>
       restoreVersion(tx, session.tenantId, session.userId, id, numero),
+    );
+  }
+
+  /** "Nomear versão": sets (or clears, with empty texts) the title and description of one version. */
+  @Put(':id/builder/versions/:version/name')
+  @WithSession()
+  async nameVersion(
+    @Req() requisicao: RequestWithSession,
+    @Param('id') id: string,
+    @Param('version') versao: string,
+    @Body() corpo: unknown,
+  ): Promise<VersionOfFlow> {
+    const sessao = sessionOf(requisicao);
+    uuidOu404(id, 'fluxo');
+    const numero = /^\d+$/.test(versao) ? Number(versao) : Number.NaN;
+    return noTenant(sessao.tenantId, (tx) =>
+      nameVersion(tx, sessao.tenantId, sessao.userId, id, numero, corpo),
     );
   }
 

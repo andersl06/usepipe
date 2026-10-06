@@ -122,3 +122,21 @@ export async function resetTest(id: string): Promise<Resultado<TestRunReset>> {
     return { ok: false, error: motivoDe(error, 'NÃ£o foi possÃ­vel reiniciar o teste.') };
   }
 }
+
+/** "Nomear versão": sets the title and description of a version; empty texts clear them. */
+export async function nameVersion(
+  id: string,
+  versao: number,
+  titulo: string,
+  descricao: string,
+): Promise<Resultado<VersionOfFlow>> {
+  try {
+    const value = await api.put<VersionOfFlow>(
+      `/v1/management/flows/${id}/builder/versions/${versao}/name`,
+      { titulo, descricao },
+    );
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar o nome da versão.') };
+  }
+}

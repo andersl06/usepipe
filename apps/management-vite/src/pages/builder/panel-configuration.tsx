@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import type { VersionOfFlow } from '@pipe/contracts';
-import { Etiqueta, Icone } from '@pipe/ui';
+import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import type { Resultado } from '../../lib/rest';
-import { ConfirmModal } from '@pipe/ui/modal';
+import { ConfirmModal, Modal } from '@pipe/ui/modal';
 import type { Mapa } from './model';
 import { lerDesenho } from './model';
 import type { Subflows } from './subflows';
@@ -14,7 +14,7 @@ import { ActionsPanel } from './panel-actions';
 import { FlowFunctionsPanel } from './flow-functions-panel';
 import { FloatingSidebar } from './floating-sidebar';
 import { ConfigurationVariablesTab } from './panel-configuration-variables';
-import { listVersions, loadVersion } from '../builder-gravar';
+import { listVersions, loadVersion, nameVersion } from '../builder-gravar';
 import {
   MESSAGES_OF_IMPORT,
   nameOfFileOfExport,
@@ -22,7 +22,7 @@ import {
   exportText,
   validateImport,
 } from './import-exportar';
-import { lastPublished, latestPublished, formatPublishedAt } from './versions-list';
+import { lastPublished, latestPublished, formatPublishedAt, normalizeVersionName, TITLE_MAX, DESCRIPTION_MAX } from './versions-list';
 import type { ToastInput } from '@pipe/ui/toast-queue';
 
 /**
@@ -203,6 +203,11 @@ function VersionsTab({
   const [restoring, setRestoring] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
   const [publicadasAbertas, setPublicadasAbertas] = useState(false);
+  const [nameTarget, setNameTarget] = useState<VersionOfFlow | null>(null);
+  const [nameTitle, setNameTitle] = useState('');
+  const [nameDescription, setNameDescription] = useState('');
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   useEffect(() => {
     let ativo = true;
@@ -242,6 +247,33 @@ function VersionsTab({
     a.download = nameOfFileOfExportedVersion(flowName, versao.versao, versao.publicadaEm ?? versao.criadoEm);
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  function openName(v: VersionOfFlow): void {
+    setNameTarget(v);
+    setNameTitle(v.titulo ?? '');
+    setNameDescription(v.descricao ?? '');
+    setNameError(null);
+  }
+
+  /** "Salvar" of the "Nomear versão" modal: trims, sends, and swaps the saved version into the list. */
+  async function saveName(): Promise<void> {
+    if (!nameTarget) return;
+    const n = normalizeVersionName(nameTitle, nameDescription);
+    if ('error' in n) {
+      setNameError(n.error);
+      return;
+    }
+    setNameSaving(true);
+    const r = await nameVersion(flowId, nameTarget.versao, n.titulo, n.descricao);
+    setNameSaving(false);
+    if (!r.ok) {
+      setNameError(r.error);
+      return;
+    }
+    const salva = r.value;
+    setVersions((atual) => atual?.map((v) => (v.id === salva.id ? salva : v)) ?? atual);
+    setNameTarget(null);
   }
 
   async function confirmRestore(): Promise<void> {
@@ -348,10 +380,21 @@ function VersionsTab({
                 {recentes.map((v) => (
                   <article className="bl-version-card" key={v.id}>
                     <div className="bl-version-card-info">
+                      {v.titulo ? <b className="bl-version-card-titulo">{v.titulo}</b> : null}
+                      {v.descricao ? <span className="bl-version-card-descricao">{v.descricao}</span> : null}
                       <b>{formatPublishedAt(v.publicadaEm)}</b>
                       <span>{v.publishedBy ?? '—'}</span>
                     </div>
                     <div className="bl-version-card-actions">
+                      <button
+                        type="button"
+                        className="bl-version-icon"
+                        title="Nomear versão"
+                        aria-label={`Nomear versão ${v.versao}`}
+                        onClick={() => openName(v)}
+                      >
+                        <Icone nome="lapis" tamanho={18} />
+                      </button>
                       <button
                         type="button"
                         className="bl-version-icon"
@@ -391,6 +434,26 @@ function VersionsTab({
         }}
         onCancelar={() => setPendente(null)}
       />
+
+      <Modal aberto={nameTarget !== null} titulo="Edite o título e descrição da versão" onFechar={() => setNameTarget(null)}>
+        <label className="bl-version-nome-campo">
+          <span>Título</span>
+          <Campo value={nameTitle} maxLength={TITLE_MAX} onChange={(e) => setNameTitle(e.target.value)} />
+        </label>
+        <label className="bl-version-nome-campo">
+          <span>Descrição</span>
+          <Campo value={nameDescription} maxLength={DESCRIPTION_MAX} onChange={(e) => setNameDescription(e.target.value)} />
+        </label>
+        {nameError ? <Etiqueta tom="erro">{nameError}</Etiqueta> : null}
+        <div className="cl-actions">
+          <Botao type="button" onClick={() => setNameTarget(null)} disabled={nameSaving}>
+            Cancelar
+          </Botao>
+          <Botao type="button" variante="primario" onClick={() => void saveName()} disabled={nameSaving}>
+            Salvar
+          </Botao>
+        </div>
+      </Modal>
 
       <ConfirmModal
         aberto={restoreTarget !== null}

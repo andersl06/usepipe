@@ -139,6 +139,8 @@ const versions = (sessao: string, id: string) =>
   pedir(sessao, 'GET', `/v1/management/flows/${id}/builder/versions`);
 const restore = (sessao: string, id: string, versao: string | number) =>
   pedir(sessao, 'POST', `/v1/management/flows/${id}/builder/versions/${versao}/restore`);
+const nameVersion = (sessao: string, id: string, versao: string | number, corpo: unknown) =>
+  pedir(sessao, 'PUT', `/v1/management/flows/${id}/builder/versions/${versao}/name`, corpo);
 const versionDrawing = (sessao: string, id: string, versao: string | number) =>
   pedir(sessao, 'GET', `/v1/management/flows/${id}/builder/versions/${versao}`);
 
@@ -711,5 +713,55 @@ describe('GET /v1/management/flows/:id/builder/versions/:version', () => {
 
     expect((await versionDrawing(sessionOfOtherTenant, id, 1)).status).toBe(404);
     expect((await versionDrawing(sessionEditor, 'nao-e-uuid', 1)).status).toBe(404);
+  });
+});
+
+describe('PUT /v1/management/flows/:id/builder/versions/:version/name', () => {
+  it('names, renames and clears a version; the list returns the name', async () => {
+    const id = await criado(`Nomeado ${randomUUID().slice(0, 6)}`);
+    await salvar(sessionEditor, id, desenho('primeira'));
+    await publicar(sessionPublisher, id);
+
+    const nova = await nameVersion(sessionEditor, id, 1, { titulo: '  Lançamento  ', descricao: 'Primeira ' });
+    expect(nova.status).toBe(200);
+    expect(nova.body).toMatchObject({ versao: 1, titulo: 'Lançamento', descricao: 'Primeira' });
+    const listada = (await versions(sessionEditor, id)).body as unknown as Corpo[];
+    expect(listada[0]).toMatchObject({ versao: 1, titulo: 'Lançamento', descricao: 'Primeira' });
+
+    const renomeada = await nameVersion(sessionEditor, id, 1, { titulo: 'Outro', descricao: '' });
+    expect(renomeada.body).toMatchObject({ titulo: 'Outro', descricao: null });
+
+    const limpa = await nameVersion(sessionEditor, id, 1, { titulo: '', descricao: '' });
+    expect(limpa.body).toMatchObject({ titulo: null, descricao: null });
+
+    const { rows } = await a.dono.execute<{ n: number }>(sql`select count(*)::int as n from log_auditoria where objeto_tipo = 'fluxo_versao' and acao = 'alterou' and depois ->> 'fluxoId' = ${id}`);
+    expect(rows[0]!.n).toBe(3);
+  });
+
+  it('rejects a title over 50 or a description over 200 characters, and a missing version', async () => {
+    const id = await criado(`LongoDemais ${randomUUID().slice(0, 6)}`);
+    await salvar(sessionEditor, id, desenho('x'));
+    await publicar(sessionPublisher, id);
+
+    const titulo = await nameVersion(sessionEditor, id, 1, { titulo: 'a'.repeat(51), descricao: '' });
+    expect(titulo.status).toBe(400);
+    expect(titulo.body['error']).toMatchObject({ code: 'invalid_version_name' });
+    expect((await nameVersion(sessionEditor, id, 1, { titulo: '', descricao: 'b'.repeat(201) })).status).toBe(400);
+    expect((await nameVersion(sessionEditor, id, 1, { titulo: 'a'.repeat(50), descricao: 'b'.repeat(200) })).status).toBe(200);
+    expect((await nameVersion(sessionEditor, id, 99, { titulo: 'x', descricao: '' })).status).toBe(404);
+  });
+
+  it('403 without utomacao.fluxo.editar; another tenant and an invalid id are 404', async () => {
+    const id = await criado(`ProtegidoNome ${randomUUID().slice(0, 6)}`);
+    await salvar(sessionEditor, id, desenho('x'));
+    await publicar(sessionPublisher, id);
+
+    const semPoder = await nameVersion(sessionWithoutAuthority, id, 1, { titulo: 'x', descricao: '' });
+    expect(semPoder.status).toBe(403);
+    expect(semPoder.body['error']).toMatchObject({ code: 'without_permission' });
+    expect((await nameVersion(sessionOfOtherTenant, id, 1, { titulo: 'x', descricao: '' })).status).toBe(404);
+    expect((await nameVersion(sessionEditor, 'nao-e-uuid', 1, { titulo: 'x', descricao: '' })).status).toBe(404);
+    // Nothing was written by the refused calls.
+    expect(((await versions(sessionEditor, id)).body as unknown as Corpo[])[0]!['titulo']).toBeNull();
   });
 });

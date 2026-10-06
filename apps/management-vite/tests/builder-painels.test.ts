@@ -20,7 +20,7 @@ import {
   exportText,
   validateImport,
 } from '../src/pages/builder/import-exportar.ts';
-import { formatPublishedAt, lastPublished, latestPublished } from '../src/pages/builder/versions-list.ts';
+import { formatPublishedAt, lastPublished, latestPublished, normalizeVersionName } from '../src/pages/builder/versions-list.ts';
 import { lerDesenho, newBlock } from '../src/pages/builder/model.ts';
 import { LEGACY_BLUES, TAG_PALETTE, blockTags } from '../src/pages/builder/tags-of-block.ts';
 import { blockErrors } from '../src/pages/builder/validation.ts';
@@ -314,6 +314,8 @@ test('versions: lastPublished keeps only published versions, newest first, cappe
     publishedBy: 'Ana',
     criadoEm: null,
     atualizadoEm: null,
+    titulo: null,
+    descricao: null,
   }));
   const rascunho = {
     id: 'draft',
@@ -324,6 +326,8 @@ test('versions: lastPublished keeps only published versions, newest first, cappe
     publishedBy: null,
     criadoEm: null,
     atualizadoEm: null,
+    titulo: null,
+    descricao: null,
   };
   const recentes = lastPublished([...publicadas, rascunho]);
   assert.equal(recentes.length, 10);
@@ -340,6 +344,8 @@ test('versions: latestPublished returns the newest publication, or null when not
     publishedBy: 'Ana',
     criadoEm: null,
     atualizadoEm: null,
+    titulo: null,
+    descricao: null,
   };
   const rascunho = {
     id: 'v2',
@@ -350,6 +356,8 @@ test('versions: latestPublished returns the newest publication, or null when not
     publishedBy: null,
     criadoEm: null,
     atualizadoEm: null,
+    titulo: null,
+    descricao: null,
   };
   assert.equal(latestPublished([publicada, rascunho])?.versao, 1);
   assert.equal(latestPublished([]), null);
@@ -523,4 +531,12 @@ test('secondsToTimeSpan/timeSpanToSeconds round-trip the TimeSpan text Blip stor
   assert.equal(timeSpanToSeconds('not a timespan'), null);
   assert.equal(timeSpanToSeconds('99:99:99'), null);
   assert.equal(secondsToTimeSpan(-1), null);
+});
+
+test('normalizeVersionName: trims, empty clears, enforces the Blip 50/200 limits', () => {
+  assert.deepEqual(normalizeVersionName('  Lançamento  ', ' ok '), { titulo: 'Lançamento', descricao: 'ok' });
+  assert.deepEqual(normalizeVersionName('   ', ''), { titulo: '', descricao: '' });
+  assert.deepEqual(normalizeVersionName('a'.repeat(50), 'b'.repeat(200)), { titulo: 'a'.repeat(50), descricao: 'b'.repeat(200) });
+  assert.ok('error' in normalizeVersionName('a'.repeat(51), ''));
+  assert.ok('error' in normalizeVersionName('', 'b'.repeat(201)));
 });
