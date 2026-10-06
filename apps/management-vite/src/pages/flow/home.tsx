@@ -1,5 +1,6 @@
 import { Avatar } from '@pipe/ui';
-import type { ChannelOfFlowInScreen } from '@pipe/contracts';
+import type { ChannelOfFlowInScreen, TeamOfFlow } from '@pipe/contracts';
+import { membersOfTeam } from './itens';
 import { useRead } from '../../lib/query';
 import { ContactBars, contactPath, useContact } from './contact';
 import {
@@ -37,6 +38,7 @@ export function ContactHome() {
   const shell = portalUseShell();
   const base = contactPath(contact);
   const linked = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
+  const team = useRead<TeamOfFlow>(`/v1/management/flows/${contact.id}/team`);
 
   return (
     <div className="pt-app">
@@ -81,7 +83,10 @@ export function ContactHome() {
                 : contact.channelActive && contact.channelType ? [contact.channelType] : []}
               base={base}
             />
-            <CardTeam members={[]} />
+            <CardTeam
+              members={team.data ? membersOfTeam(team.data.members) : []}
+              href={`${base}/team`}
+            />
             <CardPreferences fuso={fuso} plano={shell.tenant.plano} />
             <CardMetrics metrics={null} base={base} />
           </div>

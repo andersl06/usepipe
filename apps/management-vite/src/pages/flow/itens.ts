@@ -161,6 +161,15 @@ export interface Member {
   fotoUrl: string | null;
 }
 
+/** Maps the rows of `GET /v1/management/flows/:id/team` to the card's members, dropping rows without a name. */
+export function membersOfTeam(
+  rows: readonly { nome: string; fotoUrl?: string | null }[],
+): Member[] {
+  return rows
+    .filter((row) => row.nome.trim() !== '')
+    .map((row) => ({ nome: row.nome, fotoUrl: row.fotoUrl ?? null }));
+}
+
 /** The metrics card's three counts, since the contact was created. */
 export interface Metrics {
   users: number;

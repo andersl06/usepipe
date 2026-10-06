@@ -159,9 +159,9 @@ export function CardChannels({
 /**
  * Two states, based on `teamMembers.length`: more than one becomes the `avatar-array limit="8"`; one or none becomes the invite phrase.
  *
- * "Adicionar equipe" leads to `auth.application.detail.team`, the CONTACT's team. RBAC here is per-account — the table linking a person to a contact is missing, and until then the page passes an empty list and the button stays under construction.
+ * "Adicionar equipe" leads to `auth.application.detail.team`, the CONTACT's team. Members come from `fluxo_membro` via `GET :id/team`.
  */
-export function CardTeam({ members }: { members: readonly Member[] }) {
+export function CardTeam({ members, href }: { members: readonly Member[]; href: string }) {
   return (
     <div className="fx-area-equipe">
       <section className="fx-paper fx-faixa">
@@ -192,7 +192,7 @@ export function CardTeam({ members }: { members: readonly Member[] }) {
             </div>
           )}
           <div className="fx-faixa-botao">
-            <Botao href={null}>Adicionar equipe</Botao>
+            <Botao href={href}>Adicionar equipe</Botao>
           </div>
         </div>
       </section>

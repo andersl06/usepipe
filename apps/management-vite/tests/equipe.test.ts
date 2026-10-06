@@ -8,7 +8,22 @@ import {
   rolePermissions,
 } from '../src/pages/flow/team/permissions.ts';
 
-const RECURSOS = [{ key: 'builder' }, { key: 'channels' }, { key: 'team' }];
+import { membersOfTeam } from '../src/pages/flow/itens.ts';
+
+test('membersOfTeam maps API rows to card members and drops nameless rows', () => {
+  const rows = [
+    { userId: 'a', nome: 'Ana', email: 'ana@x.com' },
+    { userId: 'b', nome: '  ', email: 'b@x.com' },
+    { userId: 'c', nome: 'Caio', email: 'caio@x.com', fotoUrl: 'https://x/c.png' },
+  ];
+  assert.deepEqual(membersOfTeam(rows), [
+    { nome: 'Ana', fotoUrl: null },
+    { nome: 'Caio', fotoUrl: 'https://x/c.png' },
+  ]);
+  assert.deepEqual(membersOfTeam([]), []);
+});
+
+const RECURSOS =[{ key: 'builder' }, { key: 'channels' }, { key: 'team' }];
 
 test('adicionar oferece somente as quatro paradas da barra da Blip', () => {
   assert.equal(acaoDeAdicionar('visualizar'), 'Salvar');
