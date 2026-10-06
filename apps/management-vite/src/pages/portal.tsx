@@ -7,6 +7,7 @@ import { SearchIcon, IconePortal, type NomeDeIconePortal } from '@pipe/ui/icones
 import Link from '../components/link';
 import { portalUseShell, type PortalShell } from '../lib/shell';
 import { useRead } from '../lib/query';
+import { isOnline } from '../lib/flow-status';
 import { APPLICATION, createPath, flowPath, tenantPath } from '../lib/application-paths';
 
 export const dynamic = 'force-dynamic';
@@ -389,7 +390,8 @@ const ETIQUETA = { roteador: 'Roteador', flow: 'Fluxo' } as const;
 function FlowCard({ flow }: { flow: Flow }) {
   const etq = flow.tipo === 'roteador' ? ETIQUETA.roteador : ETIQUETA.flow;
 
-  const naoPublicado = flow.estado !== 'publicado';
+  const naoPublicado = !isOnline(flow);
+  const motivo = flow.tipo === 'roteador' ? 'sem canal conectado' : 'ainda não publicado';
 
   return (
     <Link
@@ -398,7 +400,7 @@ function FlowCard({ flow }: { flow: Flow }) {
        * The card opens the contact's HOME, not the builder: in the source, `handleContactClick` goes to `/application/detail/{contato}/home`, and that's where Builder, Atendimento, Canais and the rest get chosen from. Going straight to the builder skipped the screen that brings everything together — and, for a router, it led to a builder it doesn't even use.
        */
       href={flowPath(flow.shortName)}
-      title={naoPublicado ? `${flow.nome} — ainda não publicado` : flow.nome}
+      title={naoPublicado ? `${flow.nome} — ${motivo}` : flow.nome}
     >
       {/*
  * With a photo, it fills the circle; without one, the product icon goes in — it's their `ng-if="!contact.imageUri"`. In neither case do the name's initials show up, which is what we used to have here.

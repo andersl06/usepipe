@@ -509,6 +509,11 @@ export async function carregarGradeDoPortal(
       tipo: flow.tipo,
       imagemUrl: flow.imageUrl,
       shortName: flow.shortName,
+      /** An active channel is linked (main channel or extra router channel): a router with one is not "unpublished". */
+      canalAtivo: sql<boolean>`(
+        exists (select 1 from canal c where c.id = fluxo.canal_id and c.ativo)
+        or exists (select 1 from roteador_canal rc join canal c on c.id = rc.canal_id where rc.roteador_id = fluxo.id and c.ativo)
+      )`,
     })
     .from(flow)
     .where(filter)

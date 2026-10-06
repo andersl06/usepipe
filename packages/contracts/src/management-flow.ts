@@ -256,6 +256,8 @@ export interface FlowOfPortal {
   imagemUrl: string | null;
   /** The URL key (D-52): `/application/detail/<shortName>`. */
   shortName: string;
+  /** An active channel is linked to it (main or extra router channel). */
+  canalAtivo: boolean;
 }
 
 /** `GET /v1/gestao/fluxos?busca=&pagina=&porPagina=` — a grade, paginada no banco. */
