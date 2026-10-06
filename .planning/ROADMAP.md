@@ -386,7 +386,7 @@ Plans:
 **Goal:** The owner's 13-point request round (UI bugs, Blip parity, audits) is delivered against real Blip evidence: each point has a findings entry, a test-covered fix or audit report, and one atomic commit; unproven Blip details are listed for owner re-test.
 **Requirements**: P01..P13 (owner points in 03.3-OWNER-REQUEST.md)
 **Depends on:** Phase 3
-**Plans:** 9/14 plans executed
+**Plans:** 10/14 plans executed
 
 Plans:
 - [x] 03.3-01-PLAN.md — findings ledger; P01 CSS collision guard; P12 monitoring agent-link regression test
@@ -398,7 +398,7 @@ Plans:
 - [x] 03.3-07-PLAN.md — P09 contact history 90 days + ticket headers (Desk report only)
 - [x] 03.3-08-PLAN.md — P10 channel isolation audit + fixes (webhook split, input expiration, templates channel)
 - [x] 03.3-09-PLAN.md — P11 builder vs declared rules audit + 03.1 closure evidence
-- [ ] 03.3-10-PLAN.md — P05 Growth cards audit/fixes + Active Messages vs WhatsApp rules
+- [x] 03.3-10-PLAN.md — P05 Growth cards audit/fixes + Active Messages vs WhatsApp rules
 - [ ] 03.3-11-PLAN.md — P06 Pipe Chat API (widget channel, public endpoints, delivery)
 - [ ] 03.3-12-PLAN.md — P06 Pipe Chat embed bundle + config page
 - [ ] 03.3-13-PLAN.md — P13 message-template page Blip parity
