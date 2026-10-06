@@ -137,3 +137,22 @@ test('destaca as variáveis do modelo sem tratar o texto como HTML', () => {
     { texto: '</b>', variavel: false },
   ]);
 });
+
+test('templatesQuery includes only the filters that are set', async () => {
+  const { templatesQuery } = await import('../src/lib/communication.ts');
+  assert.equal(
+    templatesQuery({ q: 'x', enabled: 'true', returnBlock: 'b1', page: 2, perPage: 25 }),
+    'pagina=2&porPagina=25&q=x&enabled=true&returnBlock=b1',
+  );
+  assert.equal(templatesQuery({ q: '', enabled: '', returnBlock: '', page: 1, perPage: 25 }), 'pagina=1&porPagina=25');
+});
+
+test('metaStatusTone colors approved, pending and rejected', async () => {
+  const { metaStatusTone } = await import('../src/lib/communication.ts');
+  assert.equal(metaStatusTone('APPROVED'), 'online');
+  assert.equal(metaStatusTone('aprovado'), 'online');
+  assert.equal(metaStatusTone('PENDING'), 'ochre');
+  assert.equal(metaStatusTone('rejeitado'), 'terracotta');
+  assert.equal(metaStatusTone('pausado'), 'neutral');
+  assert.equal(metaStatusTone('???'), 'neutral');
+});

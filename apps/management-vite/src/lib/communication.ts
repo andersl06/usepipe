@@ -161,3 +161,37 @@ export function trechosDoModelo(texto: string): { texto: string; variavel: boole
     .filter((t) => t !== '')
     .map((t) => ({ texto: t, variavel: /^\{\{\s*\w+\s*\}\}$/.test(t) }));
 }
+
+/** Query string of the message templates list: empty filters are left out. */
+export function templatesQuery(f: {
+  q?: string;
+  enabled?: string;
+  returnBlock?: string;
+  page: number;
+  perPage: number;
+}): string {
+  const p = new URLSearchParams({ pagina: String(f.page), porPagina: String(f.perPage) });
+  if (f.q) p.set('q', f.q);
+  if (f.enabled) p.set('enabled', f.enabled);
+  if (f.returnBlock) p.set('returnBlock', f.returnBlock);
+  return p.toString();
+}
+
+export type MetaStatusTone = 'online' | 'ochre' | 'terracotta' | 'neutral';
+
+/** Badge color of the Meta status: approved green, pending ochre, rejected terracotta; anything else neutral. */
+export function metaStatusTone(status: string): MetaStatusTone {
+  switch (status.toLowerCase()) {
+    case 'approved':
+    case 'aprovado':
+      return 'online';
+    case 'pending':
+    case 'pendente':
+      return 'ochre';
+    case 'rejected':
+    case 'rejeitado':
+      return 'terracotta';
+    default:
+      return 'neutral';
+  }
+}

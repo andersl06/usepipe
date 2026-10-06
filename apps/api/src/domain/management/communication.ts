@@ -146,6 +146,10 @@ export async function carregarModelos(
 export interface FiltroDeModelos {
   q?: string;
   status?: string;
+  /** 'true' | 'false': filters by the template's ativo flag. */
+  enabled?: string;
+  /** Stored return block code. */
+  returnBlock?: string;
   limit: number;
   offset: number;
 }
@@ -168,12 +172,22 @@ export async function carregarPaginaDeModelos(
   if (status && !(status in ROTULO_STATUS_META)) {
     throw PipeError.request('status_invalid', 'status não é um estado de modelo conhecido.');
   }
+  if (filtro.enabled !== undefined && filtro.enabled !== 'true' && filtro.enabled !== 'false') {
+    throw PipeError.request('enabled_invalid', 'enabled deve ser true ou false.');
+  }
   const termo = filtro.q?.trim().slice(0, 100);
+  const codigoRetorno = filtro.returnBlock?.trim().slice(0, 100);
   const onde = and(
+    filtro.enabled ? eq(templateMessage.ativo, filtro.enabled === 'true') : undefined,
+    codigoRetorno ? eq(block.codigo, codigoRetorno) : undefined,
     status ? eq(templateMessage.statusMeta, status) : undefined,
     termo ? ilike(templateMessage.nome, `%${literalDeBusca(termo)}%`) : undefined,
   );
-  const [soma] = await tx.select({ n: count() }).from(templateMessage).where(onde);
+  const [soma] = await tx
+    .select({ n: count() })
+    .from(templateMessage)
+    .leftJoin(block, eq(block.id, templateMessage.fluxoRetornoBlocoId))
+    .where(onde);
   const linhas = await tx
     .select({
       id: templateMessage.id,
@@ -200,6 +214,16 @@ export async function carregarPaginaDeModelos(
     modelos: linhas.map(({ variaveis, ...l }) => ({ ...l, variables: readVariables(variaveis) })),
     total: soma?.n ?? 0,
   };
+}
+
+/** Distinct (channel, stored return block code) pairs across the tenant's templates, for the return-flow filter. */
+export async function carregarRetornosEmUso(
+  tx: TransactionPipe,
+): Promise<{ canalId: string; codigoGravado: string }[]> {
+  return tx
+    .selectDistinct({ canalId: templateMessage.canalId, codigoGravado: block.codigo })
+    .from(templateMessage)
+    .innerJoin(block, eq(block.id, templateMessage.fluxoRetornoBlocoId));
 }
 
 export async function loadChannelOfFlow(

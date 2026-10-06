@@ -127,6 +127,8 @@ export class ManagementRegistrationsController {
     @Query('porPagina') porPaginaBruta?: string,
     @Query('q') q?: string,
     @Query('status') status?: string,
+    @Query('enabled') enabled?: string,
+    @Query('returnBlock') returnBlock?: string,
   ) {
     const sessao = sessionOf(requisicao);
     const { pagina, porPagina, offset } = lerPagina(paginaBruta, porPaginaBruta);
@@ -135,6 +137,8 @@ export class ManagementRegistrationsController {
       const { modelos, total } = await comunicacao.carregarPaginaDeModelos(tx, {
         q,
         status,
+        enabled,
+        returnBlock,
         limit: porPagina,
         offset,
       });
@@ -143,8 +147,18 @@ export class ManagementRegistrationsController {
         sessao.tenantId,
         modelos.map((m) => ({ canalId: m.channelId, codigoGravado: m.codigoGravado })),
       );
+      const emUso = await comunicacao.carregarRetornosEmUso(tx);
+      const resolvidos = await retornoDoModelo.resolverRetornos(tx, sessao.tenantId, emUso);
+      const porCodigo = new Map<string, string>();
+      for (const r of resolvidos) {
+        if (r.state === 'ok' && r.code) porCodigo.set(r.code, r.label ?? r.code);
+      }
+      const returnBlocks = [...porCodigo]
+        .map(([code, label]) => ({ code, label }))
+        .sort((x, y) => x.label.localeCompare(y.label, 'pt-BR'));
       return {
         modelos: modelos.map(({ codigoGravado: _codigo, ...m }, i) => ({ ...m, fluxoRetorno: retornos[i] })),
+        returnBlocks,
         total,
         pagina,
         porPagina,

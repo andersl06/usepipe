@@ -2,25 +2,25 @@ import { useEffect, useState, type ComponentProps } from 'react';
 import { BotaoDeIcone, Botao, Campo, Carregando, Etiqueta } from '@pipe/ui';
 import { useRead } from '../../lib/query';
 import type { ChannelWhatsapp, TemplateListed } from '../../lib/communication';
-import { ROTULO_STATUS_META, trechosDoModelo } from '../../lib/communication';
+import { ROTULO_STATUS_META, metaStatusTone, templatesQuery, trechosDoModelo } from '../../lib/communication';
 import { channelDeleteTemplate, channelSyncTemplates } from '../../lib/channels-gravar';
 import { Select } from '@pipe/ui/select';
 import { Modal, ConfirmModal } from '@pipe/ui/modal';
 import { Pagination, type PaginationState } from '@pipe/ui/pagination';
 import { Tabela } from '@pipe/ui';
 import { TemplateForm } from './communication-templates-formulario';
-import { AVISO_EM_BREVE } from './communication-respostas-formulario';
 import { CelulaFluxoDeRetorno, InterruptorDoModelo } from './communication-templates-retorno';
 
 interface RespostaDaLista {
   modelos: TemplateListed[];
   channels: ChannelWhatsapp[];
+  returnBlocks: { code: string; label: string }[];
   total: number;
   pagina: number;
   porPagina: number;
 }
 
-const OPTIONS_STATUS = Object.keys(ROTULO_STATUS_META);
+const TOM_DA_ETIQUETA = { online: 'sucesso', ochre: 'alerta', terracotta: 'erro', neutral: 'neutro' } as const;
 
 /** "Sincronizar com a Meta": um botão por canal, `POST .../modelos/sincronizar`. */
 function SyncBar({ channels }: { channels: ChannelWhatsapp[] }) {
@@ -82,13 +82,14 @@ function TextoDoModelo({ texto, className }: { texto: string; className: string 
 
 /**
  * Modelos de mensagens. A lista vem paginada do servidor (um bot chega a ~1.490 modelos), com busca
- * por nome e filtro de status no banco. O fluxo de retorno aponta para um bloco do Builder e o interruptor
- * liga ou desliga o uso do modelo no envio; o filtro por fluxo de retorno segue desabilitado.
+ * por nome e filtros de status (habilitado) e fluxo de retorno no banco. O fluxo de retorno aponta para um bloco do Builder e o interruptor
+ * liga ou desliga o uso do modelo no envio.
  */
 export function PageTemplates() {
   const [busca, setBusca] = useState('');
   const [q, setQ] = useState('');
-  const [status, setStatus] = useState('');
+  const [enabled, setEnabled] = useState('');
+  const [returnBlock, setReturnBlock] = useState('');
   const [pg, setPg] = useState({ page: 1, byPage: 25 });
   useEffect(() => {
     const t = setTimeout(() => {
@@ -98,9 +99,7 @@ export function PageTemplates() {
     return () => clearTimeout(t);
   }, [busca]);
 
-  const consulta = new URLSearchParams({ pagina: String(pg.page), porPagina: String(pg.byPage) });
-  if (q) consulta.set('q', q);
-  if (status) consulta.set('status', status);
+  const consulta = templatesQuery({ q, enabled, returnBlock, page: pg.page, perPage: pg.byPage });
   const read = useRead<RespostaDaLista>(`/v1/management/communication/templates?${consulta}`, {
     placeholderData: (anterior) => anterior,
   });
@@ -110,7 +109,7 @@ export function PageTemplates() {
   const [errorDeletion, setErrorDeletion] = useState<string | null>(null);
   if (read.isError) return <Etiqueta tom="erro">Não foi possível carregar os modelos de mensagem.</Etiqueta>;
   if (!read.data) return <Carregando />;
-  const { modelos, channels, total } = read.data;
+  const { modelos, channels, total, returnBlocks } = read.data;
 
   const estado: PaginationState = {
     page: pg.page,
@@ -153,7 +152,12 @@ export function PageTemplates() {
       rotulo: 'Fluxo de retorno',
       celula: (m) => <CelulaFluxoDeRetorno modelo={m} />,
     },
-    { key: 'status', rotulo: 'Status', celula: (m) => ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta },
+    { key: 'status', rotulo: 'Status', celula: (m) => (
+        <Etiqueta tom={TOM_DA_ETIQUETA[metaStatusTone(m.statusMeta)]}>
+          {ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta}
+        </Etiqueta>
+      ),
+    },
     { key: 'ativo', rotulo: 'Ativo', celula: (m) => <InterruptorDoModelo modelo={m} /> },
     {
       key: 'acoes',
@@ -162,7 +166,7 @@ export function PageTemplates() {
     },
   ];
 
-  const filtrando = Boolean(q || status);
+  const filtrando = Boolean(q || enabled || returnBlock);
 
   return (
     <>
@@ -176,23 +180,32 @@ export function PageTemplates() {
         <h3>Modelos de mensagens</h3>
         <div className="filtros-modelos" style={{ display: 'flex', gap: 'var(--p-e-2)', alignItems: 'center' }}>
           <span className="filtrar-rotulo">Filtrar por:</span>
-          <Select value="" disabled aria-label="Fluxo de retorno" title={AVISO_EM_BREVE} onChange={() => {}}>
+          <Select
+            value={returnBlock}
+            onChange={(e) => {
+              setReturnBlock(e.target.value);
+              setPg((p) => ({ ...p, page: 1 }));
+            }}
+            aria-label="Fluxo de retorno"
+          >
             <option value="">Fluxo de retorno</option>
+            {returnBlocks.map((b) => (
+              <option key={b.code} value={b.code}>
+                {b.label}
+              </option>
+            ))}
           </Select>
           <Select
-            value={status}
+            value={enabled}
             onChange={(e) => {
-              setStatus(e.target.value);
+              setEnabled(e.target.value);
               setPg((p) => ({ ...p, page: 1 }));
             }}
             aria-label="Status"
           >
             <option value="">Status</option>
-            {OPTIONS_STATUS.map((s) => (
-              <option key={s} value={s}>
-                {ROTULO_STATUS_META[s]}
-              </option>
-            ))}
+            <option value="true">Habilitado</option>
+            <option value="false">Desabilitado</option>
           </Select>
           <Campo
             type="search"
@@ -210,8 +223,8 @@ export function PageTemplates() {
           rowKey={(m) => m.id}
           empty={
             filtrando
-              ? 'Nenhum modelo de mensagem encontrado para esse filtro.'
-              : 'Ainda não foram cadastrados modelos de mensagem válidos para este chatbot! Crie novos modelos no formulário abaixo, ou sincronize com a Meta.'
+              ? 'Nenhum modelo encontrado para estes filtros.'
+              : 'Ainda não foram cadastrados modelos de mensagem válidos para este chatbot! Crie novos modelos em: Conteúdos > Modelo de mensagem'
           }
         />
         <Pagination layout="grade" state={estado} afastado />
