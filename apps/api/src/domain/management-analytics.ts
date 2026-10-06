@@ -25,12 +25,20 @@ import {
  * Read contact ANALYSIS (`/fluxo/:id/analise/**`) from the database. These queries moved from `apps/gestao/src/lib/analise.ts` and `analise-portal.ts` with query logic intact; the caller supplies a transaction with tenant fixed. Pure period, formatting, and type logic stays in `@pipe/core/analise`.
  */
 
+/** A router counts its own executions plus those of its service flows, as Blip aggregates the flows a router calls. */
+async function flowIdsOf(tx: TransactionPipe, flowId: string): Promise<string[]> {
+  const { rows } = await tx.execute<{ id: string }>(
+    sql`select servico_id as id from roteador_servico where roteador_id = ${flowId}`,
+  );
+  return [flowId, ...rows.map((r) => r.id)];
+}
+
 /**
  * A message belongs to a flow when an execution of it is tied to the message's conversation or to the message itself (a bot message with no conversation); one `exists` counts each message once.
  */
-function messageOfFlow(flowId: string) {
+function messageOfFlow(flowIds: string[]) {
   return sql`exists (select 1 from execucao_fluxo e join fluxo_versao v on v.id = e.fluxo_versao_id
-                      where v.fluxo_id = ${flowId} and (e.conversa_id = m.conversa_id or e.id = m.execucao_id))`;
+                      where v.fluxo_id in (${sql.join(flowIds.map((id) => sql`${id}::uuid`), sql`, `)}) and (e.conversa_id = m.conversa_id or e.id = m.execucao_id))`;
 }
 
 /** An interval of instants already in the account time zone; see `janelaDeDatas` in banco.ts. */
@@ -50,7 +58,7 @@ export async function windowOfDates(
 }
 
 /**
- * The contact Dashboard comes from the database. `api/src/dominio/fluxo.ts` writes an `execucao_fluxo` for each bot conversation, bot messages, and handoff (`enfileirada` with `dados.origem = 'fluxo'`). Contacts, messages, recurrence, retention, and handoff count conversations where this flow ran, including human attendance messages as the source Data Dictionary states. `excecao`, `blocosExcecao`, and `blocosTransbordo` stay empty: Pipe has no exception block, and `execucao_passo` does not mark the handoff block. Once it does, `group by bloco_id`. The router now routes contacts through services (`apps/api/src/dominio/roteador.ts`), but this Dashboard still does not aggregate service flows as the source does; its SQL filters one `fluxoId`. Source wording: "Inclui, também, mensagens trafegadas no Desk".
+ * The contact Dashboard comes from the database. `api/src/dominio/fluxo.ts` writes an `execucao_fluxo` for each bot conversation, bot messages, and handoff (`enfileirada` with `dados.origem = 'fluxo'`). Contacts, messages, recurrence, retention, and handoff count conversations where this flow ran, including human attendance messages as the source Data Dictionary states. `excecao`, `blocosExcecao`, and `blocosTransbordo` stay empty: Pipe has no exception block, and `execucao_passo` does not mark the handoff block. Once it does, `group by bloco_id`. A router aggregates its service flows (`roteador_servico`), as the source does. Source wording: "Inclui, também, mensagens trafegadas no Desk".
  */
 export async function carregarDashboard(
   tx: TransactionPipe,
@@ -60,10 +68,15 @@ export async function carregarDashboard(
 ): Promise<DashboardData | null> {
   const anterior = intervaloAnterior(intervalo);
   {
-    const { rows: contact } = await tx.execute<{ type: string; channel: string | null }>(
-      sql`select f.tipo as "type", k.tipo as "channel" from fluxo f left join canal k on k.id = f.canal_id where f.id = ${fluxoId}`,
+    const { rows: contact } = await tx.execute<{ type: string; tenantId: string }>(
+      sql`select f.tipo as "type", f.tenant_id as "tenantId" from fluxo f where f.id = ${fluxoId}`,
     );
     if (!contact[0]) return null;
+    const flowIds = contact[0].type === 'roteador' ? await flowIdsOf(tx, fluxoId) : [fluxoId];
+    const [firstChannelId] = await linkedChannelIdsOfFlow(tx, contact[0].tenantId, fluxoId);
+    const { rows: channelRows } = firstChannelId
+      ? await tx.execute<{ tipo: string }>(sql`select tipo from canal where id = ${firstChannelId}`)
+      : { rows: [] as { tipo: string }[] };
 
     const medir = async (i: Intervalo) => {
       /*
@@ -84,7 +97,7 @@ export async function carregarDashboard(
             left join conversa cv on cv.id = m.conversa_id
             left join execucao_fluxo ex on ex.id = m.execucao_id
            where m.direcao in ('entrada', 'saida')
-             and ${messageOfFlow(fluxoId)}
+             and ${messageOfFlow(flowIds)}
              and m.criada_em >= (${i.inicio}::date)::timestamp at time zone ${fuso}
              and m.criada_em < ((${i.fim}::date + 1)::timestamp) at time zone ${fuso}
         ), dias as (
@@ -110,7 +123,7 @@ export async function carregarDashboard(
                ))::int as transbordo
           from execucao_fluxo e
           join fluxo_versao v on v.id = e.fluxo_versao_id
-         where v.fluxo_id = ${fluxoId}
+         where v.fluxo_id in (${sql.join(flowIds.map((id) => sql`${id}::uuid`), sql`, `)})
            and e.iniciada_em >= (${i.inicio}::date)::timestamp at time zone ${fuso}
            and e.iniciada_em < ((${i.fim}::date + 1)::timestamp) at time zone ${fuso}
       `);
@@ -150,7 +163,7 @@ export async function carregarDashboard(
         left join execucao_fluxo ex on ex.id = m.execucao_id
         join contato c on c.id = coalesce(cv.contato_id, ex.contato_id)
        where m.direcao = 'entrada'
-         and ${messageOfFlow(fluxoId)}
+         and ${messageOfFlow(flowIds)}
          and m.criada_em >= (${intervalo.inicio}::date)::timestamp at time zone ${fuso}
          and m.criada_em < ((${intervalo.fim}::date + 1)::timestamp) at time zone ${fuso}
        group by c.id
@@ -159,7 +172,7 @@ export async function carregarDashboard(
        limit 10
     `);
 
-    const channel = contact[0].channel;
+    const channel = channelRows[0]?.tipo ?? null;
     return {
       router: contact[0].type === 'roteador',
       channel: channel ? (NAME_OF_CHANNEL[channel] ?? channel) : null,
@@ -211,6 +224,7 @@ export async function loadListOfContacts(
   tipo: 'interacao' | 'rejeicao',
 ): Promise<string[]> {
   {
+    const flowIds = await flowIdsOf(tx, flowId);
     const { rows } = await tx.execute<{ name: string }>(sql`
       select coalesce(c.nome, c.telefone_e164, c.id::text) as "name"
         from mensagem m
@@ -218,7 +232,7 @@ export async function loadListOfContacts(
         left join execucao_fluxo ex on ex.id = m.execucao_id
         join contato c on c.id = coalesce(cv.contato_id, ex.contato_id)
        where m.direcao in ('entrada', 'saida')
-         and ${messageOfFlow(flowId)}
+         and ${messageOfFlow(flowIds)}
          and m.criada_em >= (${intervalo.inicio}::date)::timestamp at time zone ${fuso}
          and m.criada_em < ((${intervalo.fim}::date + 1)::timestamp) at time zone ${fuso}
        group by c.id
@@ -255,6 +269,7 @@ export async function carregarVisaoGeral(
   period: InstantsWindow,
   fuso: string,
 ): Promise<VisaoGeral> {
+  const flowIds = await flowIdsOf(tx, fluxoId);
   const base = sql`
     with msgs as (
       select m.direcao, m.dentro_da_janela, coalesce(c.contato_id, ex.contato_id) as contato_id, i.canal_id,
@@ -265,7 +280,7 @@ export async function carregarVisaoGeral(
         join inbox i on i.id = coalesce(c.inbox_id, ex.inbox_id)
        where m.criada_em >= ${period.inicio} and m.criada_em < ${period.fim}
          and m.direcao <> 'interna'
-         and ${messageOfFlow(fluxoId)}
+         and ${messageOfFlow(flowIds)}
     )`;
 
   {

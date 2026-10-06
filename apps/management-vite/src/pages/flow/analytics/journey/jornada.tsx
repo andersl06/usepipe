@@ -4,6 +4,7 @@ import { Select } from '@pipe/ui/select';
 import type { ArestaDaJornada } from '@pipe/core/analytics';
 import { PageHeader, Card, PeriodSelector } from '../pecas';
 import { desenharSankey } from './sankey';
+import { PERIOD_LIMIT_NOTICE } from '../overview/limite';
 
 /**
  * `firstNodeFilterOptions`/the "Começar a partir de" filter: trims the diagram to the subgraph reachable from the chosen starting node — no new request, it's all client-side, over the edges already received from the server.
@@ -105,6 +106,7 @@ export function ContactsJourney({
           </div>
           <div className="jr-period">
             <PeriodSelector de={de} ate={ate} min={min} max={max} aoAplicar={aoAplicarPeriodo} />
+            <p className="an-t12" style={{ color: 'var(--ink-2)' }}>{PERIOD_LIMIT_NOTICE}</p>
           </div>
         </div>
 

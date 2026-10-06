@@ -81,7 +81,7 @@ async function period(
 /** Decisão do dono: o intervalo personalizado do Histórico tem no máximo 90 dias (inclusive). */
 export const MAX_DIAS_PERIODO = 90;
 
-function validarIntervalo(de: string, ate: string): void {
+export function validarIntervalo(de: string, ate: string): void {
   const dias = (Date.parse(`${ate}T00:00:00Z`) - Date.parse(`${de}T00:00:00Z`)) / 86_400_000 + 1;
   if (Number.isNaN(dias) || dias < 1) throw PipeError.request('periodo_invalido', 'A data final não pode ser anterior à inicial.');
   if (dias > MAX_DIAS_PERIODO) {

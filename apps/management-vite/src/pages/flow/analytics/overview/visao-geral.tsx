@@ -1,6 +1,7 @@
 import { IconePortal } from '@pipe/ui/icones-portal';
 import type { DiaDaVisaoGeral, VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analytics';
 import { PageHeader, Card, PeriodSelector } from '../pecas';
+import { PERIOD_LIMIT_NOTICE, minStartOfPeriod } from './limite';
 
 /**
  * Overview — the `generalDashboard` component from the `analyticsComponents` module (template 7780, controller `ri`), with the `counterChildCard` (14085) and the `analyticsChart` (1920). The context flags that affect this page, all enabled: `analytics-messages- general-info` (the title's help icon), `active-messages-per-domain-table` (the "Mensagens ativas por canal" block), and `analytics-general-dashboard-requests-for-user-quantity-enabled` (the user counters). `general-dashboard-initial-period-one-day` is disabled: the period opens at seven days.
@@ -59,7 +60,8 @@ export function VisaoGeral({
       <div className="fx-column vg-panel" id="general-dashboard">
         <div className="vg-filters">
           <div className="vg-filter-period">
-            <PeriodSelector de={de} ate={ate} aoAplicar={aoAplicarPeriodo} />
+            <PeriodSelector de={de} ate={ate} min={minStartOfPeriod(ate)} aoAplicar={aoAplicarPeriodo} />
+            <p className="an-t12" style={{ color: 'var(--ink-2)' }}>{PERIOD_LIMIT_NOTICE}</p>
           </div>
         </div>
 

@@ -17,6 +17,7 @@ import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import { lerCursor, lerLimite, type Page } from '../pagination.js';
+import { validarIntervalo } from './management-operations.js';
 import { loadContact, fusoDoTenant } from '../domain/management-flow.js';
 import {
   carregarDashboard,
@@ -173,6 +174,7 @@ export class ManagementAnalyticsController {
       const fuso = await fusoDoTenant(tx);
       const hoje = hojeNoFuso(fuso);
       const { de, ate } = periodOfUrl(dePedido, atePedido, somarDias(hoje, -7), hoje);
+      validarIntervalo(de, ate);
       const dados = await carregarVisaoGeral(tx, id, await windowOfDates(tx, fuso, de, ate), fuso);
       return { dados, de, ate };
     });
@@ -194,6 +196,7 @@ export class ManagementAnalyticsController {
       const fuso = await fusoDoTenant(tx);
       const hoje = hojeNoFuso(fuso);
       const { de, ate } = periodOfUrl(dePedido, atePedido, somarDias(hoje, -1), hoje);
+      validarIntervalo(de, ate);
       const arestas = await carregarJornada(tx, id, await windowOfDates(tx, fuso, de, ate));
       return {
         arestas,

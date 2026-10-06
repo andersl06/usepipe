@@ -311,3 +311,61 @@ describe('List message logs newest first', () => {
     expect(r.status).toBe(404);
   });
 });
+
+describe('Analytics period limits and router aggregation', () => {
+  const dias = (n: number) => iso(new Date(HOJE.getTime() - n * 24 * 60 * 60 * 1000));
+
+  it.each(['view-overview', 'journey'])('Reject a %s range longer than 90 days', async (rota) => {
+    const r = await fetch(
+      url(`/v1/management/flows/${flowId}/analytics/${rota}?from=${dias(90)}&to=${DIA_1}`),
+      { headers: cabecalho(cookie) },
+    );
+    expect(r.status).toBe(400);
+    expect(JSON.stringify(await r.json())).toContain('periodo_longo_demais');
+  });
+
+  it.each(['view-overview', 'journey'])('Accept a %s range of exactly 90 days', async (rota) => {
+    const r = await fetch(
+      url(`/v1/management/flows/${flowId}/analytics/${rota}?from=${dias(89)}&to=${DIA_1}`),
+      { headers: cabecalho(cookie) },
+    );
+    expect(r.status).toBe(200);
+  });
+
+  it('Count the service flows and label the channel of a router from its linked channels', async () => {
+    const suffix = randomUUID().slice(0, 8);
+    const router = await cenario.dono.execute<{ id: string }>(sql`
+      insert into fluxo (tenant_id, nome, tipo, estado, short_name)
+      values (${cenario.tenantId}, ${`router ${suffix}`}, 'roteador', 'publicado', ${`router-${suffix}`})
+      returning id
+    `);
+    const routerId = router.rows[0]!.id;
+    const channel = await cenario.dono.execute<{ id: string }>(sql`
+      insert into canal (tenant_id, tipo, nome, config, numero_id)
+      values (${cenario.tenantId}, 'messenger', ${`Messenger ${suffix}`},
+        ${JSON.stringify({ tokenAcesso: `page-${suffix}` })}::jsonb, ${`page-${suffix}`})
+      returning id
+    `);
+    await cenario.dono.execute(sql`
+      insert into roteador_canal (tenant_id, roteador_id, canal_id)
+      values (${cenario.tenantId}, ${routerId}, ${channel.rows[0]!.id})
+    `);
+    const query = `periodo=custom&from=${DIA_1}&to=${DIA_1}`;
+    const before = await fetch(url(`/v1/management/flows/${routerId}/analytics/dashboard?${query}`), {
+      headers: cabecalho(cookie),
+    });
+    type Body = { data: { channel: string | null; messages: { recebidas: { atual: number } } } };
+    expect(((await before.json()) as Body).data.messages.recebidas.atual).toBe(0);
+
+    await cenario.dono.execute(sql`
+      insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal)
+      values (${cenario.tenantId}, ${routerId}, ${flowId}, ${`servico-${suffix}`}, true)
+    `);
+    const after = await fetch(url(`/v1/management/flows/${routerId}/analytics/dashboard?${query}`), {
+      headers: cabecalho(cookie),
+    });
+    const corpo = (await after.json()) as Body;
+    expect(corpo.data.messages.recebidas.atual).toBe(2);
+    expect(corpo.data.channel).toBe('messenger');
+  });
+});

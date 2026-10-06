@@ -6,6 +6,7 @@ import {
   analyticsTabs,
   showsManager,
 } from '../src/pages/flow/analytics/abas.ts';
+import { PERIOD_LIMIT_NOTICE, minStartOfPeriod } from '../src/pages/flow/analytics/overview/limite.ts';
 
 /**
  * The Analysis tab row (`/fluxo/{id}/analise`).
@@ -66,4 +67,9 @@ test('cada flag desliga só a sua aba', () => {
     'Gerenciador de Relatórios',
   ]);
   assert.ok(visiveis({ ...FLAGS_DA_CAPTURA, goodData: true }).includes('GoodData'));
+});
+
+test('the period limit helper allows exactly 90 days ending on the given day', () => {
+  assert.equal(minStartOfPeriod('2026-10-05'), '2026-07-08');
+  assert.match(PERIOD_LIMIT_NOTICE, /90 dias/);
 });
