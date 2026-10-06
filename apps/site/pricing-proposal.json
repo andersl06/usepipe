@@ -1,0 +1,48 @@
+{
+  "status": "proposal-needs-owner-approval",
+  "currency": "BRL",
+  "date": "2026-10-06",
+  "source": ".planning/phases/03.4-inventario-em-breve-e-nao-disponivel/PRICING-PROPOSAL.md",
+  "metaFeesIncluded": false,
+  "plans": [
+    {
+      "name": "Essencial",
+      "monthlyBRL": 199,
+      "annualMonthlyBRL": 159,
+      "attendants": 3,
+      "channels": ["whatsapp", "pipe-chat", "email"],
+      "conversations": "ilimitadas",
+      "aiQuota": "900 conversas com IA por mes (300 por atendente)",
+      "historyDays": 90,
+      "support": "e-mail, 1 dia util",
+      "extraAttendantBRL": 59,
+      "highlighted": false
+    },
+    {
+      "name": "Operacao",
+      "monthlyBRL": 599,
+      "annualMonthlyBRL": 479,
+      "attendants": 5,
+      "channels": ["whatsapp", "pipe-chat", "email", "instagram", "messenger"],
+      "conversations": "ilimitadas",
+      "aiQuota": "5000 conversas com IA por mes (1000 por atendente)",
+      "historyDays": 365,
+      "support": "e-mail e WhatsApp, 4h",
+      "extraAttendantBRL": 99,
+      "highlighted": true
+    },
+    {
+      "name": "Escala",
+      "monthlyBRL": 2490,
+      "annualMonthlyBRL": 1992,
+      "attendants": 20,
+      "channels": ["whatsapp", "pipe-chat", "email", "instagram", "messenger"],
+      "conversations": "ilimitadas",
+      "aiQuota": "negociada em contrato",
+      "historyDays": 730,
+      "support": "canal direto, 1h",
+      "extraAttendantBRL": 89,
+      "highlighted": false
+    }
+  ]
+}
