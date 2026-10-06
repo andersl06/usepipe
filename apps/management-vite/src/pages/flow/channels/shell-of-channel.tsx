@@ -33,12 +33,16 @@ export interface ChannelTab {
 
 export function ChannelShell({
   tipo,
+  raizPropria,
   titulo,
   abas,
   conectado,
   children,
 }: {
-  tipo: TypeOfChannelOfBot;
+  /** The three channels of the bot; their page URL comes from `channelRoute`. */
+  tipo?: TypeOfChannelOfBot;
+  /** For a channel outside `TypeOfChannelOfBot` (Pipe Chat): the page's own URL, relative to the bot, e.g. `pipe-chat`. */
+  raizPropria?: string;
   titulo: string;
   abas: readonly ChannelTab[];
   conectado: boolean;
@@ -48,7 +52,7 @@ export function ChannelShell({
   const base = contactPath(contact);
   const caminho = useLocation().pathname.replace(/\/$/, '');
   /** This page's URL; whatever comes after it is the tab. */
-  const raiz = channelRoute(base, tipo);
+  const raiz = raizPropria ? `${base}/channels/${raizPropria}` : channelRoute(base, tipo!);
 
   return (
     <ShellModule ativo="Canais">

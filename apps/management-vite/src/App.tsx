@@ -112,6 +112,7 @@ const contactRoutes = (
     <Route path="channels/instagram" element={<PageChannelInstagram />} />
     <Route path="channels/messenger" element={<PageChannelMessenger />} />
     <Route path="channels/pipe-chat" element={<PagePipeChat />} />
+    <Route path="channels/pipe-chat/configuracoes" element={<PagePipeChat />} />
     {/* `services` → `templates/pipeline` (D-54; route-inventory.md §2, "serviços do roteador"). */}
     <Route path="templates/pipeline" element={<ServicesPage />} />
 
