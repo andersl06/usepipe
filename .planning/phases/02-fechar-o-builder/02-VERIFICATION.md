@@ -63,3 +63,12 @@ Sem `TBD/FIXME/XXX` bloqueantes. Aviso: `builder.tsx:600` botão "Conversa — e
 - Nenhuma lacuna bloqueante. Fase pode seguir; itens humanos acima ficam como pendência do dono.
 
 _Verifier: Claude (gsd-verifier)_
+
+## Aprovação do dono, 2026-10-06 (linhas NEEDS VALIDATION)
+
+O dono aprovou **todas** as linhas `NEEDS VALIDATION` de `ref/VERIFICACAO-VISUAL.md` (rodada F-1..F-6 e anteriores), como estão no Pipe: diferenças de medida, cor e texto contra a Blip ficam aceitas. Isso inclui as duas linhas que dependiam de decisão do dono: a mistura Nunito Sans / IBM Plex Sans no Builder e a etiqueta "Padrão" no card de fila (mantidas como estão). As linhas que dependem de captura (C-38, C-39, C-40, C-41, C-44, C-46) ficam aceitas sem a captura.
+
+Continuam em aberto, sem resposta do dono:
+- C-42: o export real do fluxo AUVP Capital foi enviado (`auvpcapitaldev1 (7).json`, 174 blocos, 261 saídas de condição). `arestasDe()` desenha 245 setas (14 duplicadas, 1 destino inexistente e 1 saída de erro de encaminhamento ficam de fora). Os `$defaultOutput` (174 blocos, 168 com destino existente) não são desenhados, por regra documentada (`PAINEL-Saidas.md:53`). Falta comparar com o print do canvas da Blip; sem isso SC5 segue `unverifiable_runtime`.
+- "Nomear versão" (02-32, exige migração de `fluxo_versao`): fazer, adiar ou descartar.
+- Marca "Não disponível no Pipe" na biblioteca de variáveis: manter, esconder ou trocar o texto.

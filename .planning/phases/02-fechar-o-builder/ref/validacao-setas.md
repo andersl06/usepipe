@@ -34,3 +34,19 @@ Sem um export real para rodar contra `arestasDe()`, não há caso mínimo a regi
 
 - **Comportamento de `arestasDe()` (D-29.2/29.4/29.5):** caracterizado e sem divergência encontrada — herdado de 02-06, confirmado por este plano ao não achar nenhum export real que o contradissesse.
 - **Validação com fluxo real do AUVP Capital (D-29.3):** **bloqueada por captura pendente (C-42)** — não fechada nesta wave. Quando o dono fornecer o export `{flow, globalActions}` do fluxo AUVP Capital e o print do canvas da referência, repetir este procedimento (rodar `lerDesenho`/`arestasDe` sobre o export e comparar linha a linha com o print) para fechar D-29.3 e, com isso, a validação completa de BUILDER-05 com evidência de fluxo real.
+
+## Resultado com o export real (2026-10-06)
+
+Export recebido do dono: `auvpcapitaldev1 (7).json` (formato `{flow, globalActions}`, 174 blocos).
+
+| Medida | Valor |
+|---|---|
+| Blocos | 174 |
+| Saídas de condição (`$conditionOutputs`) | 261 |
+| Setas desenhadas por `arestasDe()` | 245 |
+| Duplicadas removidas (mesmo bloco, mesmo destino) | 14 |
+| Destino inexistente no fluxo | 1 |
+| Saída de erro de encaminhamento (`$isDeskDefaultOutput`, não desenhada) | 1 |
+| Blocos com `$defaultOutput` (não desenhado por regra) | 174, dos quais 168 com destino existente e 15 que também são uma condição |
+
+Leitura: a função roda num fluxo real sem divergência com a regra documentada em `inventario-paineis-e-setas.md`. Veredito: **NEEDS VALIDATION** até o dono comparar a contagem com o canvas da Blip (dois ou três blocos bastam). O JSON de origem fica fora do repositório (está em Downloads do dono).
