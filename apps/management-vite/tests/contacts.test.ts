@@ -85,9 +85,9 @@ describe('contacts: ticket header', () => {
       closed: null,
     });
   });
-  it('maps closed states to Atendido and formats the closed stamp', () => {
+  it('maps closed states to the shared status label and formats the closed stamp', () => {
     const header = ticketHeader({ numero: 7, estado: 'ClosedClient', criadaEm: iso, encerradaEm: iso });
-    assert.equal(header.status, 'Atendido');
+    assert.equal(header.status, 'Encerrado pelo cliente');
     assert.equal(header.closed, messageStamp(new Date(iso)));
   });
   it('keeps an unknown state as is', () => {
