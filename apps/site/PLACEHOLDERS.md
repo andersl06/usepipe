@@ -36,6 +36,10 @@ Definido pelo dono: R$ 0,30 por conversa de IA acima da cota do plano. Texto sob
 
 Formulário `#contato`: não envia nada. Ao enviar, mostra "Este formulário ainda está sendo conectado" (ver `assets/landing.js`). Nenhum telefone ou e-mail foi inventado. Os botões "Teste grátis por 7 dias" e "Falar com um especialista" levam para `#contato` e pré-selecionam o assunto; o widget Pipe Chat tem o seu próprio botão "Falar com um especialista".
 
-## Demonstrações do Desk e da Gestão (hero)
+## Capturas do app no hero e em "Todos os canais"
 
-São maquetes em HTML/CSS (não imagens), com dados inventados (Marina Alves, Loja Girassol etc.), `aria-hidden` e `pointer-events:none`. Refletem o visual do app, mas não são capturas reais. Quando houver dados de demonstração semeados no app, podem ser trocadas por capturas webp de até 250 KB.
+`assets/images/app-desk.webp` e `app-builder.webp` são capturas reais do Desk e do Builder rodando no ambiente local, com dados de demonstração inventados (empresa "Loja Girassol", clientes Marina, Paulo, Bianca etc., fluxo de 14 blocos). Aparecem com `aria-hidden` e `pointer-events:none`. Refazer as capturas quando a interface mudar de forma visível. O Desk mostra um ID de contato (UUID) no painel direito; é só um identificador da base local de demonstração.
+
+## Imagens geradas pelo dono (já no repositório)
+
+Arquivos otimizados em `assets/images/`: `hero-fundo`, `cena-dono-pequeno-negocio`, `cena-atendente-suporte`, `cena-loja`, `cena-clinica`, `depoimento-helena`, `depoimento-rafael`, `depoimento-camila`, `omnichannel-conceito`, `cta-fundo` (todas `.webp`). Os ícones de canal estão em `assets/icons/` (WhatsApp e Instagram vêm do pacote de ícones do portal; Messenger, e-mail e Pipe Chat desenhados no mesmo padrão).

@@ -209,7 +209,7 @@
   <section class="lp-hero" aria-labelledby="hero-titulo">
     <!-- HERO BACKGROUND IMAGE (optional): save as /assets/images/hero-fundo.webp, see IMAGE-PROMPTS.md -->
     <div class="ph ph--bg" aria-hidden="true">
-      <img src="/assets/images/hero-fundo.webp" alt="" width="1920" height="1080" fetchpriority="low" onerror="this.remove()" style="opacity:.28;mix-blend-mode:luminosity">
+      <img src="/assets/images/hero-fundo.webp" alt="" width="1920" height="1080" decoding="async" onerror="this.remove()">
     </div>
     <div class="wrap lp-hero__grid">
       <div>
@@ -218,7 +218,7 @@
           Atendimento omnichannel, feito no Brasil
         </span>
 
-        <h1 id="hero-titulo">Todos os seus canais de atendimento em <em>uma só tela.</em></h1>
+        <h1 id="hero-titulo">Atenda pelo <span class="gira" data-gira><span class="gira__medida" aria-hidden="true">chat do site</span><b class="is-on" aria-hidden="true">WhatsApp</b><b aria-hidden="true">Instagram</b><b aria-hidden="true">Messenger</b><b aria-hidden="true">chat do site</b><b aria-hidden="true">e-mail</b><span class="sr">WhatsApp, Instagram, Messenger, chat do site ou e-mail</span></span> e tenha tudo em uma só tela.</h1>
 
         <p class="lp-hero__sub">
           WhatsApp, Instagram, Messenger, chat do site e e-mail chegam no mesmo lugar.
@@ -237,61 +237,16 @@
         </ul>
       </div>
 
-      <!-- Visual demonstration only: not clickable, hidden from assistive tech. -->
+      <!-- Visual demonstration only: real screenshots of the app (demo data), not clickable, hidden from assistive tech. -->
       <div class="stage" aria-hidden="true">
         <div class="stage__desk dev">
           <div class="dev__bar"><i></i><i></i><i></i><span>desk.pipe.com.br</span></div>
-          <div class="mk mk--desk">
-            <div class="mk__body">
-              <div class="dk-rail"><i class="dk-logo"></i><i></i><i></i><i></i><i></i></div>
-              <div class="dk-list">
-                <h4>Atendimentos</h4>
-                <div class="dk-search">Busque pelo nome…</div>
-                <div class="dk-tabs"><b>Todos</b><b>Meus</b><b>Fila</b></div>
-                <div class="dk-item dk-item--on"><span class="dk-av">MA</span><div><strong>Marina Alves</strong><small>Vocês entregam hoje ainda?</small><span class="ch ch--wa">WhatsApp</span></div><time>2 min</time></div>
-                <div class="dk-item"><span class="dk-av">PR</span><div><strong>Paulo Ribeiro</strong><small>Tem na cor verde?</small><span class="ch ch--ig">Instagram</span></div><time>5 min</time></div>
-                <div class="dk-item"><span class="dk-av">BT</span><div><strong>Bianca Torres</strong><small>Preciso trocar um pedido</small><span class="ch ch--wb">Pipe Chat</span></div><time>8 min</time></div>
-                <div class="dk-item"><span class="dk-av">DF</span><div><strong>Diego Fontes</strong><small>Segunda via do boleto</small><span class="ch ch--em">E-mail</span></div><time>14 min</time></div>
-                <div class="dk-item"><span class="dk-av">LM</span><div><strong>Lúcia Menezes</strong><small>Obrigada pela ajuda!</small><span class="ch ch--ms">Messenger</span></div><time>21 min</time></div>
-              </div>
-              <div class="dk-chat">
-                <div class="dk-chat__head"><span class="dk-av">MA</span><div><strong>Marina Alves</strong><br><span class="ch ch--wa">WhatsApp</span></div></div>
-                <div class="dk-chat__msgs">
-                  <div class="bub">Oi! Vocês entregam hoje ainda?<small>14:02</small></div>
-                  <div class="bub bub--me">Oi, Marina! Entregamos sim, até as 18h. Para qual bairro seria?<small>14:03</small></div>
-                  <div class="bub">Jardim das Flores<small>14:03</small></div>
-                  <div class="bub bub--me">Perfeito, chega hoje à tarde. Posso finalizar o seu pedido?<small>14:04</small></div>
-                </div>
-                <div class="dk-chat__box"><span>Escreva uma mensagem…</span><b>Enviar</b></div>
-              </div>
-              <div class="dk-side">
-                <div class="dk-card"><h5>Atendimento</h5><p><b>Fila:</b> Vendas</p><p><b>Atendente:</b> Você</p><p><b>Espera:</b> 00:48</p></div>
-                <div class="dk-card"><h5>Etiquetas</h5><span class="dk-tag">Pedido</span><span class="dk-tag">Entrega</span><span class="dk-tag dk-tag--t">Urgente</span></div>
-                <div class="dk-card"><h5>Histórico</h5><p>3 conversas anteriores em 2 canais</p></div>
-              </div>
-            </div>
-          </div>
+          <img src="/assets/images/app-desk.webp" alt="" width="1440" height="900" fetchpriority="high" decoding="async">
         </div>
-
         <div class="stage__gestao dev">
           <div class="dev__bar"><i></i><i></i><i></i><span>gestao.pipe.com.br</span></div>
-          <div class="mk mk--gestao">
-            <div class="mk__body">
-              <div class="gs-top"><b><i></i>Loja Girassol</b><span>Início</span></div>
-              <div class="gs-head"><h4>Espaço de trabalho de Loja Girassol</h4><div><span>Criar roteador</span><span>Criar fluxo</span></div></div>
-              <div class="gs-body">
-                <h5>Fluxos e roteadores</h5>
-                <div class="gs-grid">
-                  <div class="gs-card"><i></i><b>Boas-vindas</b><em>Fluxo</em></div>
-                  <div class="gs-card"><i></i><b>Triagem Instagram</b><em>Fluxo</em></div>
-                  <div class="gs-card gs-card--off"><i></i><b>Fila de suporte</b><em>Roteador</em></div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <img src="/assets/images/app-builder.webp" alt="" width="1440" height="700" decoding="async">
         </div>
-
-        <div class="stage__badge"><i><svg aria-hidden="true"><use href="#i-bolt"></use></svg></i><div><b>Nova mensagem</b>Instagram, agora</div></div>
       </div>
     </div>
   </section>
@@ -299,50 +254,40 @@
   <!-- ===================================================== CANAIS -->
   <section class="sec" id="canais" aria-labelledby="canais-titulo">
     <div class="wrap">
-      <div class="hub-wrap">
-        <div>
-          <p class="label">Omnichannel</p>
-          <h2 class="lp-h2" id="canais-titulo">Todos os seus canais em um só lugar</h2>
-          <p class="lp-lead">
-            O cliente escolhe por onde falar. Sua equipe não precisa abrir cinco aplicativos:
-            a conversa chega na mesma mesa de atendimento, com o histórico junto.
-          </p>
-          <ul class="checks">
-            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Uma fila só.</b> Quem atende vê a conversa do WhatsApp, do Instagram e do e-mail na mesma lista.</span></li>
-            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Histórico que acompanha o cliente.</b> Transferiu a conversa? Etiquetas e notas internas vão junto.</span></li>
-            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>A equipe inteira no mesmo ambiente.</b> Cada pessoa com o seu acesso, todo mundo vendo a mesma realidade.</span></li>
-          </ul>
-        </div>
+      <div class="head head--center">
+        <p class="label">Omnichannel</p>
+        <h2 id="canais-titulo">Todos os canais, uma única caixa de entrada</h2>
+        <p>Seus clientes falam com você pelo canal que preferem. No Pipe, todas essas conversas chegam na mesma tela e a sua equipe responde de um lugar só.</p>
+      </div>
 
-        <!-- Hub: neutral CSS diagram. Optional concept illustration sits behind it. -->
-        <div class="hub" role="img" aria-label="Diagrama: WhatsApp, Instagram, Messenger, Pipe Chat e e-mail convergem para o Pipe.">
-          <div class="hub__bg" aria-hidden="true">
-            <div class="ph">
-              <!-- OPTIONAL IMAGE: /assets/images/omnichannel-conceito.webp (see IMAGE-PROMPTS.md) -->
-              <img src="/assets/images/omnichannel-conceito.webp" alt="" width="900" height="900" loading="lazy" onerror="this.remove()">
-            </div>
-          </div>
-          <svg class="hub__lines" viewBox="0 0 100 100" aria-hidden="true">
-            <line x1="50" y1="50" x2="50" y2="14"/><line x1="50" y1="50" x2="84" y2="39"/>
-            <line x1="50" y1="50" x2="71" y2="79"/><line x1="50" y1="50" x2="29" y2="79"/>
-            <line x1="50" y1="50" x2="16" y2="39"/>
-          </svg>
-          <div class="hub__core"><img src="/assets/pipe-symbol-mono.svg" alt="" width="64" height="64"></div>
-          <div class="hub__node" style="left:50%;top:14%"><i><svg aria-hidden="true"><use href="#i-wa"></use></svg></i><span>WhatsApp</span></div>
-          <div class="hub__node" style="left:84%;top:39%"><i><svg aria-hidden="true"><use href="#i-ig"></use></svg></i><span>Instagram</span></div>
-          <div class="hub__node" style="left:71%;top:79%"><i><svg aria-hidden="true"><use href="#i-ms"></use></svg></i><span>Messenger</span></div>
-          <div class="hub__node" style="left:29%;top:79%"><i><svg aria-hidden="true"><use href="#i-web"></use></svg></i><span>Pipe Chat</span></div>
-          <div class="hub__node" style="left:16%;top:39%"><i><svg aria-hidden="true"><use href="#i-mail"></use></svg></i><span>E-mail</span></div>
+      <ul class="logos" aria-label="Canais conectados ao Pipe">
+        <li><img src="/assets/icons/whatsapp.svg" width="52" height="52" alt="" loading="lazy">WhatsApp</li>
+        <li><img src="/assets/icons/instagram.svg" width="52" height="52" alt="" loading="lazy">Instagram</li>
+        <li><img src="/assets/icons/messenger.svg" width="52" height="52" alt="" loading="lazy">Messenger</li>
+        <li><img src="/assets/icons/pipe-chat.svg" width="52" height="52" alt="" loading="lazy">Pipe Chat</li>
+        <li><img src="/assets/icons/email.svg" width="52" height="52" alt="" loading="lazy">E-mail</li>
+      </ul>
+
+      <div class="inbox-flow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+
+      <div class="inbox-visual" aria-hidden="true">
+        <div class="dev">
+          <div class="dev__bar"><i></i><i></i><i></i><span>desk.pipe.com.br</span></div>
+          <img src="/assets/images/app-desk.webp" alt="" width="1440" height="900" loading="lazy" decoding="async">
         </div>
       </div>
 
-      <ul class="chan">
-        <li><svg aria-hidden="true"><use href="#i-wa"></use></svg><b>WhatsApp</b><span>Pela API oficial, com vários atendentes no mesmo número.</span></li>
-        <li><svg aria-hidden="true"><use href="#i-ig"></use></svg><b>Instagram</b><span>Mensagens diretas junto das outras conversas.</span></li>
-        <li><svg aria-hidden="true"><use href="#i-ms"></use></svg><b>Messenger</b><span>O público da sua página atendido na mesma tela.</span></li>
-        <li><svg aria-hidden="true"><use href="#i-web"></use></svg><b>Pipe Chat</b><span>Chat para o seu site, com a sua cara.</span></li>
-        <li><svg aria-hidden="true"><use href="#i-mail"></use></svg><b>E-mail</b><span>A caixa de entrada vira atendimento com histórico.</span></li>
-      </ul>
+      <div class="benefits">
+        <div class="ph" aria-hidden="true"><span class="ph__glyph"><svg><use href="#i-image"></use></svg></span>
+          <!-- OPTIONAL IMAGE: /assets/images/omnichannel-conceito.webp (see IMAGE-PROMPTS.md) -->
+          <img src="/assets/images/omnichannel-conceito.webp" alt="" width="900" height="900" loading="lazy" onerror="this.remove()">
+        </div>
+        <ul>
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><div><b>Um histórico por cliente</b><span>A conversa do WhatsApp, do Instagram e do e-mail fica junta, no mesmo lugar.</span></div></li>
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><div><b>A equipe responde de um lugar só</b><span>Cada pessoa com o seu acesso, todo mundo vendo a mesma fila.</span></div></li>
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><div><b>Nada se perde entre aplicativos</b><span>Chega mensagem em qualquer canal e ela aparece na caixa de entrada da equipe.</span></div></li>
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -378,7 +323,7 @@
         </article>
       </div>
 
-      <ol class="steps">
+      <ol class="how">
         <li><b>Conecte os canais</b><span>Ligue WhatsApp, Instagram, Messenger, e-mail e o chat do site.</span></li>
         <li><b>Monte o primeiro fluxo</b><span>Boas-vindas, triagem e encaminhamento por fila, no Builder.</span></li>
         <li><b>Atenda e acompanhe</b><span>A equipe responde na mesa e o líder acompanha pelo painel.</span></li>
@@ -432,34 +377,33 @@
 
       <div class="depo-grid">
         <!-- Usage scenario (fictional persona, no customer claim). Replace with a real, authorized case when one exists. -->
-        <figure class="depo" data-scenario="confeitaria">
-          <div class="depo__metric"><b>2 canais</b><span>WhatsApp e Instagram em uma tela</span></div>
+        <figure class="story" data-scenario="confeitaria">
+          <div class="story__metric"><b>2 canais</b><span>WhatsApp e Instagram em uma tela</span></div>
           <blockquote>Helena tem uma confeitaria e recebe encomendas por WhatsApp e Instagram. Com o Pipe, as duas conversas chegam na mesma tela e cada pedido fica com o histórico do cliente, sem se perder entre aplicativos.</blockquote>
           <figcaption>
-            <span class="depo__av" aria-hidden="true">HD<img src="/assets/images/depoimento-helena.webp" alt="" width="108" height="108" loading="lazy" onerror="this.remove()"></span>
+            <span class="story__av" aria-hidden="true">HD<img src="/assets/images/depoimento-helena.webp" alt="" width="108" height="108" loading="lazy" onerror="this.remove()"></span>
             <div><b>Helena, dona de confeitaria</b><span>Exemplo de uso</span></div>
           </figcaption>
         </figure>
 
-        <figure class="depo" data-scenario="clinica">
-          <div class="depo__metric"><b>Boas-vindas</b><span>automáticas, com opção de falar com uma pessoa</span></div>
+        <figure class="story" data-scenario="clinica">
+          <div class="story__metric"><b>Boas-vindas</b><span>automáticas, com opção de falar com uma pessoa</span></div>
           <blockquote>Rafael gerencia uma clínica. Um fluxo de boas-vindas no Builder responde as perguntas comuns e a recepção só entra quando o paciente pede para falar com uma pessoa.</blockquote>
           <figcaption>
-            <span class="depo__av" aria-hidden="true">RM<img src="/assets/images/depoimento-rafael.webp" alt="" width="108" height="108" loading="lazy" onerror="this.remove()"></span>
+            <span class="story__av" aria-hidden="true">RM<img src="/assets/images/depoimento-rafael.webp" alt="" width="108" height="108" loading="lazy" onerror="this.remove()"></span>
             <div><b>Rafael, gestor de clínica</b><span>Exemplo de uso</span></div>
           </figcaption>
         </figure>
 
-        <figure class="depo" data-scenario="loja">
-          <div class="depo__metric"><b>Histórico</b><span>do cliente à vista de toda a equipe</span></div>
+        <figure class="story" data-scenario="loja">
+          <div class="story__metric"><b>Histórico</b><span>do cliente à vista de toda a equipe</span></div>
           <blockquote>Camila lidera o atendimento de uma rede de lojas. Cada atendente vê o histórico do cliente e ela acompanha filas e tempos no painel de gestão, sem pedir relatório para ninguém.</blockquote>
           <figcaption>
-            <span class="depo__av" aria-hidden="true">CA<img src="/assets/images/depoimento-camila.webp" alt="" width="108" height="108" loading="lazy" onerror="this.remove()"></span>
+            <span class="story__av" aria-hidden="true">CA<img src="/assets/images/depoimento-camila.webp" alt="" width="108" height="108" loading="lazy" onerror="this.remove()"></span>
             <div><b>Camila, líder de atendimento</b><span>Exemplo de uso</span></div>
           </figcaption>
         </figure>
       </div>
-      <p class="mark-ph">Cenários ilustrativos, com personagens fictícios, criados para mostrar o dia a dia.</p>
     </div>
   </section>
 
@@ -664,6 +608,6 @@
 <script src="/assets/site.js" defer></script>
 <script src="/assets/landing.js" defer></script>
 <!-- Pipe Chat. Before launch: allow the origin https://pipebr.app in the channel settings (see PLACEHOLDERS.md). -->
-<script src="https://andersonslnu33-mnw60.pipebr.app/pipe-chat.js" data-key="82471ecc5c4ed1a2c84d59677e87ec3e" data-specialist="Falar com um especialista" async></script>
+<script src="https://andersonslnu33-mnw60.pipebr.app/pipe-chat.js" data-key="82471ecc5c4ed1a2c84d59677e87ec3e" async></script>
 </body>
 </html>
