@@ -55,7 +55,7 @@ export async function fireInputExpiration(tenantId: string, executionId: string)
     const { stateId, expiresAt } = armed;
     const { rows: details } = await tx.execute<Omit<ClaimedExpiration, 'stateId' | 'expiresAt'>>(sql`
       select e.conversa_id as "conversationId", coalesce(e.contato_id, c.contato_id) as "contactId",
-             f.canal_id as "channelId", i.id as "inboxId",
+             i.canal_id as "channelId", i.id as "inboxId",
              c.fila_id as "queueId", c.atendente_id as "agentId", i.fila_padrao_id as "queueDefaultId",
              coalesce(c.estado in ${sql.raw(SQL_STATES_CLOSED)}, false) as closed
         from execucao_fluxo e

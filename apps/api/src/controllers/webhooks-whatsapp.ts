@@ -62,7 +62,7 @@ export class WhatsAppWebhookController {
     }
 
     // Enqueue and respond. Processing inside the request would cause Meta to retry.
-    await enqueueInbound(canalId, requisicao.body);
+    await enqueueInbound(canalId, keepChangesOfNumber(requisicao.body, canal.numberId));
     return { recebido: true };
   }
 
@@ -126,26 +126,61 @@ interface InboundIdentified {
 }
 
 /**
- * Split a Meta payload into one item per `entry`, each carrying an identifier to find its owner. One POST can contain entries from several customers on this route. Treating the batch as one would enqueue one customer's event for another, a cross-tenant leak that the per-channel route avoids.
+ * Split a Meta payload into one item per (`entry`, `phone_number_id`). One POST can contain entries from several customers on this route, and one WABA entry can hold changes for several numbers. Treating the batch, or the entry, as one would enqueue one number's event on another number's channel, a cross-router and cross-tenant leak. Changes without a `phone_number_id` (WABA-level events) stay together in an entry-level item.
  */
 export function identificarEntradas(corpo: unknown): InboundIdentified[] {
   const raiz = corpo as { entry?: unknown[] } | undefined;
   if (!Array.isArray(raiz?.entry)) return [];
 
-  return raiz.entry.map((entrada) => {
-    const e = entrada as {
-      id?: string;
-      changes?: { value?: { metadata?: { phone_number_id?: string } } }[];
-    };
-    const numeroId = e.changes?.find((c) => c.value?.metadata?.phone_number_id)?.value?.metadata
-      ?.phone_number_id;
-    return {
-      wabaId: e.id,
-      numberId: numeroId,
-      // Rewrap with exactly one `entry`; downstream processing expects Meta's payload shape.
-      body: { object: 'whatsapp_business_account', entry: [entrada] },
-    };
+  const items: InboundIdentified[] = [];
+  for (const entrada of raiz.entry) {
+    const e = entrada as { id?: string; changes?: unknown[] };
+    const groups = new Map<string | undefined, unknown[]>();
+    for (const change of Array.isArray(e.changes) ? e.changes : []) {
+      const numberId = numberIdOfChange(change);
+      groups.set(numberId, [...(groups.get(numberId) ?? []), change]);
+    }
+    if (groups.size === 0) groups.set(undefined, []);
+    for (const [numberId, changes] of groups) {
+      items.push({
+        wabaId: e.id,
+        numberId,
+        // Rewrap with exactly one `entry`; downstream processing expects Meta's payload shape.
+        body: {
+          object: 'whatsapp_business_account',
+          entry: [Array.isArray(e.changes) ? { ...e, changes } : e],
+        },
+      });
+    }
+  }
+  return items;
+}
+
+function numberIdOfChange(change: unknown): string | undefined {
+  return (change as { value?: { metadata?: { phone_number_id?: string } } } | undefined)?.value?.metadata
+    ?.phone_number_id;
+}
+
+/**
+ * Keep, on a channel's own route, only the changes addressed to its number. A change for another `phone_number_id` is dropped instead of being processed as this channel's own; changes with no `phone_number_id` are kept.
+ */
+export function keepChangesOfNumber(corpo: unknown, numberId: string | null | undefined): unknown {
+  const raiz = corpo as { entry?: unknown[] } | undefined;
+  if (!numberId || !Array.isArray(raiz?.entry)) return corpo;
+  const entry = raiz.entry.map((entrada) => {
+    const e = entrada as { changes?: unknown[] };
+    if (!Array.isArray(e.changes)) return entrada;
+    const changes = e.changes.filter((change) => {
+      const found = numberIdOfChange(change);
+      if (found && found !== numberId) {
+        console.warn(`[webhook] change for number ${found} arrived on the channel of number ${numberId}: discarded`);
+        return false;
+      }
+      return true;
+    });
+    return { ...e, changes };
   });
+  return { ...raiz, entry };
 }
 
 export function assinaturaConfere(

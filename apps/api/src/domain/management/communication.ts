@@ -1,10 +1,11 @@
 import { and, asc, count, eq, ilike, ne } from 'drizzle-orm';
-import { block, channel, flow, respostaPronta, templateMessage } from '@pipe/db/schema';
+import { block, channel, respostaPronta, templateMessage } from '@pipe/db/schema';
 import type { CATEGORIAS_TEMPLATE } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { requirePermission } from '../../session.js';
+import { linkedChannelIdsOfFlow } from '../channel-links.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
@@ -207,12 +208,7 @@ export async function loadChannelOfFlow(
   flowId: string,
 ): Promise<string | null> {
   return consultar(tx, async (tx) => {
-    const [bot] = await tx
-      .select({ canalId: flow.channelId })
-      .from(flow)
-      .where(and(eq(flow.id, flowId), eq(flow.tenantId, tid)))
-      .limit(1);
-    return bot?.canalId ?? null;
+    return (await linkedChannelIdsOfFlow(tx, tid, flowId))[0] ?? null;
   });
 }
 

@@ -35,6 +35,8 @@ export interface ChannelResolved {
   tenantId: string;
   type: string;
   active: boolean;
+  /** WhatsApp `phone_number_id` the channel owns (`canal.numero_id`); null for other channel types. */
+  numberId?: string | null;
   config: Record<string, unknown>;
 }
 
@@ -62,8 +64,9 @@ export async function resolveChannel(canalId: string): Promise<ChannelResolved |
     tenant_id: string;
     tipo: string;
     ativo: boolean;
+    numero_id: string | null;
     config: Record<string, unknown> | null;
-  }>(sql`select id, tenant_id, tipo, ativo, config from canal where id = ${canalId} limit 1`);
+  }>(sql`select id, tenant_id, tipo, ativo, numero_id, config from canal where id = ${canalId} limit 1`);
 
   const linha = rows[0];
   if (!linha) return null;
@@ -72,6 +75,7 @@ export async function resolveChannel(canalId: string): Promise<ChannelResolved |
     tenantId: linha.tenant_id,
     type: linha.tipo,
     active: linha.ativo,
+    numberId: linha.numero_id,
     // Decrypt only once here; the rest of the code still reads
     // `config.tokenAcesso` como sempre leu. O segredo vive cifrado no banco e em
     // the plaintext only in the memory of code that needs it; see `packages/db/src/segredo.ts`.
