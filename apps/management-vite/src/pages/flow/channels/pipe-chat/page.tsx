@@ -242,6 +242,9 @@ function Formulario({ channel }: { channel: WidgetChannel }) {
         placeholder="https://www.seusite.com.br"
         onChange={(e) => setOrigins(e.target.value)}
       />
+      <span className="pcc-ajuda">
+        Só os sites desta lista podem abrir o chat. Use o endereço completo, com https://.
+      </span>
       {parsed.invalid.length ? (
         <Etiqueta tom="erro">Endereços inválidos: {parsed.invalid.join(', ')}</Etiqueta>
       ) : null}
@@ -271,7 +274,11 @@ function Formulario({ channel }: { channel: WidgetChannel }) {
         {feedback ? <Etiqueta tom={feedback.tone}>{feedback.text}</Etiqueta> : null}
       </div>
 
-      <span className="pcc-rotulo">Código para colar no seu site</span>
+      <hr className="pcc-divisoria" />
+      <span className="pcc-rotulo pcc-rotulo-secao">Código para colar no seu site</span>
+      <span className="pcc-ajuda">
+        Cole antes do fechamento de &lt;/body&gt; nas páginas onde o chat deve aparecer. A conversa chega ao atendimento deste bot.
+      </span>
       <pre className="pcc-codigo" tabIndex={0}>
         {snippet}
       </pre>

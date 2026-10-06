@@ -52,6 +52,26 @@
 .pcc-ajuda {
   font-size: 12px;
   font-weight: 400;
+  color: var(--ink-2, #5f5d55);
+}
+
+/* Every field of the form takes the same width, whether it is the textarea or a single-line input. */
+.pcc-coluna input:not([type='checkbox']):not([type='radio']),
+.pcc-coluna textarea {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.pcc-divisoria {
+  width: 100%;
+  margin: 24px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line, rgba(0, 0, 0, 0.12));
+}
+
+.pcc-rotulo-secao {
+  margin-top: 16px;
+  font-size: 16px;
 }
 
 .pcc-acoes {

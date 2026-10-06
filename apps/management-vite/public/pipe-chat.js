@@ -86,6 +86,8 @@
     '.pc-launcher{position:fixed;right:16px;bottom:16px;width:56px;height:56px;border-radius:50%;border:0;background:var(--pc-moss);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:2147483646}',
     '.pc-launcher:focus-visible,.pc-close:focus-visible,.pc-send:focus-visible,.pc-retry:focus-visible{outline:2px solid var(--pc-moss);outline-offset:2px}',
     '.pc-launcher svg{width:24px;height:24px;fill:#fff}',
+    // The explicit display rules below would otherwise beat the `hidden` attribute (the offline banner showed even when connected).
+    '[hidden]{display:none!important}',
     '.pc-panel{position:fixed;right:16px;bottom:88px;width:360px;height:520px;max-height:calc(100vh - 104px);display:none;flex-direction:column;background:var(--pc-surface);border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:2147483647}',
     '.pc-panel.pc-open{display:flex}',
     '.pc-full .pc-panel{right:0;bottom:0;width:100vw;height:100vh;max-height:none;border-radius:0}',
