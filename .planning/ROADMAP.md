@@ -386,10 +386,10 @@ Plans:
 **Goal:** The owner's 13-point request round (UI bugs, Blip parity, audits) is delivered against real Blip evidence: each point has a findings entry, a test-covered fix or audit report, and one atomic commit; unproven Blip details are listed for owner re-test.
 **Requirements**: P01..P13 (owner points in 03.3-OWNER-REQUEST.md)
 **Depends on:** Phase 3
-**Plans:** 14 plans
+**Plans:** 1/14 plans executed
 
 Plans:
-- [ ] 03.3-01-PLAN.md — findings ledger; P01 CSS collision guard; P12 monitoring agent-link regression test
+- [x] 03.3-01-PLAN.md — findings ledger; P01 CSS collision guard; P12 monitoring agent-link regression test
 - [ ] 03.3-02-PLAN.md — P07 router contacts show channel identity
 - [ ] 03.3-03-PLAN.md — P03 team card wired + contract/router/flow user-management investigation
 - [ ] 03.3-04-PLAN.md — P02 org switcher: multi-tenant tests, accessible menu, active org marker
