@@ -327,3 +327,81 @@ describe('List sends from the last 72 hours with delivery status', () => {
     expect(corpo.maxContactsByTrigger).toBe(15);
   });
 });
+
+describe('Active messages follow the WhatsApp template settings', () => {
+  async function newTemplate(name: string, category: string, status: string, active: boolean, channelId = cenario.channelId) {
+    const { rows } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, corpo,
+                                     status_meta, cabecalho_tipo, ativo)
+      values (${cenario.tenantId}, ${channelId}, ${name}, 'pt_BR', ${category},
+              'oi', ${status}, 'nenhum', ${active})
+      returning id
+    `);
+    return rows[0]!.id;
+  }
+
+  it('template_inativo: refuses an approved template that is switched off', async () => {
+    const id = await newTemplate(`inativo_${randomUUID().slice(0, 6)}`, 'utilidade', 'aprovado', false);
+    const r = await disparar({ template_id: id, contacts: [{ phone: telefoneNovo() }] });
+    expect(r.status).toBe(409);
+    expect(JSON.stringify(await r.json())).toContain('template_inativo');
+  });
+
+  it('template_nao_aprovado: refuses a pending template with the matching code', async () => {
+    const id = await newTemplate(`pendente_${randomUUID().slice(0, 6)}`, 'marketing', 'pendente', true);
+    const r = await disparar({ template_id: id, contacts: [{ phone: telefoneNovo() }] });
+    expect(r.status).toBe(409);
+    expect(JSON.stringify(await r.json())).toContain('template_nao_aprovado');
+  });
+
+  it('stores the billing category (categoria) of the template on the message', async () => {
+    for (const category of ['marketing', 'utilidade', 'autenticacao']) {
+      const id = await newTemplate(`cat_${category}_${randomUUID().slice(0, 6)}`, category, 'aprovado', true);
+      const r = await disparar({ template_id: id, contacts: [{ phone: telefoneNovo() }] });
+      const { data } = (await r.json()) as { data: { enviada: boolean; mensagem_id: string }[] };
+      expect(data[0]!.enviada).toBe(true);
+      const { rows } = await cenario.dono.execute<{ categoria: string | null }>(
+        sql`select categoria_cobranca as categoria from mensagem where id = ${data[0]!.mensagem_id}::uuid`,
+      );
+      expect(rows[0]?.categoria).toBe(category);
+    }
+  });
+
+  it('sends through a router extra channel (roteador_canal) when the router has no own channel', async () => {
+    const suffix = randomUUID().slice(0, 6);
+    const one = async <T extends Record<string, unknown>>(q: ReturnType<typeof sql>) =>
+      (await cenario.dono.execute<T>(q)).rows[0]!;
+    const extra = await one<{ id: string }>(sql`
+      insert into canal (tenant_id, tipo, nome, config)
+      values (${cenario.tenantId}, 'whatsapp_cloud', ${`Extra ${suffix}`}, ${JSON.stringify({
+        phoneNumberId: `extra-${suffix}`,
+        tokenAcesso: 'token-falso',
+      })}::jsonb) returning id`);
+    const router = await one<{ id: string }>(sql`
+      insert into fluxo (tenant_id, nome, short_name, tipo, canal_id)
+      values (${cenario.tenantId}, ${`Router ${suffix}`}, ${`rt${suffix}`}, 'roteador', null) returning id`);
+    const queue = await one<{ id: string }>(
+      sql`insert into fila (tenant_id, fluxo_id, nome) values (${cenario.tenantId}, ${router.id}, ${`Fila ${suffix}`}) returning id`,
+    );
+    await cenario.dono.execute(sql`
+      insert into inbox (tenant_id, canal_id, nome, fila_padrao_id)
+      values (${cenario.tenantId}, ${extra.id}, 'Entrada extra', ${queue.id})`);
+    await cenario.dono.execute(sql`
+      insert into roteador_canal (tenant_id, roteador_id, canal_id) values (${cenario.tenantId}, ${router.id}, ${extra.id})`);
+    const id = await newTemplate(`router_${suffix}`, 'utilidade', 'aprovado', true, extra.id);
+
+    const r = await fetch(`${api.url}/v1/messages-active`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
+      body: JSON.stringify({ channelId: extra.id, template_id: id, contacts: [{ phone: telefoneNovo() }] }),
+    });
+    const { data } = (await r.json()) as { data: { enviada: boolean; mensagem_id: string; motivo?: string }[] };
+    expect(data[0]!.enviada).toBe(true);
+    const { rows } = await cenario.dono.execute<{ state: string; fila: string }>(sql`
+      select o.estado as state, c.fila_id as fila
+        from outbox_mensagem o join mensagem m on m.id = o.mensagem_id join conversa c on c.id = m.conversa_id
+       where o.mensagem_id = ${data[0]!.mensagem_id}::uuid`);
+    expect(rows[0]?.state).toBe('pendente');
+    expect(rows[0]?.fila).toBe(queue.id);
+  });
+});

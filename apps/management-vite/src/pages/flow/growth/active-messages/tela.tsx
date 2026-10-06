@@ -5,7 +5,7 @@ import { SearchIcon, IconePortal } from '@pipe/ui/icones-portal';
 import { Select } from '@pipe/ui/select';
 import { useRead } from '../../../../lib/query';
 import type { DataOfGrowth, EnvioGrowth } from '@pipe/contracts';
-import { analisarCsv, filtrarEnvios } from '../regras';
+import { SEND_BLOCK_MESSAGE, analisarCsv, filtrarEnvios, sendBlockReason } from '../regras';
 import type { DestinationCsv } from '../regras';
 import { triggerActiveMessages, rotuloDeRecusa } from './disparo';
 import type { TriggerDestination, LimitesDeDisparo, RespostaDoDisparo } from './disparo';
@@ -47,9 +47,13 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
     (template) =>
       template.channelId === channelId &&
       template.category === categoria &&
-      template.statusMeta === 'aprovado',
+      template.statusMeta === 'aprovado' &&
+      template.active,
   );
   const templateSelected = data.modelos.find((template) => template.id === templateId);
+  const blockReason = templateSelected
+    ? sendBlockReason({ templateStatus: templateSelected.statusMeta, active: templateSelected.active })
+    : null;
   const envios = useMemo(() => filtrarEnvios(data.envios, search, 'todos'), [data.envios, search]);
 
   function openCreation() {
@@ -261,7 +265,10 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                         type="radio"
                         name="canal"
                         checked={channelId === channel.id}
-                        onChange={() => setChannelId(channel.id)}
+                        onChange={() => {
+                          setChannelId(channel.id);
+                          setTemplateId('');
+                        }}
                       />
                       <span>{channel.name}</span>
                     </label>
@@ -436,6 +443,11 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
                 )}
               </div>
             ) : null}
+            {blockReason ? (
+              <p className="gw-aviso-ochre" role="alert">
+                {SEND_BLOCK_MESSAGE[blockReason]}
+              </p>
+            ) : null}
             {aviso ? (
               <p className="gr-aviso" role="alert">
                 {aviso}
@@ -471,7 +483,7 @@ export function ActiveMessagesScreen({ data }: { data: DataOfGrowth }) {
               <button
                 className="gr-botao gr-botao-primario"
                 type="button"
-                disabled={enviando}
+                disabled={enviando || blockReason !== null}
                 onClick={() => void enviarAgora()}
               >
                 {enviando ? 'Enviando…' : 'Enviar agora'}

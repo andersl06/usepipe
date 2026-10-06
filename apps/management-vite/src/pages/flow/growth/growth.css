@@ -1127,3 +1127,11 @@
     gap: 16px 0;
   }
 }
+.gw-aviso-ochre {
+  color: var(--ochre);
+  background: var(--ochre-soft);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}

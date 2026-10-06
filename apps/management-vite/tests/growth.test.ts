@@ -54,3 +54,24 @@ describe('Growth — bulk audience (CSV)', () => {
     ]);
   });
 });
+
+import { sendBlockReason } from '../src/pages/flow/growth/regras';
+
+describe('sendBlockReason', () => {
+  it('blocks templates that are not approved', () => {
+    assert.equal(sendBlockReason({ templateStatus: 'PENDING', windowOpen: true }), 'template_not_approved');
+    assert.equal(sendBlockReason({ templateStatus: 'pendente' }), 'template_not_approved');
+  });
+  it('blocks inactive templates', () => {
+    assert.equal(sendBlockReason({ templateStatus: 'APPROVED', active: false }), 'template_inactive');
+  });
+  it('blocks free text outside the 24 h window', () => {
+    assert.equal(
+      sendBlockReason({ templateStatus: 'APPROVED', active: true, freeText: true, windowOpen: false }),
+      'window_expired',
+    );
+  });
+  it('allows a valid template', () => {
+    assert.equal(sendBlockReason({ templateStatus: 'aprovado', active: true }), null);
+  });
+});

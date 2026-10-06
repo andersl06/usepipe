@@ -36,3 +36,29 @@ export function analisarCsv(texto: string): DestinationCsv[] {
     })
     .filter((destination) => destination.telefone);
 }
+
+export type SendBlockReason = 'template_not_approved' | 'template_inactive' | 'window_expired';
+
+export interface SendBlockInput {
+  templateStatus: string;
+  /** Undefined means the flag is unknown and does not block. */
+  active?: boolean;
+  /** Free text needs the 24 h window; templates never do. */
+  freeText?: boolean;
+  windowOpen?: boolean;
+}
+
+/** Why a send must be blocked in the UI; the server enforces the same rules. */
+export function sendBlockReason(input: SendBlockInput): SendBlockReason | null {
+  const approved = input.templateStatus === 'APPROVED' || input.templateStatus === 'aprovado';
+  if (!approved) return 'template_not_approved';
+  if (input.active === false) return 'template_inactive';
+  if (input.freeText && input.windowOpen === false) return 'window_expired';
+  return null;
+}
+
+export const SEND_BLOCK_MESSAGE: Record<SendBlockReason, string> = {
+  template_not_approved: 'Modelo não aprovado pela Meta.',
+  template_inactive: 'Modelo inativo.',
+  window_expired: 'Janela de 24 h encerrada: envie um modelo aprovado.',
+};

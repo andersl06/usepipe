@@ -1,5 +1,6 @@
 import { useRead } from '../../../../lib/query';
 import type { DataOfGrowth } from '@pipe/contracts';
+import { TabelaCarregando, TabelaErro } from '../../../../components/estados-tabela';
 import { useContact } from '../../contact';
 import { ActiveMessagesScreen } from './tela';
 
@@ -7,6 +8,7 @@ import { ActiveMessagesScreen } from './tela';
 export function PageActiveMessages() {
   const { contact } = useContact();
   const read = useRead<DataOfGrowth>(`/v1/management/flows/${contact.id}/growth`);
-  if (!read.data) return null;
+  if (read.isError) return <TabelaErro aoTentar={() => void read.refetch()} />;
+  if (!read.data) return <TabelaCarregando />;
   return <ActiveMessagesScreen data={read.data} />;
 }

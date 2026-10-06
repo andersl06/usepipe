@@ -315,6 +315,7 @@ export interface EnvioGrowth {
 
 export interface TemplateGrowth {
   id: string;
+  active: boolean;
   name: string;
   idioma: string;
   category: string;
@@ -354,6 +355,7 @@ export async function carregarGrowth(tx: TransactionPipe, tid: string): Promise<
   const modelos = await tx
     .select({
       id: templateMessage.id,
+      active: templateMessage.ativo,
       name: templateMessage.nome,
       idioma: templateMessage.idioma,
       category: templateMessage.categoria,

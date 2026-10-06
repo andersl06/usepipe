@@ -4,6 +4,7 @@ import { Illustration } from '@pipe/ui';
 import { IconePortal } from '@pipe/ui/icones-portal';
 import { useRead } from '../../../../lib/query';
 import { numero } from '../../../../lib/format';
+import { TabelaCarregando, TabelaErro } from '../../../../components/estados-tabela';
 import { useContact } from '../../contact';
 import { createLinkTracked } from './gravar';
 import type { LinkRastreado, Resultado } from './data';
@@ -134,7 +135,11 @@ export default function PageTrackedLinks() {
       </header>
 
       <section className="gr-lista">
-        {links.length ? (
+        {read.isError ? (
+          <TabelaErro aoTentar={() => void read.refetch()} />
+        ) : read.isLoading ? (
+          <TabelaCarregando colunas={5} />
+        ) : links.length ? (
           <div className="gr-table-scroll">
             <table>
               <thead>

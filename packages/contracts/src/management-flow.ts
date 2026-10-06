@@ -149,6 +149,7 @@ export interface EnvioGrowth {
 
 export interface TemplateGrowth {
   id: string;
+  active: boolean;
   name: string;
   idioma: string;
   category: string;
